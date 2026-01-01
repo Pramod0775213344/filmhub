@@ -52,7 +52,7 @@ async function HomeContent({ search, category }) {
     return <div>Error loading movies</div>;
   }
 
-  const featuredMovies = movies.filter(m => m.is_featured);
+  const featuredMovies = movies.slice(0, 5);
   const trendingMovies = movies.slice(0, 6);
   const newReleases = movies.slice(0, 8); 
   const actionMovies = movies.filter(m => m.category === "Action" || m.category === "Sci-Fi");

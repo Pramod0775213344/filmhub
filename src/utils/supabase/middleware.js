@@ -31,25 +31,31 @@ export async function updateSession(request) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Protect routes
-  if (
-    !user &&
-    (request.nextUrl.pathname.startsWith('/admin') ||
-     request.nextUrl.pathname.startsWith('/profile') ||
-     request.nextUrl.pathname.startsWith('/my-list'))
-  ) {
-    // This is a protected route, and the user is not logged in.
-    // Redirect them to the login page.
+  const isAuthProtected = 
+    request.nextUrl.pathname.startsWith('/profile') ||
+    request.nextUrl.pathname.startsWith('/my-list');
+  
+  const isAdminProtected = request.nextUrl.pathname.startsWith('/admin');
+
+  // 1. General Auth Protection
+  if (!user && (isAuthProtected || isAdminProtected)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
-    
-    // We must pass the cookies from supabaseResponse to the redirect response
     const redirectResponse = NextResponse.redirect(url)
-    
-    // Copy all cookies from supabaseResponse to redirectResponse
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie.name, cookie.value, cookie.options)
     })
-    
+    return redirectResponse
+  }
+
+  // 2. Strict Admin Email Protection
+  if (isAdminProtected && user?.email !== 'admin@gmail.com') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    const redirectResponse = NextResponse.redirect(url)
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, cookie.options)
+    })
     return redirectResponse
   }
 

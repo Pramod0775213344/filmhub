@@ -36,7 +36,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-1">Email Us</h3>
-                  <p className="font-bold text-white">support@filmhub.com</p>
+                  <p className="font-bold text-white">pramodravishanka3344@gmail.com</p>
                 </div>
               </div>
 
@@ -46,7 +46,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-1">Call Us</h3>
-                  <p className="font-bold text-white">+1 (555) 123-4567</p>
+                  <p className="font-bold text-white">0775213344</p>
                 </div>
               </div>
 

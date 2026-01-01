@@ -69,7 +69,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 border-t border-zinc-800 pt-8 text-center text-xs">
-          <p>&copy; {new Date().getFullYear()} FilmHub Inc. This is a cinematic demonstration platform.</p>
+          <p>&copy; {new Date().getFullYear()} FilmHub Inc. Design by Pramod Ravisanka.</p>
         </div>
       </div>
     </footer>

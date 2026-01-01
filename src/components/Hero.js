@@ -1,6 +1,6 @@
 "use client";
 
-import { Play, Info, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Info, ChevronLeft, ChevronRight, Star, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 export default function Hero({ featuredMovies }) {
@@ -60,12 +60,7 @@ export default function Hero({ featuredMovies }) {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="max-w-3xl space-y-10"
             >
-              <div className="flex items-center gap-3">
-                <span className="rounded-full bg-primary/20 px-4 py-1.5 text-xs font-black tracking-[0.2em] text-primary backdrop-blur-md border border-primary/20">
-                  {featuredMovies[current].tag}
-                </span>
-              </div>
-
+             
               <motion.h1 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -82,7 +77,16 @@ export default function Hero({ featuredMovies }) {
               <p className="max-w-xl text-lg font-medium leading-relaxed text-zinc-400 md:text-xl">
                 {featuredMovies[current].description}
               </p>
-
+ <div className="flex items-center gap-3">
+                <span className="flex items-center gap-2 rounded-full bg-yellow-500/10 px-6 py-2.5 text-sm font-black tracking-widest text-yellow-500 backdrop-blur-md border border-yellow-500/20">
+                  <Star size={18} fill="currentColor" />
+                  IMDb {featuredMovies[current].imdb_rating || "N/A"}
+                </span>
+                <span className="flex items-center gap-2 rounded-full bg-white/10 px-6 py-2.5 text-sm font-black tracking-widest text-white backdrop-blur-md border border-white/10">
+                  <Calendar size={18} />
+                  {featuredMovies[current].year}
+                </span>
+              </div>
               <div className="flex flex-wrap items-center gap-6 pt-6">
                 <button className="cinematic-glow group relative flex items-center gap-4 overflow-hidden rounded-full bg-primary px-12 py-5 text-lg font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95">
                   <Play size={24} fill="currentColor" />

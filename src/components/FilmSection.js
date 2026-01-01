@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 
 export default function FilmSection({ title, movies }) {
   return (
-    <section>
+    <section className="mt-20">
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-2xl font-black tracking-tight text-white md:text-3xl lg:text-4xl">
