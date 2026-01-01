@@ -1,0 +1,333 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { Plus, Trash2, Edit2, Search, X, Loader2, Star, Calendar, Tag, Users, ImageIcon, LayoutGrid } from "lucide-react";
+
+export default function AdminDashboard() {
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingMovie, setEditingMovie] = useState(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    image_url: "",
+    rating: "",
+    year: "",
+    category: "",
+    actors: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const supabase = createClient();
+
+  const fetchMovies = useCallback(async () => {
+    const { data, error } = await supabase.from("movies").select("*").order("created_at", { ascending: false });
+    if (!error) setMovies(data);
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadData = async () => {
+      await fetchMovies();
+    };
+    loadData();
+    return () => { isMounted = false; };
+  }, [fetchMovies]);
+
+  const handleOpenModal = (movie = null) => {
+    if (movie) {
+      setEditingMovie(movie);
+      setFormData({
+        title: movie.title,
+        description: movie.description,
+        image_url: movie.image_url,
+        rating: movie.rating,
+        year: movie.year,
+        category: movie.category,
+        actors: movie.actors ? movie.actors.join(", ") : "",
+      });
+    } else {
+      setEditingMovie(null);
+      setFormData({
+        title: "",
+        description: "",
+        image_url: "",
+        rating: "",
+        year: "",
+        category: "",
+        actors: "",
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const movieData = {
+      ...formData,
+      rating: parseFloat(formData.rating),
+      actors: formData.actors.split(",").map(s => s.trim()).filter(s => s),
+    };
+
+    if (editingMovie) {
+      const { error } = await supabase.from("movies").update(movieData).eq("id", editingMovie.id);
+      if (!error) {
+        setIsModalOpen(false);
+        fetchMovies();
+      }
+    } else {
+      const { error } = await supabase.from("movies").insert([movieData]);
+      if (!error) {
+        setIsModalOpen(false);
+        fetchMovies();
+      }
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (confirm("Are you sure you want to delete this movie?")) {
+      const { error } = await supabase.from("movies").delete().eq("id", id);
+      if (!error) fetchMovies();
+    }
+  };
+
+  if (loading) return (
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <Loader2 className="animate-spin text-primary" size={48} />
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container-custom space-y-12">
+        {/* Header */}
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl">
+              Admin <span className="text-primary italic">Dashboard</span>
+            </h1>
+            <p className="mt-2 font-medium text-zinc-500">Manage your cinematic collection.</p>
+          </div>
+          <button 
+            onClick={() => handleOpenModal()}
+            className="cinematic-glow flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
+          >
+            <Plus size={20} />
+            <span>Add New Movie</span>
+          </button>
+        </div>
+
+        {/* Search & Stats Bar */}
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+          <div className="relative flex-grow">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search movies..." 
+              className="w-full rounded-2xl bg-zinc-900/50 py-4 pl-12 pr-4 text-white outline-none ring-1 ring-white/10 focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+          <div className="flex items-center gap-4 text-sm font-bold text-zinc-400 px-4">
+            <LayoutGrid size={18} className="text-primary" />
+            <span>{movies.length} Movies Found</span>
+          </div>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <AnimatePresence>
+            {movies.map((movie) => (
+              <motion.div
+                key={movie.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="group relative overflow-hidden rounded-2xl bg-zinc-900/50 p-4 ring-1 ring-white/10 transition-all hover:bg-zinc-900 hover:ring-white/20"
+              >
+                <div className="relative aspect-[2/3] overflow-hidden rounded-xl">
+                  <Image src={movie.image_url || movie.image || "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop"} alt={movie.title} fill className="object-cover transition-transform group-hover:scale-105" />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black p-4">
+                    <h3 className="font-display text-lg font-black text-white">{movie.title}</h3>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-zinc-500">
+                    <Star size={12} className="text-primary" fill="currentColor" />
+                    <span>{movie.rating}</span>
+                    <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                    <span>{movie.year}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleOpenModal(movie)} className="rounded-lg bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white">
+                      <Edit2 size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(movie.id)} className="rounded-lg bg-primary/10 p-2 text-primary transition-colors hover:bg-primary/20">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl" 
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="glass relative w-full max-w-2xl overflow-hidden rounded-3xl p-8 shadow-2xl md:p-12"
+            >
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute right-6 top-6 rounded-full bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+
+              <h2 className="font-display text-3xl font-black text-white">
+                {editingMovie ? "Update" : "Add New"} <span className="text-primary italic">Movie</span>
+              </h2>
+
+              <form onSubmit={handleSubmit} className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <Tag size={12} />
+                    Movie Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <Star size={12} />
+                    Rating (0-10)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    required
+                    value={formData.rating}
+                    onChange={(e) => setFormData({...formData, rating: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <Calendar size={12} />
+                    Release Year
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.year}
+                    onChange={(e) => setFormData({...formData, year: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <Plus size={12} />
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.category}
+                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <ImageIcon size={12} />
+                    Poster URL (TMDB Path)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.image_url}
+                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                    placeholder="https://image.tmdb.org/t/p/..."
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <Users size={12} />
+                    Actors (Comma separated)
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.actors}
+                    onChange={(e) => setFormData({...formData, actors: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                    placeholder="David Corenswet, Rachel Brosnahan..."
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Description</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50 resize-none"
+                  />
+                </div>
+
+                <div className="flex gap-4 md:col-span-2">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="cinematic-glow flex-grow rounded-2xl bg-primary py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-[0.98] disabled:opacity-50 flex justify-center items-center"
+                  >
+                    {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingMovie ? "Update Movie" : "Add Movie")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="hidden md:block rounded-2xl bg-white/5 px-8 py-4 text-sm font-black uppercase tracking-widest text-zinc-400 transition-all hover:bg-white/10 hover:text-white ring-1 ring-white/10"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

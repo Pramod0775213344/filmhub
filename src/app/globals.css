@@ -1,26 +1,94 @@
 @import "tailwindcss";
-
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap'); */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050505;
+  --foreground: #fafafa;
+  --primary: #e50914;
+  --primary-hover: #b20710;
+  --secondary: #141414;
+  --accent: #ff0a16;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: 'Inter', var(--font-geist-sans), sans-serif;
+  --font-display: 'Outfit', sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container-custom {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1.5rem; /* Mobile padding (all sides) */
+}
+
+@media (min-width: 768px) {
+  .container-custom {
+    padding: 3rem; /* Tablet padding */
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding: 4rem; /* Desktop padding */
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-custom {
+    padding: 5rem; /* Large Desktop padding */
+  }
+}
+
+.glass {
+  background: rgba(2, 2, 2, 0.6);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cinematic-glow {
+  box-shadow: 0 0 50px -10px rgba(229, 9, 20, 0.3);
+}
+
+.text-gradient {
+  background: linear-gradient(to bottom right, #fff 30%, rgba(255, 255, 255, 0.5));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.movie-card-gradient {
+  background: linear-gradient(to top, rgba(2, 2, 2, 0.95) 0%, rgba(2, 2, 2, 0.4) 50%, transparent 100%);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
 }
