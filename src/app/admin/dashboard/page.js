@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Plus, Trash2, Edit2, Search, X, Loader2, Star, Calendar, Tag, Users, ImageIcon, LayoutGrid, Globe } from "lucide-react";
+import { Plus, Trash2, Edit2, Search, X, Loader2, Star, Calendar, Tag, Users, ImageIcon, LayoutGrid, Globe, Video, Download } from "lucide-react";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -24,7 +24,17 @@ export default function AdminDashboard() {
     actors: "",
     is_featured: false,
     tag: "",
+    video_url: "",
+    download_url: "",
+    director: "",
+    country: "",
+    duration: "",
+    imdb_rating: "",
+    views: 0,
+    subtitle_author: "",
+    subtitle_site: "Cineru.LK",
   });
+  const [movieLinks, setMovieLinks] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const supabase = createClient();
@@ -73,9 +83,31 @@ export default function AdminDashboard() {
         tag: movie.tag || "",
         type: movie.type || "Movie",
         language: movie.language || "English",
+        video_url: movie.video_url || "",
+        download_url: movie.download_url || "",
+        director: movie.director || "",
+        country: movie.country || "",
+        duration: movie.duration || "",
+        imdb_rating: movie.imdb_rating || "",
+        views: movie.views || 0,
+        subtitle_author: movie.subtitle_author || "",
+        subtitle_site: movie.subtitle_site || "Cineru.LK",
       });
+      // Fetch links for the movie
+      const fetchLinks = async () => {
+        const { data, error } = await supabase.from("movie_links").select("*").eq("movie_id", movie.id);
+        if (!error && data && data.length > 0) {
+          setMovieLinks(data);
+        } else if (movie.download_url) {
+          setMovieLinks([{ provider: "Direct", quality: "HD", size: "Unknown", url: movie.download_url }]);
+        } else {
+          setMovieLinks([]);
+        }
+      };
+      fetchLinks();
     } else {
       setEditingMovie(null);
+      setMovieLinks([]);
       setFormData({
         title: "",
         description: "",
@@ -89,6 +121,15 @@ export default function AdminDashboard() {
         tag: "",
         type: "Movie",
         language: "English",
+        video_url: "",
+        download_url: "",
+        director: "",
+        country: "",
+        duration: "",
+        imdb_rating: "",
+        views: 0,
+        subtitle_author: "",
+        subtitle_site: "Cineru.LK",
       });
     }
     setIsModalOpen(true);
@@ -106,14 +147,35 @@ export default function AdminDashboard() {
     };
 
     if (editingMovie) {
-      const { error } = await supabase.from("movies").update(movieData).eq("id", editingMovie.id);
-      if (!error) {
+      const { data: movie, error } = await supabase.from("movies").update(movieData).eq("id", editingMovie.id).select().single();
+      if (!error && movie) {
+        // Update links
+        await supabase.from("movie_links").delete().eq("movie_id", movie.id);
+        if (movieLinks.length > 0) {
+          await supabase.from("movie_links").insert(movieLinks.map(l => ({
+            movie_id: movie.id,
+            provider: l.provider,
+            quality: l.quality,
+            size: l.size,
+            url: l.url
+          })));
+        }
         setIsModalOpen(false);
         fetchMovies();
       }
     } else {
-      const { error } = await supabase.from("movies").insert([movieData]);
-      if (!error) {
+      const { data: movie, error } = await supabase.from("movies").insert([movieData]).select().single();
+      if (!error && movie) {
+        // Insert links
+        if (movieLinks.length > 0) {
+          await supabase.from("movie_links").insert(movieLinks.map(l => ({
+            movie_id: movie.id,
+            provider: l.provider,
+            quality: l.quality,
+            size: l.size,
+            url: l.url
+          })));
+        }
         setIsModalOpen(false);
         fetchMovies();
       }
@@ -357,7 +419,94 @@ export default function AdminDashboard() {
                     value={formData.language}
                     onChange={(e) => setFormData({...formData, language: e.target.value})}
                     className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
-                    placeholder="English, Spanish, etc."
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <Video size={12} />
+                    Video Player URL (YouTube/Direct)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.video_url}
+                    onChange={(e) => setFormData({...formData, video_url: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                    placeholder="https://www.youtube.com/embed/..."
+                  />
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <Download size={12} />
+                    Download URL
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.download_url}
+                    onChange={(e) => setFormData({...formData, download_url: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                    placeholder="https://example.com/download/..."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Director</label>
+                  <input
+                    type="text"
+                    value={formData.director}
+                    onChange={(e) => setFormData({...formData, director: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Country</label>
+                  <input
+                    type="text"
+                    value={formData.country}
+                    onChange={(e) => setFormData({...formData, country: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Duration (e.g. 111 min)</label>
+                  <input
+                    type="text"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">IMDb Rating (e.g. 6.3)</label>
+                  <input
+                    type="text"
+                    value={formData.imdb_rating}
+                    onChange={(e) => setFormData({...formData, imdb_rating: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Subtitle Author</label>
+                  <input
+                    type="text"
+                    value={formData.subtitle_author}
+                    onChange={(e) => setFormData({...formData, subtitle_author: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Subtitle Site</label>
+                  <input
+                    type="text"
+                    value={formData.subtitle_site}
+                    onChange={(e) => setFormData({...formData, subtitle_site: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
                   />
                 </div>
 
@@ -397,6 +546,97 @@ export default function AdminDashboard() {
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                     className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50 resize-none"
                   />
+                </div>
+
+                {/* Movie Links Management */}
+                <div className="space-y-4 md:col-span-2 bg-white/5 p-6 rounded-3xl ring-1 ring-white/10 mt-4">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                    <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500">
+                      <Download size={12} />
+                      Download Links
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setMovieLinks([...movieLinks, { provider: "Pixeldrain", quality: "FHD 1080p", size: "", url: "" }])}
+                      className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors"
+                    >
+                      + Add Link
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {movieLinks.map((link, index) => (
+                      <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-black/30 p-4 rounded-2xl ring-1 ring-white/5">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-zinc-600 uppercase">Provider</label>
+                          <input 
+                            type="text" 
+                            value={link.provider} 
+                            onChange={(e) => {
+                              const newLinks = [...movieLinks];
+                              newLinks[index].provider = e.target.value;
+                              setMovieLinks(newLinks);
+                            }}
+                            className="w-full bg-zinc-900 rounded-lg p-2 text-xs text-white outline-none"
+                            placeholder="Pixeldrain"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-zinc-600 uppercase">Quality</label>
+                          <input 
+                            type="text" 
+                            value={link.quality} 
+                            onChange={(e) => {
+                              const newLinks = [...movieLinks];
+                              newLinks[index].quality = e.target.value;
+                              setMovieLinks(newLinks);
+                            }}
+                            className="w-full bg-zinc-900 rounded-lg p-2 text-xs text-white outline-none"
+                            placeholder="FHD 1080p"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black text-zinc-600 uppercase">Size</label>
+                          <input 
+                            type="text" 
+                            value={link.size} 
+                            onChange={(e) => {
+                              const newLinks = [...movieLinks];
+                              newLinks[index].size = e.target.value;
+                              setMovieLinks(newLinks);
+                            }}
+                            className="w-full bg-zinc-900 rounded-lg p-2 text-xs text-white outline-none"
+                            placeholder="2.74 GB"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="flex-1 space-y-2">
+                            <label className="text-[10px] font-black text-zinc-600 uppercase">URL</label>
+                            <input 
+                              type="text" 
+                              value={link.url} 
+                              onChange={(e) => {
+                                const newLinks = [...movieLinks];
+                                newLinks[index].url = e.target.value;
+                                setMovieLinks(newLinks);
+                              }}
+                              className="w-full bg-zinc-900 rounded-lg p-2 text-xs text-white outline-none"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setMovieLinks(movieLinks.filter((_, i) => i !== index))}
+                            className="rounded-lg bg-red-500/10 p-2 text-red-500 hover:bg-red-500/20"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {movieLinks.length === 0 && (
+                      <p className="text-center py-4 text-xs font-bold text-zinc-600 italic">No download links added</p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex gap-4 md:col-span-2">
