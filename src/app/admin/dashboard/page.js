@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { Plus, Trash2, Edit2, Search, X, Loader2, Star, Calendar, Tag, Users, ImageIcon, LayoutGrid } from "lucide-react";
+import { Plus, Trash2, Edit2, Search, X, Loader2, Star, Calendar, Tag, Users, ImageIcon, LayoutGrid, Globe } from "lucide-react";
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,12 +17,16 @@ export default function AdminDashboard() {
     title: "",
     description: "",
     image_url: "",
+    backdrop_url: "",
     rating: "",
     year: "",
     category: "",
     actors: "",
+    is_featured: false,
+    tag: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const supabase = createClient();
 
   const fetchMovies = useCallback(async () => {
@@ -30,13 +36,16 @@ export default function AdminDashboard() {
   }, [supabase]);
 
   useEffect(() => {
-    let isMounted = true;
-    const loadData = async () => {
+    const checkAuthAndLoad = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+        return;
+      }
       await fetchMovies();
     };
-    loadData();
-    return () => { isMounted = false; };
-  }, [fetchMovies]);
+    checkAuthAndLoad();
+  }, [fetchMovies, supabase, router]);
 
   const handleOpenModal = (movie = null) => {
     if (movie) {
@@ -45,10 +54,15 @@ export default function AdminDashboard() {
         title: movie.title,
         description: movie.description,
         image_url: movie.image_url,
-        rating: movie.rating,
+        backdrop_url: movie.backdrop_url || "",
+        rating: movie.rating.toString(),
         year: movie.year,
         category: movie.category,
         actors: movie.actors ? movie.actors.join(", ") : "",
+        is_featured: movie.is_featured || false,
+        tag: movie.tag || "",
+        type: movie.type || "Movie",
+        language: movie.language || "English",
       });
     } else {
       setEditingMovie(null);
@@ -56,10 +70,15 @@ export default function AdminDashboard() {
         title: "",
         description: "",
         image_url: "",
+        backdrop_url: "",
         rating: "",
         year: "",
         category: "",
         actors: "",
+        is_featured: false,
+        tag: "",
+        type: "Movie",
+        language: "English",
       });
     }
     setIsModalOpen(true);
@@ -131,6 +150,8 @@ export default function AdminDashboard() {
             <input 
               type="text" 
               placeholder="Search movies..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full rounded-2xl bg-zinc-900/50 py-4 pl-12 pr-4 text-white outline-none ring-1 ring-white/10 focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
             />
           </div>
@@ -143,7 +164,10 @@ export default function AdminDashboard() {
         {/* Grid */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <AnimatePresence>
-            {movies.map((movie) => (
+            {movies.filter(movie => 
+              movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              movie.category?.toLowerCase().includes(searchTerm.toLowerCase())
+            ).map((movie) => (
               <motion.div
                 key={movie.id}
                 layout
@@ -283,12 +307,68 @@ export default function AdminDashboard() {
 
                 <div className="space-y-2 md:col-span-2">
                   <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <ImageIcon size={12} />
+                    Backdrop URL
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.backdrop_url}
+                    onChange={(e) => setFormData({...formData, backdrop_url: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                    placeholder="https://image.tmdb.org/t/p/original/..."
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <LayoutGrid size={12} />
+                    Content Type
+                  </label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => setFormData({...formData, type: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                  >
+                    <option value="Movie" className="bg-zinc-900">Movie</option>
+                    <option value="TV Show" className="bg-zinc-900">TV Show</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
+                    <Globe size={12} />
+                    Language
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.language}
+                    onChange={(e) => setFormData({...formData, language: e.target.value})}
+                    className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"
+                    placeholder="English, Spanish, etc."
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 pt-6">
+                  <input
+                    type="checkbox"
+                    id="is_featured"
+                    checked={formData.is_featured}
+                    onChange={(e) => setFormData({...formData, is_featured: e.target.checked})}
+                    className="h-5 w-5 rounded border-white/10 bg-zinc-900 text-primary focus:ring-primary"
+                  />
+                  <label htmlFor="is_featured" className="text-sm font-bold text-white cursor-pointer uppercase tracking-widest">
+                    Featured
+                  </label>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">
                     <Users size={12} />
                     Actors (Comma separated)
                   </label>
                   <input
                     type="text"
-                    required
                     value={formData.actors}
                     onChange={(e) => setFormData({...formData, actors: e.target.value})}
                     className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10 transition-all focus:bg-zinc-900 focus:ring-2 focus:ring-primary/50"

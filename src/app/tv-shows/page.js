@@ -1,0 +1,69 @@
+import { createClient } from "@/utils/supabase/server";
+import MovieCard from "@/components/MovieCard";
+import FilterSection from "@/components/FilterSection";
+
+export default async function TVShowsPage({ searchParams }) {
+  const params = await searchParams;
+  const category = params?.category;
+  const year = params?.year;
+  const language = params?.language;
+
+  const supabase = await createClient();
+
+  // Optimized parallel fetching
+  const [showsResponse, filterResponse] = await Promise.all([
+    (() => {
+      let query = supabase.from("movies").select("*").eq("type", "TV Show");
+      if (category && category !== "All") query = query.eq("category", category);
+      if (year && year !== "All") query = query.eq("year", year);
+      if (language && language !== "All") query = query.eq("language", language);
+      return query.order("created_at", { ascending: false });
+    })(),
+    supabase.from("movies").select("category, year, language").eq("type", "TV Show")
+  ]);
+
+  const { data: shows, error } = showsResponse;
+  const filterData = filterResponse.data;
+  
+  const uniqueCategories = ["All", ...new Set(filterData?.map(m => m.category).filter(Boolean))];
+  const uniqueYears = ["All", ...new Set(filterData?.map(m => m.year).filter(Boolean))].sort((a, b) => b - a);
+  const uniqueLanguages = ["All", ...new Set(filterData?.map(m => m.language).filter(Boolean))];
+
+  return (
+    <main className="min-h-screen bg-background text-white">
+      <div className="container-custom pt-32 pb-20">
+        <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
+          <div>
+            <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
+              TV <span className="text-primary italic">Shows</span>
+            </h1>
+            <p className="mt-4 font-medium text-zinc-500">Discover binge-worthy series and trending TV shows.</p>
+          </div>
+          
+          <FilterSection 
+            categories={uniqueCategories} 
+            years={uniqueYears} 
+            languages={uniqueLanguages}
+            currentFilters={{ category, year, language }}
+          />
+        </div>
+
+        {error ? (
+          <div className="flex h-60 items-center justify-center rounded-3xl border border-white/5 bg-white/5 text-zinc-500 font-bold uppercase tracking-widest">
+            Error loading TV shows
+          </div>
+        ) : shows?.length === 0 ? (
+          <div className="flex h-60 items-center justify-center rounded-3xl border border-white/5 bg-white/5 text-zinc-500 font-bold uppercase tracking-widest">
+            No TV shows found matching these filters
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 lg:gap-6">
+            {shows.map((show) => (
+              <MovieCard key={show.id} show={show} movie={show} />
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}

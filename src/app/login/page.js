@@ -26,7 +26,11 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setError(error.message);
+      if (error.message.includes("Email not confirmed")) {
+        setError("Please check your email and confirm your account before signing in.");
+      } else {
+        setError(error.message);
+      }
       setLoading(false);
     } else {
       router.push("/");

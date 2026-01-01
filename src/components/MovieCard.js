@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Play, Plus, Check, Star, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -21,7 +22,7 @@ export default function MovieCard({ movie }) {
       
       if (user) {
         const { data } = await supabase
-          .from("my_list")
+          .from("watchlists")
           .select("*")
           .eq("user_id", user.id)
           .eq("movie_id", movie.id)
@@ -40,14 +41,14 @@ export default function MovieCard({ movie }) {
     setLoading(true);
     if (isInList) {
       const { error } = await supabase
-        .from("my_list")
+        .from("watchlists")
         .delete()
         .eq("user_id", user.id)
         .eq("movie_id", movie.id);
       if (!error) setIsInList(false);
     } else {
       const { error } = await supabase
-        .from("my_list")
+        .from("watchlists")
         .insert([{ user_id: user.id, movie_id: movie.id }]);
       if (!error) setIsInList(true);
     }
@@ -55,14 +56,15 @@ export default function MovieCard({ movie }) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      whileHover={{ scale: 1.05, zIndex: 10 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group relative aspect-[2/3] w-full cursor-pointer overflow-hidden rounded-xl bg-zinc-900 shadow-2xl"
-    >
+    <Link href={`/movies/${movie.id}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        whileHover={{ scale: 1.05, zIndex: 10 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="group relative aspect-[2/3] w-full cursor-pointer overflow-hidden rounded-xl bg-zinc-900 shadow-2xl"
+      >
       {/* Movie Image */}
       <Image
         src={movie.image_url || movie.image}
@@ -116,6 +118,7 @@ export default function MovieCard({ movie }) {
         </div>
       </div>
     </motion.div>
+    </Link>
   );
 }
 

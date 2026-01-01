@@ -3,23 +3,29 @@
 import { Play, Info, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
-import { featuredMovies } from "./data";
-
-export default function Hero() {
+export default function Hero({ featuredMovies }) {
   const [current, setCurrent] = useState(0);
 
   const nextSlide = useCallback(() => {
-    setCurrent((prev) => (prev + 1) % featuredMovies.length);
-  }, []);
+    if (featuredMovies && featuredMovies.length > 0) {
+      setCurrent((prev) => (prev + 1) % featuredMovies.length);
+    }
+  }, [featuredMovies]);
 
   const prevSlide = () => {
     setCurrent((prev) => (prev - 1 + featuredMovies.length) % featuredMovies.length);
   };
 
   useEffect(() => {
-    const timer = setInterval(nextSlide, 8000);
-    return () => clearInterval(timer);
-  }, [nextSlide]);
+    if (featuredMovies && featuredMovies.length > 0) {
+      const timer = setInterval(nextSlide, 8000);
+      return () => clearInterval(timer);
+    }
+  }, [nextSlide, featuredMovies]);
+
+  if (!featuredMovies || featuredMovies.length === 0) {
+    return <div className="h-[100vh] w-full bg-background" />;
+  }
 
   return (
     <div className="relative h-[100vh] w-full overflow-hidden">
@@ -39,7 +45,7 @@ export default function Hero() {
             transition={{ duration: 10 }}
             className="absolute inset-0 bg-cover bg-center"
             style={{ 
-              backgroundImage: `url('${featuredMovies[current].image}')`,
+              backgroundImage: `url('${featuredMovies[current].backdrop_url || featuredMovies[current].image_url || featuredMovies[current].image}')`,
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
@@ -111,7 +117,7 @@ export default function Hero() {
 
       {/* Page Indicators */}
       <div className="absolute bottom-12 left-12 z-20 flex gap-3">
-        {featuredMovies.map((_, i) => (
+        {featuredMovies && featuredMovies.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrent(i)}

@@ -9,20 +9,27 @@ import { useRouter } from "next/navigation";
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState(null);
   const lastScrollY = useRef(0);
   const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    getUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+    };
+    initAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+        setUser(session?.user ?? null);
+        router.refresh();
+      } else if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+        setUser(session?.user ?? null);
+      }
     });
 
     const handleScroll = () => {
@@ -45,7 +52,7 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, router]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -55,7 +62,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 z-50 w-full transition-all duration-500 py-6 md:py-8 lg:py-10 ${
+      className={`fixed top-0 z-50 w-full transition-all duration-500 py-3 md:py-4 ${
         isVisible ? "translate-y-0" : "-translate-y-full"
       } ${
         isScrolled 
@@ -63,7 +70,7 @@ export default function Navbar() {
           : "bg-gradient-to-b from-black/80 via-black/20 to-transparent"
       }`}
     >
-      <div className="flex items-center px-8 py-0">
+      <div className="flex items-center px-6 md:px-12">
         {/* Left: Logo */}
         <div className="flex-shrink-0">
           <Link href="/" className="group flex items-center gap-3">
@@ -78,18 +85,18 @@ export default function Navbar() {
 
         {/* Center: Navigation Links */}
         <div className="hidden flex-grow justify-center md:flex">
-          <div className="flex items-center gap-10 text-[13px] font-bold uppercase tracking-[0.2em] text-zinc-400">
+          <div className="flex items-center gap-8 text-[13px] font-bold uppercase tracking-[0.2em] text-zinc-400">
             <Link href="/" className="text-white transition-all hover:text-primary hover:tracking-[0.25em]">
               Home
             </Link>
-            <Link href="#" className="transition-all hover:text-primary hover:tracking-[0.25em]">
+            <Link href="/movies" className="transition-all hover:text-primary hover:tracking-[0.25em]">
               Movies
             </Link>
-            <Link href="#" className="transition-all hover:text-primary hover:tracking-[0.25em]">
+            <Link href="/tv-shows" className="transition-all hover:text-primary hover:tracking-[0.25em]">
               TV Shows
             </Link>
-            <Link href="#" className="transition-all hover:text-primary hover:tracking-[0.25em]">
-              New & Popular
+            <Link href="/contact" className="transition-all hover:text-primary hover:tracking-[0.25em]">
+              Contact
             </Link>
             {user && (
               <Link href="/my-list" className="transition-all hover:text-primary hover:tracking-[0.25em]">
@@ -100,10 +107,29 @@ export default function Navbar() {
         </div>
 
         {/* Right: Icons */}
-        <div className="flex items-center gap-6 text-zinc-100 md:gap-8">
-          <button className="hidden transition-transform hover:scale-110 hover:text-primary md:block">
-            <Search size={22} />
-          </button>
+        <div className="flex items-center gap-4 text-zinc-100 md:gap-6">
+          <div className={`relative flex items-center transition-all duration-500 ${isSearchOpen ? "w-64" : "w-10"}`}>
+            <button 
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="absolute left-2 z-10 transition-transform hover:scale-110 hover:text-primary"
+            >
+              <Search size={22} />
+            </button>
+            <input
+              type="text"
+              placeholder="Titles, people, genres"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  router.push(searchQuery ? `/?s=${encodeURIComponent(searchQuery)}` : "/");
+                }
+              }}
+              className={`h-10 w-full rounded-full bg-white/10 pl-10 pr-4 text-sm font-bold text-white outline-none ring-1 ring-white/10 transition-all focus:bg-white/20 ${
+                isSearchOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
+            />
+          </div>
           <button className="transition-transform hover:scale-110 hover:text-primary">
             <Bell size={22} />
           </button>
@@ -121,6 +147,9 @@ export default function Navbar() {
                 <div className="px-4 py-3 text-xs font-bold text-zinc-500 uppercase tracking-widest border-bottom border-white/5">
                   Account
                 </div>
+                <Link href="/profile" className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">
+                  Profile Settings
+                </Link>
                 <Link href="/my-list" className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">
                   My List
                 </Link>

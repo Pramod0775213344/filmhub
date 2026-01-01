@@ -28,7 +28,30 @@ export async function updateSession(request) {
   )
 
   // refreshing the auth token
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Protect routes
+  if (
+    !user &&
+    (request.nextUrl.pathname.startsWith('/admin') ||
+     request.nextUrl.pathname.startsWith('/profile') ||
+     request.nextUrl.pathname.startsWith('/my-list'))
+  ) {
+    // This is a protected route, and the user is not logged in.
+    // Redirect them to the login page.
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    
+    // We must pass the cookies from supabaseResponse to the redirect response
+    const redirectResponse = NextResponse.redirect(url)
+    
+    // Copy all cookies from supabaseResponse to redirectResponse
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, cookie.options)
+    })
+    
+    return redirectResponse
+  }
 
   return supabaseResponse
 }
