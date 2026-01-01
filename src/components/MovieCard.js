@@ -16,19 +16,24 @@ export default function MovieCard({ movie }) {
   const router = useRouter();
 
   useEffect(() => {
+    if (!supabase) return;
     const checkStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      
-      if (user) {
-        const { data } = await supabase
-          .from("watchlists")
-          .select("*")
-          .eq("user_id", user.id)
-          .eq("movie_id", movie.id)
-          .single();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
         
-        if (data) setIsInList(true);
+        if (user) {
+          const { data } = await supabase
+            .from("watchlists")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("movie_id", movie.id)
+            .single();
+          
+          if (data) setIsInList(true);
+        }
+      } catch (err) {
+        console.error("Error checking watchlist status:", err);
       }
     };
     checkStatus();
@@ -36,6 +41,7 @@ export default function MovieCard({ movie }) {
 
   const toggleList = async (e) => {
     e.stopPropagation();
+    if (!supabase) return;
     if (!user) return router.push("/login");
 
     setLoading(true);

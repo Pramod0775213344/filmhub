@@ -17,6 +17,7 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (!supabase) return;
     setLoading(true);
     setError(null);
 

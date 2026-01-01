@@ -17,22 +17,28 @@ export default function MovieClient({ initialMovie, userId }) {
   const supabase = createClient();
 
   useEffect(() => {
+    if (!supabase) return;
     const checkStatus = async () => {
       if (userId && movie) {
-        const { data: listData } = await supabase
-          .from("watchlists")
-          .select("*")
-          .eq("user_id", userId)
-          .eq("movie_id", movie.id)
-          .single();
-        
-        if (listData) setIsInList(true);
+        try {
+          const { data: listData } = await supabase
+            .from("watchlists")
+            .select("*")
+            .eq("user_id", userId)
+            .eq("movie_id", movie.id)
+            .single();
+          
+          if (listData) setIsInList(true);
+        } catch (err) {
+          console.error("Error checking list status:", err);
+        }
       }
     };
     checkStatus();
   }, [movie, userId, supabase]);
 
   const toggleList = async () => {
+    if (!supabase) return;
     if (!userId) return router.push("/login");
 
     setListLoading(true);

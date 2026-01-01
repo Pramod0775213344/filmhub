@@ -18,10 +18,15 @@ export const metadata = {
   description: "Discover the latest movies, trending releases, and curate your personal watchlist with FilmHub. The premium platform for film enthusiasts.",
   keywords: ["movies", "streaming", "films", "watchlist", "cinema", "trailers"],
   authors: [{ name: "FilmHub Team" }],
-  viewport: "width=device-width, initial-scale=1",
   icons: {
     icon: "/favicon.ico",
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#000000",
 };
 
 export default function RootLayout({ children }) {

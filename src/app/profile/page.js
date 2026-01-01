@@ -22,6 +22,7 @@ export default function ProfilePage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!supabase) return;
     const initProfile = async () => {
       try {
         const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -59,6 +60,7 @@ export default function ProfilePage() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    if (!supabase) return;
     setSaving(true);
     setSuccess(false);
     setError(null);

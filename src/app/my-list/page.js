@@ -12,6 +12,7 @@ export default function MyListPage() {
   const supabase = createClient();
 
   const fetchMyList = useCallback(async () => {
+    if (!supabase) return;
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -38,8 +39,15 @@ export default function MyListPage() {
   }, [supabase]);
 
   useEffect(() => {
-    fetchMyList();
-  }, [fetchMyList]);
+    const checkAndFetch = async () => {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+      await fetchMyList();
+    };
+    checkAndFetch();
+  }, [fetchMyList, supabase]);
 
   return (
     <main className="min-h-screen bg-background">

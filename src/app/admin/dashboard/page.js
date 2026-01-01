@@ -30,6 +30,7 @@ export default function AdminDashboard() {
   const supabase = createClient();
 
   const fetchMovies = useCallback(async () => {
+    if (!supabase) return;
     const { data, error } = await supabase.from("movies").select("*").order("created_at", { ascending: false });
     if (!error) setMovies(data);
     setLoading(false);
@@ -37,15 +38,24 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
+      if (!supabase) {
+        setLoading(false);
         return;
       }
-      await fetchMovies();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push("/login");
+          return;
+        }
+        fetchMovies();
+      } catch (err) {
+        console.error("Dashboard initialization failed:", err);
+        setLoading(false);
+      }
     };
     checkAuthAndLoad();
-  }, [fetchMovies, supabase, router]);
+  }, [fetchMovies, router, supabase]);
 
   const handleOpenModal = (movie = null) => {
     if (movie) {
@@ -86,6 +96,7 @@ export default function AdminDashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!supabase) return;
     setIsSubmitting(true);
 
     const movieData = {
@@ -111,6 +122,7 @@ export default function AdminDashboard() {
   };
 
   const handleDelete = async (id) => {
+    if (!supabase) return;
     if (confirm("Are you sure you want to delete this movie?")) {
       const { error } = await supabase.from("movies").delete().eq("id", id);
       if (!error) fetchMovies();

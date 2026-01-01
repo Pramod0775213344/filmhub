@@ -17,9 +17,15 @@ export default function Navbar() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!supabase) return;
+
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+      } catch (err) {
+        console.error("Auth initialization failed:", err);
+      }
     };
     initAuth();
 

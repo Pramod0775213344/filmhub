@@ -17,6 +17,7 @@ export default function RegisterPage() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (!supabase) return;
     setLoading(true);
     setError(null);
 
