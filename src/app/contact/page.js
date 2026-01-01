@@ -7,7 +7,7 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen bg-background text-white">
       
-      <div className="container-custom pt-32 pb-20">
+      <div className="container-custom pt-48 pb-20">
         <div className="mx-auto max-w-5xl">
           <div className="mb-16 text-center">
             <motion.h1 

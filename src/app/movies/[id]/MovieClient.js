@@ -303,16 +303,35 @@ export default function MovieClient({ initialMovie, userId }) {
           </div>
           
           <div className="flex flex-wrap gap-8">
-            {movie.actors && movie.actors.length > 0 ? movie.actors.map((actor, i) => (
-              <div key={i} className="flex flex-col items-center gap-3 text-center w-[120px]">
-                <div className="relative h-24 w-24 overflow-hidden rounded-full ring-2 ring-zinc-800 transition-transform hover:scale-105 hover:ring-primary">
-                   <div className="flex h-full w-full items-center justify-center bg-zinc-900 text-zinc-700">
-                      <User size={48} />
-                   </div>
+            {movie.cast_details && movie.cast_details.length > 0 ? (
+              movie.cast_details.map((actor, i) => (
+                <div key={i} className="flex flex-col items-center gap-3 text-center w-[120px]">
+                  <div className="relative h-24 w-24 overflow-hidden rounded-full ring-2 ring-zinc-800 transition-transform hover:scale-105 hover:ring-primary">
+                    <Image 
+                      src={actor.image || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&q=80&w=200&h=200"} 
+                      alt={actor.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-bold text-zinc-300 transition-colors hover:text-white line-clamp-1">{actor.name}</span>
+                    <span className="text-[10px] font-medium text-zinc-500 line-clamp-1">{actor.character}</span>
+                  </div>
                 </div>
-                <span className="text-xs font-bold text-zinc-300 transition-colors hover:text-white">{actor}</span>
-              </div>
-            )) : (
+              ))
+            ) : movie.actors && movie.actors.length > 0 ? (
+              movie.actors.map((actor, i) => (
+                <div key={i} className="flex flex-col items-center gap-3 text-center w-[120px]">
+                  <div className="relative h-24 w-24 overflow-hidden rounded-full ring-2 ring-zinc-800 transition-transform hover:scale-105 hover:ring-primary">
+                     <div className="flex h-full w-full items-center justify-center bg-zinc-900 text-zinc-700">
+                        <User size={48} />
+                     </div>
+                  </div>
+                  <span className="text-xs font-bold text-zinc-300 transition-colors hover:text-white">{actor}</span>
+                </div>
+              ))
+            ) : (
               <span className="text-zinc-500 italic">No cast information available</span>
             )}
           </div>

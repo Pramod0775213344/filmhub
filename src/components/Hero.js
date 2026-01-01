@@ -3,7 +3,10 @@
 import { Play, Info, ChevronLeft, ChevronRight, Star, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+
 export default function Hero({ featuredMovies }) {
+  const router = useRouter();
   const [current, setCurrent] = useState(0);
 
   const nextSlide = useCallback(() => {
@@ -24,11 +27,11 @@ export default function Hero({ featuredMovies }) {
   }, [nextSlide, featuredMovies]);
 
   if (!featuredMovies || featuredMovies.length === 0) {
-    return <div className="h-[100vh] w-full bg-background" />;
+    return <div className="h-[100dvh] w-full bg-background" />;
   }
 
   return (
-    <div className="relative h-[100vh] w-full overflow-hidden">
+    <div className="relative h-[100dvh] w-full overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div
           key={featuredMovies[current].id}
@@ -53,7 +56,7 @@ export default function Hero({ featuredMovies }) {
           </motion.div>
 
           {/* Content */}
-          <div className="container-custom relative flex h-full flex-col justify-center">
+          <div className="container-custom relative flex h-full flex-col justify-center pt-32 md:pt-48">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -88,12 +91,18 @@ export default function Hero({ featuredMovies }) {
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-6 pt-6">
-                <button className="cinematic-glow group relative flex items-center gap-4 overflow-hidden rounded-full bg-primary px-12 py-5 text-lg font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95">
+                <button 
+                  onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}` : `/movies/${featuredMovies[current].id}`)}
+                  className="cinematic-glow group relative flex items-center gap-4 overflow-hidden rounded-full bg-primary px-12 py-5 text-lg font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
+                >
                   <Play size={24} fill="currentColor" />
                   <span>Play Now</span>
                   <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 transition-all group-hover:h-full group-hover:bg-white/10" />
                 </button>
-                <button className="group relative flex items-center gap-4 overflow-hidden rounded-full bg-white/5 px-12 py-5 text-lg font-black uppercase tracking-widest text-white backdrop-blur-2xl transition-all hover:bg-white/10 active:scale-95 border border-white/10">
+                <button 
+                  onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}` : `/movies/${featuredMovies[current].id}`)}
+                  className="group relative flex items-center gap-4 overflow-hidden rounded-full bg-white/5 px-12 py-5 text-lg font-black uppercase tracking-widest text-white backdrop-blur-2xl transition-all hover:bg-white/10 active:scale-95 border border-white/10"
+                >
                   <Info size={24} />
                   <span>Details</span>
                 </button>

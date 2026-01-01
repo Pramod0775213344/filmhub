@@ -61,7 +61,14 @@ export async function getTMDBDetails(id, type = "movie") {
 
     const crew = data.credits?.crew || [];
     const director = crew.find(c => c.job === "Director")?.name || "";
-    const actors = data.credits?.cast?.slice(0, 10).map(a => a.name) || [];
+    const cast = data.credits?.cast?.slice(0, 10) || [];
+    const actors = cast.map(a => a.name) || [];
+    
+    const cast_details = cast.map(actor => ({
+      name: actor.name,
+      character: actor.character,
+      image: actor.profile_path ? `https://image.tmdb.org/t/p/w200${actor.profile_path}` : null
+    }));
 
     return {
       title: data.title || data.name,
@@ -72,6 +79,7 @@ export async function getTMDBDetails(id, type = "movie") {
       year: (data.release_date || data.first_air_date || "").split("-")[0],
       category: data.genres?.[0]?.name || "Action",
       actors: actors.join(", "),
+      cast_details: cast_details,
       director: director,
       duration: data.runtime ? `${data.runtime} min` : (data.episode_run_time?.[0] ? `${data.episode_run_time[0]} min` : ""),
       country: data.production_countries?.[0]?.name || "",

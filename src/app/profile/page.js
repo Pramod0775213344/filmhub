@@ -100,7 +100,7 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom pt-32 pb-20">
+      <div className="container-custom pt-48 pb-20">
         <div className="max-w-4xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}

@@ -37,6 +37,7 @@ export default function MoviesManagement() {
     views: 0,
     subtitle_author: "",
     subtitle_site: "Cineru.LK",
+    cast_details: [],
   });
   const [movieLinks, setMovieLinks] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -86,6 +87,7 @@ export default function MoviesManagement() {
         views: movie.views || 0,
         subtitle_author: movie.subtitle_author || "",
         subtitle_site: movie.subtitle_site || "Cineru.LK",
+        cast_details: movie.cast_details || [],
       });
       
       const fetchLinks = async () => {
@@ -122,6 +124,7 @@ export default function MoviesManagement() {
         views: 0,
         subtitle_author: "",
         subtitle_site: "Cineru.LK",
+        cast_details: [],
       });
     }
     setTmdbResults([]);
@@ -166,7 +169,7 @@ export default function MoviesManagement() {
         const validMovieFields = [
           "title", "description", "rating", "year", "category", "actors", 
           "is_featured", "tag", "video_url", "download_url", "director", 
-          "country", "duration", "imdb_rating", "type", "language", "image_url", "backdrop_url"
+          "country", "duration", "imdb_rating", "type", "language", "image_url", "backdrop_url", "cast_details"
         ];
 
         const prunedData = {};
@@ -203,7 +206,7 @@ export default function MoviesManagement() {
     const validMovieFields = [
       "title", "description", "rating", "year", "category", "actors", 
       "is_featured", "tag", "video_url", "download_url", "director", 
-      "country", "duration", "imdb_rating", "type", "language", "image_url", "backdrop_url"
+      "country", "duration", "imdb_rating", "type", "language", "image_url", "backdrop_url", "cast_details"
     ];
 
     const prunedData = {};
@@ -452,6 +455,10 @@ export default function MoviesManagement() {
                   <div className="space-y-2 md:col-span-2">
                     <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Poster URL</label>
                     <input type="text" value={formData.image_url} onChange={(e) => setFormData({...formData, image_url: e.target.value})} className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10" />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Video URL (m3u8/mp4)</label>
+                    <input type="text" value={formData.video_url} onChange={(e) => setFormData({...formData, video_url: e.target.value})} className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10" />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Description</label>

@@ -31,7 +31,7 @@ export default async function TVShowsPage({ searchParams }) {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom pt-32 pb-20">
+      <div className="container-custom pt-48 pb-20">
         <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>
             <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
