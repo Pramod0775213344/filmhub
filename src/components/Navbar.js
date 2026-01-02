@@ -126,7 +126,15 @@ export default function Navbar() {
     handleSearch(e.target.value);
   };
 
-  // ... handleSignOut ...
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      router.push("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <>

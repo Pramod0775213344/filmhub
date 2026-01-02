@@ -3,12 +3,16 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VideoPlayer from "@/components/VideoPlayer";
-import { Play, Star, Calendar, Tag, Loader2, ArrowLeft, Plus, Check, X, Download, User, Users, Globe, Eye, Clock, Video, ChevronRight, ChevronLeft, MessageSquare } from "lucide-react";
+import { 
+  Play, Star, Calendar, Clock, Video, Download, 
+  User, Users, MessageSquare, Plus, Check, X, 
+  Share2, Globe, Heart
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import CommentSection from "@/components/CommentSection";
 
 export default function MovieClient({ initialMovie, userId }) {
   const router = useRouter();
@@ -19,9 +23,11 @@ export default function MovieClient({ initialMovie, userId }) {
   const [links, setLinks] = useState([]);
   const [activeProvider, setActiveProvider] = useState(null);
   const [relatedMovies, setRelatedMovies] = useState([]);
+  const [activeTab, setActiveTab] = useState("overview"); // overview, cast, related
   const supabase = createClient();
 
   useEffect(() => {
+    // Increment view count
     const incrementView = async () => {
         if (!movie?.id || !supabase) return;
         try {
@@ -38,6 +44,8 @@ export default function MovieClient({ initialMovie, userId }) {
 
   useEffect(() => {
     if (!supabase) return;
+    
+    // Check Watchlist Status
     const checkStatus = async () => {
       if (userId && movie) {
         try {
@@ -54,9 +62,10 @@ export default function MovieClient({ initialMovie, userId }) {
         }
       }
     };
+
+    // Fetch Links & Related
     const fetchAdditionalData = async () => {
       if (movie && supabase) {
-        // Fetch download links
         const { data: linksData } = await supabase
           .from("movie_links")
           .select("*")
@@ -66,18 +75,15 @@ export default function MovieClient({ initialMovie, userId }) {
           setLinks(linksData);
           setActiveProvider(linksData[0].provider);
         } else if (movie.download_url) {
-          // Fallback to legacy link
-          const fallbackLink = {
+          setLinks([{
             provider: "Direct",
             quality: "HD",
             size: "Unknown",
             url: movie.download_url
-          };
-          setLinks([fallbackLink]);
+          }]);
           setActiveProvider("Direct");
         }
 
-        // Fetch related movies (same category, excluding current)
         const categories = movie.category?.split(',').map(c => c.trim()) || [];
         if (categories.length > 0) {
           const { data: relatedData } = await supabase
@@ -101,16 +107,10 @@ export default function MovieClient({ initialMovie, userId }) {
 
     setListLoading(true);
     if (isInList) {
-      const { error } = await supabase
-        .from("watchlists")
-        .delete()
-        .eq("user_id", userId)
-        .eq("movie_id", movie.id);
+      const { error } = await supabase.from("watchlists").delete().eq("user_id", userId).eq("movie_id", movie.id);
       if (!error) setIsInList(false);
     } else {
-      const { error } = await supabase
-        .from("watchlists")
-        .insert([{ user_id: userId, movie_id: movie.id }]);
+      const { error } = await supabase.from("watchlists").insert([{ user_id: userId, movie_id: movie.id }]);
       if (!error) setIsInList(true);
     }
     setListLoading(false);
@@ -119,365 +119,327 @@ export default function MovieClient({ initialMovie, userId }) {
   if (!movie) return null;
 
   return (
-    <main className="min-h-screen bg-[#000000] text-white">
+    <main className="min-h-screen bg-[#020202] text-white selection:bg-primary selection:text-white">
+      
+      {/* Immersive Hero Section */}
+      <div className="relative h-[85vh] w-full overflow-hidden">
+        {/* Backdrop Image */}
+        <div className="absolute inset-0">
+          <Image
+            src={movie.image_url || movie.image}
+            alt={movie.title}
+            fill
+            className="object-cover opacity-60"
+            priority
+          />
+          {/* Cinematic Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/40 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020202_120%)]" />
+        </div>
 
-      <div className="container-custom py-12">
-        {/* Back Button */}
-        <button 
-          onClick={() => router.back()}
-          className="group mb-8 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 transition-colors hover:text-white"
-        >
-          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-          <span>Back to movies</span>
-        </button>
+        {/* Content Container */}
+        <div className="container-custom relative flex h-full items-end pb-20">
+          <motion.div 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-4xl space-y-8"
+          >
+            {/* Badges */}
+            <div className="flex flex-wrap items-center gap-3">
+               <motion.div 
+                 initial={{ opacity: 0, scale: 0.8 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 transition={{ delay: 0.2 }}
+                 className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-bold backdrop-blur-md"
+               >
+                 <span className="text-primary tracking-wider uppercase">Movie</span>
+               </motion.div>
+               {movie.quality && (
+                 <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white backdrop-blur-md">
+                   {movie.quality}
+                 </span>
+               )}
+                <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/20 px-3 py-1 text-xs font-bold text-yellow-500 backdrop-blur-md">
+                  <Star size={12} fill="currentColor" />
+                  <span>{movie.imdb_rating || movie.rating || "N/A"}</span>
+                </div>
+            </div>
 
-        {/* Top Section: Poster + Movie Details */}
-        <div className="flex flex-col gap-10 md:flex-row">
-          {/* Left: Poster */}
-          <div className="relative w-full shrink-0 overflow-hidden rounded-lg shadow-2xl md:w-[300px]">
-            <Image
-              src={movie.image_url || movie.image || "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop"}
-              alt={movie.title}
-              width={300}
-              height={450}
-              className="h-auto w-full object-cover"
-              priority
-            />
-          </div>
-
-          {/* Right: Details */}
-          <div className="flex-1 space-y-6">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-white md:text-4xl">
-              {movie.title} ({movie.year}) {movie.language} Subtitles <span className="text-zinc-400"></span>
+            {/* Title */}
+            <h1 className="font-display text-5xl font-black leading-none tracking-tighter text-white drop-shadow-2xl md:text-7xl lg:text-8xl">
+              {movie.title}
             </h1>
 
-            {/* Rating & Votes */}
-            <div className="flex items-center gap-4">
-              <div className="flex rounded bg-zinc-800/50 px-2 py-1 text-sm font-bold">5</div>
-              <div className="flex text-yellow-500">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={18} fill="currentColor" />
-                ))}
-              </div>
-              <div className="text-sm font-medium text-zinc-500">1 vote</div>
+            {/* Meta Info Line */}
+            <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-zinc-300">
+              <span className="flex items-center gap-2">
+                <Calendar size={16} className="text-primary" />
+                {movie.year}
+              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
+              <span className="flex items-center gap-2">
+                <Clock size={16} className="text-primary" />
+                {movie.duration || "1h 45m"}
+              </span>
+              <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
+              <span className="uppercase text-zinc-400">{movie.original_language || movie.language || "English"}</span>
             </div>
 
-            {/* Action Buttons & Badges */}
-            <div className="flex flex-wrap items-center gap-3">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-4 pt-4">
               <button 
-                onClick={() => movie.video_url ? setIsPlaying(true) : alert("Trailer coming soon!")}
-                className="flex items-center gap-2 rounded bg-white px-4 py-1.5 text-sm font-black text-black transition-colors hover:bg-zinc-200"
+                onClick={() => {
+                  if (movie.video_url) {
+                    setIsPlaying(true);
+                  } else {
+                    alert("Video source not available yet.");
+                  }
+                }}
+                className="group relative flex items-center gap-3 overflow-hidden rounded-full bg-white px-8 py-4 text-base font-black text-black transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95"
               >
-                <Video size={16} fill="black" />
-                Trailer
+                <div className="relative z-10 flex items-center gap-3">
+                   <Play size={20} fill="black" />
+                   <span className="uppercase tracking-widest">{movie.video_url ? "Watch Now" : "No Video"}</span>
+                </div>
+                <div className="absolute inset-0 z-0 bg-gradient-to-r from-zinc-200 to-white opacity-0 transition-opacity group-hover:opacity-100" />
               </button>
-              <div className="rounded border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs font-bold text-white">WEB-DL</div>
-              <div className="flex items-center gap-1 rounded bg-yellow-500 px-3 py-1.5 text-xs font-black text-black">
-                IMDb: {movie.imdb_rating || "6.3"}
-              </div>
-              <div className="flex items-center gap-2 text-sm font-medium text-zinc-400">
-                <span>{movie.duration || "111 min"}</span>
-                <span className="h-1 w-1 rounded-full bg-zinc-700" />
-                <span className="flex items-center gap-1">
-                  {movie.views || 329} views
-                </span>
-              </div>
-            </div>
 
-            {/* Category List */}
-            <div className="flex flex-wrap gap-2 text-sm font-bold text-zinc-300">
-              {movie.category?.split(',').map((cat, i) => (
-                <span key={i}>{cat.trim()}{i < movie.category.split(',').length - 1 ? ',' : ''} </span>
-              ))}
-            </div>
-
-            {/* Subtitle Banner */}
-            <div className="w-full rounded bg-blue-900/40 py-3 text-center ring-1 ring-blue-500/30">
-              <span className="text-sm font-bold text-blue-100">&quot;සිංහල උපසිරැසි සමඟ&quot;</span>
-            </div>
-
-            {/* Synopsis */}
-            <p className="text-lg font-medium leading-relaxed text-[#00E5FF]">
-              {movie.description}
-            </p>
-
-            {/* Meta Grid */}
-            <div className="grid grid-cols-1 gap-x-12 gap-y-4 pt-4 md:grid-cols-2">
-              <div className="space-y-4">
-                <div className="flex gap-2 text-sm">
-                  <span className="font-bold text-zinc-500">Language:</span>
-                  <span className="font-medium text-white">{movie.language || "English"}</span>
-                </div>
-                {movie.subtitle_author && (
-                  <div className="flex gap-2 text-sm">
-                    <span className="font-bold text-zinc-500">Subtitle Author:</span>
-                    <span className="font-medium text-white">{movie.subtitle_author}</span>
-                  </div>
-                )}
-                <div className="flex gap-2 text-sm">
-                  <span className="font-bold text-zinc-500">Subtitle Site:</span>
-                  <span className="font-medium text-white">{movie.subtitle_site || "Cineru.LK"}</span>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex gap-2 text-sm">
-                  <span className="font-bold text-zinc-500">Country:</span>
-                  <span className="font-medium text-white">{movie.country || "Belgium, France"}</span>
-                </div>
-                <div className="flex gap-2 text-sm">
-                  <span className="font-bold text-zinc-500">Director:</span>
-                  <span className="font-medium text-white">{movie.director || "Unknown"}</span>
-                </div>
-                <div className="flex gap-2 text-sm">
-                  <span className="font-bold text-zinc-500">Stars:</span>
-                  <span className="font-medium text-white">{movie.actors?.join(", ")}</span>
-                </div>
-                <div className="flex gap-2 text-sm">
-                  <span className="font-bold text-zinc-500">Year:</span>
-                  <span className="font-medium text-white">{movie.year}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* My List & Download Controls */}
-            <div className="flex items-center gap-4 pt-6">
               <button 
                 onClick={toggleList}
-                className="flex items-center gap-3 rounded-lg bg-zinc-900 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-zinc-800 ring-1 ring-white/10"
+                className="group flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-8 py-4 text-base font-bold text-white backdrop-blur-md transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
               >
-                {listLoading ? <Loader2 className="animate-spin" size={18} /> : isInList ? <Check size={18} className="text-primary" /> : <Plus size={18} />}
-                <span>{isInList ? "My List" : "Add to List"}</span>
+                {listLoading ? <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : isInList ? <Check size={20} className="text-primary" /> : <Plus size={20} />}
+                <span>{isInList ? "In My List" : "Add to List"}</span>
               </button>
+
               {movie.download_url && (
-                <a 
-                  href={movie.download_url} 
-                  target="_blank" 
-                  className="cinematic-glow flex items-center gap-3 rounded-lg bg-primary px-8 py-3 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
+                <button 
+                  onClick={() => document.getElementById("links-section")?.scrollIntoView({ behavior: "smooth" })}
+                  className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition-all hover:bg-primary hover:border-primary hover:scale-105"
                 >
-                  <Download size={18} />
-                  <span>Download now</span>
-                </a>
+                  <Download size={20} />
+                </button>
               )}
             </div>
-          </div>
+
+            <p className="max-w-2xl text-lg leading-relaxed text-zinc-300 md:text-xl line-clamp-3 md:line-clamp-none">
+              {movie.description}
+            </p>
+          </motion.div>
         </div>
+      </div>
 
-        {/* Video Player Modal/Overlay */}
-        <AnimatePresence>
-          {isPlaying && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }}
-                onClick={() => setIsPlaying(false)}
-                className="absolute inset-0 bg-black/95 backdrop-blur-2xl" 
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative aspect-video w-full max-w-5xl overflow-hidden rounded-3xl bg-black shadow-2xl"
-              >
-                <button 
-                  onClick={() => setIsPlaying(false)}
-                  className="absolute right-6 top-6 z-10 rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
-                >
-                  <X size={20} />
-                </button>
-                <iframe
-                  src={movie.video_url?.includes("youtube.com/watch") 
-                    ? movie.video_url.replace("watch?v=", "embed/") + "?autoplay=1"
-                    : movie.video_url}
-                  className="h-full w-full border-none"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
+      {/* Tabs Navigation */}
+      <div className="sticky top-[70px] z-40 w-full border-b border-white/5 bg-[#020202]/80 backdrop-blur-xl">
+        <div className="container-custom flex gap-8 overflow-x-auto no-scrollbar">
+          {["overview", "cast", "related", "reviews"].map((tab) => (
+             <button
+               key={tab}
+               onClick={() => setActiveTab(tab)}
+               className={`relative py-6 text-sm font-bold uppercase tracking-widest transition-colors ${
+                 activeTab === tab ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+               }`}
+             >
+               {tab}
+               {activeTab === tab && (
+                 <motion.div 
+                   layoutId="activeTab"
+                   className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_20px_rgba(229,9,20,0.5)]"
+                 />
+               )}
+             </button>
+          ))}
+        </div>
+      </div>
 
-        {/* Video Player Section */}
-        {movie.video_url && (
-          <div className="mt-16 space-y-8">
-            <div className="flex items-center gap-4">
-              <Play size={24} className="text-primary" fill="currentColor" />
-              <h2 className="text-2xl font-black uppercase tracking-wider text-white">Watch Now</h2>
-            </div>
-            <VideoPlayer url={movie.video_url} title={movie.title} />
-          </div>
+      {/* Content Area */}
+      <div className="container-custom space-y-24 py-16">
+        
+        {/* Overview Tab Content */}
+        {activeTab === "overview" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-16">
+             {/* Info Grid */}
+             <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+                <div className="md:col-span-2 space-y-8">
+                   <div className="rounded-3xl border border-white/5 bg-white/5 p-8 backdrop-blur-sm">
+                      <h3 className="mb-6 text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
+                        <Globe className="text-primary" /> Storyline
+                      </h3>
+                      <p className="text-zinc-300 leading-8 text-lg">{movie.description}</p>
+                   </div>
+                   
+                   {/* Download Links Table */}
+                   {links.length > 0 && (
+                    <div id="links-section" className="space-y-6">
+                      <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
+                        <Download className="text-primary" /> Downloads
+                      </h3>
+                      
+                      {/* Provider Tabs */}
+                      <div className="flex flex-wrap gap-2">
+                        {[...new Set(links.map(l => l.provider))].map((provider, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setActiveProvider(provider)}
+                            className={`rounded-full px-6 py-2 text-xs font-black uppercase tracking-widest transition-all ${
+                              activeProvider === provider ? "bg-primary text-white shadow-lg" : "bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-white"
+                            }`}
+                          >
+                            {provider}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/50">
+                        {links.filter(l => l.provider === activeProvider).map((link, i) => (
+                          <div key={i} className="flex items-center justify-between border-b border-white/5 p-6 last:border-0 hover:bg-white/5 transition-colors">
+                            <div className="flex items-center gap-4">
+                               <div className="h-10 w-10 flex items-center justify-center rounded-full bg-zinc-800 text-primary font-bold text-xs ring-1 ring-white/10">
+                                  {link.quality.slice(0, 4)}
+                               </div>
+                               <div>
+                                  <p className="font-bold text-white text-sm">{link.provider}</p>
+                                  <p className="text-xs text-zinc-500">{link.size || "Unknown Size"}</p>
+                               </div>
+                            </div>
+                            <a 
+                              href={link.url}
+                              target="_blank"
+                              className="rounded-lg bg-white px-6 py-2.5 text-xs font-black text-black uppercase tracking-widest transition-transform hover:scale-105 active:scale-95"
+                            >
+                              Get Link
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                   )}
+                </div>
+
+                {/* Sidebar Info */}
+                <div className="space-y-6">
+                   <div className="rounded-3xl border border-white/5 bg-white/5 p-8 space-y-6 backdrop-blur-sm">
+                      <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest">Details</h3>
+                      <div className="space-y-4">
+                         <div className="flex justify-between">
+                            <span className="text-zinc-400">Director</span>
+                            <span className="font-bold text-white text-right">{movie.director || "Unknown"}</span>
+                         </div>
+                         <div className="flex justify-between">
+                            <span className="text-zinc-400">Country</span>
+                            <span className="font-bold text-white text-right">{movie.country || "Unknown"}</span>
+                         </div>
+                         <div className="flex justify-between">
+                            <span className="text-zinc-400">Language</span>
+                            <span className="font-bold text-white text-right">{movie.language || "English"}</span>
+                         </div>
+                         <div className="flex justify-between">
+                            <span className="text-zinc-400">Genre</span>
+                            <span className="font-bold text-white text-right text-right max-w-[50%] leading-tight">{movie.category?.split(',').slice(0,2).join(', ')}</span>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </motion.div>
         )}
 
-        {/* Cast Section */}
-        <div className="mt-20 space-y-10">
-          <div className="flex items-center gap-4 text-primary">
-            <Users size={24} />
-            <h2 className="text-xl font-bold text-white uppercase tracking-wider">Top Cast</h2>
-          </div>
-          
-          <div className="flex flex-wrap gap-8">
+        {/* Cast Tab */}
+        {activeTab === "cast" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {movie.cast_details && movie.cast_details.length > 0 ? (
               movie.cast_details.map((actor, i) => (
-                <div key={i} className="flex flex-col items-center gap-3 text-center w-[120px]">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full ring-2 ring-zinc-800 transition-transform hover:scale-105 hover:ring-primary">
-                    <Image 
-                      src={actor.image || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&q=80&w=200&h=200"} 
-                      alt={actor.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs font-bold text-zinc-300 transition-colors hover:text-white line-clamp-1">{actor.name}</span>
-                    <span className="text-[10px] font-medium text-zinc-500 line-clamp-1">{actor.character}</span>
-                  </div>
+                <div key={i} className="group relative overflow-hidden rounded-2xl bg-zinc-900">
+                   <div className="relative aspect-[3/4] w-full overflow-hidden">
+                      <Image 
+                        src={actor.image || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&q=80&w=200&h=200"} 
+                        alt={actor.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                   </div>
+                   <div className="absolute bottom-0 inset-x-0 p-4">
+                      <h4 className="font-bold text-white text-sm line-clamp-1">{actor.name}</h4>
+                      <p className="text-xs text-primary font-medium line-clamp-1">{actor.character}</p>
+                   </div>
                 </div>
               ))
-            ) : movie.actors && movie.actors.length > 0 ? (
-              movie.actors.map((actor, i) => (
-                <div key={i} className="flex flex-col items-center gap-3 text-center w-[120px]">
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full ring-2 ring-zinc-800 transition-transform hover:scale-105 hover:ring-primary">
-                     <div className="flex h-full w-full items-center justify-center bg-zinc-900 text-zinc-700">
-                        <User size={48} />
-                     </div>
-                  </div>
-                  <span className="text-xs font-bold text-zinc-300 transition-colors hover:text-white">{actor}</span>
+            ) : movie.actors?.map((actor, i) => (
+                <div key={i} className="group relative overflow-hidden rounded-2xl bg-zinc-900 border border-white/5 p-6 flex flex-col items-center justify-center gap-4 text-center aspect-[1/1]">
+                   <div className="h-16 w-16 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-600">
+                      <User size={32} />
+                   </div>
+                   <h4 className="font-bold text-white text-sm">{actor}</h4>
                 </div>
-              ))
-            ) : (
-              <span className="text-zinc-500 italic">No cast information available</span>
-            )}
-          </div>
-        </div>
-
-        {/* Links Section */}
-        {links.length > 0 && (
-          <div className="mt-20 space-y-8">
-            <h2 className="text-2xl font-black uppercase tracking-wider text-white">Download Links</h2>
-            
-            {/* Provider Tabs */}
-            <div className="flex flex-wrap gap-2">
-              {[...new Set(links.map(l => l.provider))].map((provider, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveProvider(provider)}
-                  className={`rounded-full px-6 py-2 text-xs font-black uppercase tracking-widest transition-all ${
-                    activeProvider === provider ? "bg-primary text-white shadow-[0_0_20px_rgba(229,9,20,0.5)]" : "bg-zinc-900 text-zinc-500 hover:text-white"
-                  }`}
-                >
-                  {provider}
-                </button>
-              ))}
-            </div>
-
-            {/* Links Table */}
-            <div className="overflow-hidden rounded-2xl ring-1 ring-white/5 bg-[#0a0a0a]">
-              <table className="w-full text-left">
-                <thead className="border-b border-white/5 bg-white/5">
-                  <tr>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500">Options</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500">Quality</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 text-center">Size</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-zinc-500 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {links.filter(l => l.provider === activeProvider).map((link, i) => (
-                    <tr key={i} className="group hover:bg-white/5 transition-colors">
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-3">
-                           <div className="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-800 p-1 text-zinc-500 group-hover:bg-primary group-hover:text-white">
-                              <Download size={10} />
-                           </div>
-                           <span className="text-sm font-bold text-zinc-300 group-hover:text-primary transition-colors">{link.provider}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <span className="rounded bg-zinc-900 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                          {link.quality}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5 text-center">
-                        <span className="text-sm font-medium text-zinc-500">{link.size || "Unknown"}</span>
-                      </td>
-                      <td className="px-6 py-5 text-right">
-                        <a 
-                          href={link.url}
-                          target="_blank"
-                          className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-primary group-hover:ring-1 group-hover:ring-primary/50"
-                        >
-                          Download
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+            ))}
+            {(!movie.cast_details && !movie.actors) && <p className="col-span-full text-zinc-500 italic">No cast information available.</p>}
+          </motion.div>
         )}
 
-        {/* You May Also Like Section */}
-        {relatedMovies.length > 0 && (
-          <div className="mt-20 space-y-10">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-black uppercase tracking-wider text-white">You May Also Like</h2>
-              <div className="flex gap-2">
-                <button className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-zinc-500 transition-colors hover:bg-primary hover:text-white">
-                  <ChevronLeft size={20} />
-                </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-zinc-500 transition-colors hover:bg-primary hover:text-white">
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 h-[auto]">
-              {relatedMovies.map((m) => (
-                <div 
-                  key={m.id}
-                  onClick={() => router.push(`/movies/${m.id}`)}
-                  className="group cursor-pointer space-y-3"
-                >
-                  <div className="relative aspect-[2/3] overflow-hidden rounded-xl ring-1 ring-white/10 transition-all group-hover:ring-primary group-hover:-translate-y-2">
+        {/* Related Tab */}
+        {activeTab === "related" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {relatedMovies.length > 0 ? relatedMovies.map((m) => (
+               <div 
+                 key={m.id}
+                 onClick={() => router.push(`/movies/${m.id}`)}
+                 className="group cursor-pointer space-y-3"
+               >
+                 <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 shadow-lg transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-primary/20">
                     <Image
-                      src={m.image_url || m.image || "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2070&auto=format&fit=crop"}
+                      src={m.image_url || m.image}
                       alt={m.title}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-lg bg-black/60 px-2 py-1 text-[10px] font-black text-primary backdrop-blur-md">
-                      <Star size={10} fill="currentColor" />
-                      {m.rating}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-60" />
+                    
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                       <button className="h-8 w-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform">
+                          <Play size={12} fill="black" />
+                       </button>
                     </div>
-                  </div>
-                  <div className="space-y-1 px-1">
-                    <h3 className="line-clamp-1 text-sm font-black text-white group-hover:text-primary transition-colors">{m.title}</h3>
-                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{m.year}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                 </div>
+                 <h3 className="line-clamp-1 text-sm font-bold text-zinc-300 group-hover:text-white transition-colors">{m.title}</h3>
+               </div>
+            )) : <p className="col-span-full text-zinc-500 italic">No similar movies found.</p>}
+          </motion.div>
         )}
 
-        {/* Comments Section */}
-        <div className="mt-20 space-y-10 border-t border-white/5 pt-20">
-          <div className="flex items-center gap-4">
-            <MessageSquare size={24} className="text-primary" />
-            <h2 className="text-2xl font-black uppercase tracking-wider text-white">Comments</h2>
-          </div>
-          
-          <div className="rounded-3xl bg-zinc-900/30 p-12 text-center ring-1 ring-white/5 backdrop-blur-sm">
-            <p className="text-sm font-medium text-zinc-400">
-              You must be <span className="font-bold text-primary cursor-pointer hover:underline" onClick={() => router.push('/login')}>logged in</span> to post a comment.
-            </p>
-          </div>
-        </div>
+        {/* Reviews/Comments Tab */}
+        {activeTab === "reviews" && (
+           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <CommentSection mediaId={movie.id} mediaType="movie" />
+           </motion.div>
+        )}
+
       </div>
+
+      {/* Video Player Modal */}
+      <AnimatePresence>
+        {isPlaying && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/95 backdrop-blur-xl">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-6xl aspect-video rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10"
+            >
+              <button 
+                onClick={() => setIsPlaying(false)}
+                className="absolute right-6 top-6 z-10 h-10 w-10 flex items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-white hover:text-black transition-all"
+              >
+                <X size={20} />
+              </button>
+              <VideoPlayer url={movie.video_url} title={movie.title} autoPlay={true} />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </main>
   );
 }

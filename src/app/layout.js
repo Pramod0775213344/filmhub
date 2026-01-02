@@ -18,9 +18,7 @@ export const metadata = {
   description: "Discover the latest movies, trending releases, and curate your personal watchlist with FilmHub. The premium platform for film enthusiasts.",
   keywords: ["movies", "streaming", "films", "watchlist", "cinema", "trailers"],
   authors: [{ name: "FilmHub Team" }],
-  icons: {
-    icon: "/favicon.ico",
-  },
+
 };
 
 export const viewport = {
