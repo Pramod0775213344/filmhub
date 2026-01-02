@@ -14,7 +14,8 @@ import {
   Bell,
   User,
   ChevronRight,
-  Play
+  Play,
+  Clapperboard
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,6 +24,7 @@ import { createClient } from "@/utils/supabase/client";
 const menuItems = [
   { name: "Analytics", href: "/admin/dashboard", icon: BarChart3 },
   { name: "Movies", href: "/admin/dashboard/movies", icon: Film },
+  { name: "Sinhala Movies", href: "/admin/dashboard/sinhala-movies", icon: Clapperboard },
   { name: "TV Shows", href: "/admin/dashboard/tv-shows", icon: Tv },
   { name: "Users", href: "/admin/dashboard/users", icon: Users },
   { name: "Settings", href: "/admin/dashboard/settings", icon: Settings },

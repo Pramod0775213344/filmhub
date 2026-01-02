@@ -96,7 +96,7 @@ export default function Hero({ featuredMovies }) {
               </div>
               <div className="flex flex-wrap items-center gap-4 pt-6 md:gap-6">
                 <button 
-                   onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}` : `/movies/${featuredMovies[current].id}`)}
+                  onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}#movie-player` : `/movies/${featuredMovies[current].id}#movie-player`)}
                   className="cinematic-glow group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full bg-primary px-6 py-4 text-base font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95 sm:w-auto sm:px-12 sm:py-5 sm:text-lg"
                   aria-label={`Play ${featuredMovies[current].title}`}
                 >

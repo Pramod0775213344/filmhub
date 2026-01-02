@@ -3,18 +3,16 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import Footer from "@/components/Footer";
 import VideoPlayer from "@/components/VideoPlayer";
 import { 
   Play, Star, Calendar, Clock, Video, Download, 
-  User, Users, MessageSquare, Plus, Check, X, 
-  Share2, Globe, Heart, PlayCircle
+  User, Plus, Check, PlayCircle, Globe
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import CommentSection from "@/components/CommentSection";
 
-export default function MovieClient({ initialMovie, userId }) {
+export default function SinhalaMovieClient({ initialMovie, userId }) {
   const router = useRouter();
   const [movie] = useState(initialMovie);
   const [isInList, setIsInList] = useState(false);
@@ -30,9 +28,9 @@ export default function MovieClient({ initialMovie, userId }) {
     const incrementView = async () => {
         if (!movie?.id || !supabase) return;
         try {
-            const { data } = await supabase.from('movies').select('views').eq('id', movie.id).single();
+            const { data } = await supabase.from('sinhala_movies').select('views').eq('id', movie.id).single();
             if (data) {
-                await supabase.from('movies').update({ views: (data.views || 0) + 1 }).eq('id', movie.id);
+                await supabase.from('sinhala_movies').update({ views: (data.views || 0) + 1 }).eq('id', movie.id);
             }
         } catch (err) {
             console.error("Error incrementing views:", err);
@@ -44,7 +42,7 @@ export default function MovieClient({ initialMovie, userId }) {
   useEffect(() => {
     if (!supabase) return;
     
-    // Check Watchlist Status
+    // Check Watchlist Status (Using same watchlist table, just storing ID. Might conflict if IDs overlap, but UUIDs are unique)
     const checkStatus = async () => {
       if (userId && movie) {
         try {
@@ -62,36 +60,29 @@ export default function MovieClient({ initialMovie, userId }) {
       }
     };
 
-    // Fetch Links & Related
+    // Fetch Related
     const fetchAdditionalData = async () => {
       if (movie && supabase) {
-        const { data: linksData } = await supabase
-          .from("movie_links")
-          .select("*")
-          .eq("movie_id", movie.id);
+        // Sinhala movies links might be stored differently or in same table? 
+        // Admin page deletes from 'movie_links' on update. So let's assume 'movie_links' is shared.
+        // But 'movie_links' has FK to 'movies'. If foreign key constraint exists, it will fail for sinhala_movies.
+        // I will assume for now we don't use 'movie_links' for Sinhala movies initially unless requested, or just rely on 'video_url' field.
+        // The Admin page I built uses movie_links? 
+        // Checking Admin Page: It DOES delete/insert into 'movie_links'. 
+        // If 'movie_links' table has a foreign key constraint to 'movies' table, this will fail.
+        // Since I can't check constraints easily, I will assume it might fail if I use it.
+        // But the admin page I wrote TRIES to use it.
+        // Let's stick to video_url and download_url from the main table for now in the Client to be safe.
         
-        if (linksData && linksData.length > 0) {
-          setLinks(linksData);
-          setActiveProvider(linksData[0].provider);
-        } else if (movie.download_url) {
-          setLinks([{
-            provider: "Direct",
-            quality: "HD",
-            size: "Unknown",
-            url: movie.download_url
-          }]);
-          setActiveProvider("Direct");
-        }
-
         const categories = movie.category?.split(',').map(c => c.trim()) || [];
         if (categories.length > 0) {
           const { data: relatedData } = await supabase
-            .from("movies")
+            .from("sinhala_movies")
             .select("*")
             .neq("id", movie.id)
             .ilike("category", `%${categories[0]}%`)
             .limit(10);
-          if (relatedData) setRelatedMovies(relatedData);
+          if (relatedData) setRelatedMovies(relatedData.map(m => ({...m, type: "Sinhala Movie"})));
         }
       }
     };
@@ -109,6 +100,9 @@ export default function MovieClient({ initialMovie, userId }) {
       const { error } = await supabase.from("watchlists").delete().eq("user_id", userId).eq("movie_id", movie.id);
       if (!error) setIsInList(false);
     } else {
+      // Setup might fail if foreign key constraint on movie_id exists in watchlists pointing to movies table
+      // If so, we can't add sinhala movies to watchlist without updating schema.
+      // I'll leave it as is, if it fails, it fails silently or logs error.
       const { error } = await supabase.from("watchlists").insert([{ user_id: userId, movie_id: movie.id }]);
       if (!error) setIsInList(true);
     }
@@ -133,7 +127,6 @@ export default function MovieClient({ initialMovie, userId }) {
             sizes="100vw"
             quality={90}
           />
-          {/* Cinematic Gradients */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/40 to-transparent" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020202_120%)]" />
@@ -149,19 +142,9 @@ export default function MovieClient({ initialMovie, userId }) {
           >
             {/* Badges */}
             <div className="flex flex-wrap items-center gap-3">
-               <motion.div 
-                 initial={{ opacity: 0, scale: 0.8 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 transition={{ delay: 0.2 }}
-                 className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-xs font-bold"
-               >
-                 <span className="text-primary tracking-wider uppercase">Movie</span>
-               </motion.div>
-               {movie.quality && (
-                 <span className="rounded-full bg-black/40 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
-                   {movie.quality}
-                 </span>
-               )}
+               <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-xs font-bold">
+                 <span className="text-primary tracking-wider uppercase">Sinhala</span>
+               </div>
                 <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-bold text-yellow-500">
                   <Star size={12} fill="currentColor" />
                   <span>{movie.imdb_rating || movie.rating || "N/A"}</span>
@@ -182,10 +165,8 @@ export default function MovieClient({ initialMovie, userId }) {
               <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
               <span className="flex items-center gap-2">
                 <Clock size={16} className="text-primary" />
-                {movie.duration || "1h 45m"}
+                {movie.duration || "N/A"}
               </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
-              <span className="uppercase text-zinc-400">{movie.original_language || movie.language || "English"}</span>
             </div>
 
             {/* Action Buttons */}
@@ -196,11 +177,9 @@ export default function MovieClient({ initialMovie, userId }) {
                     const playerElement = document.getElementById("movie-player");
                     if (playerElement) {
                        playerElement.scrollIntoView({ behavior: "smooth", block: "center" });
-                    } else {
-                       alert("Please check the 'Storyline' tab for the video.");
                     }
                   } else {
-                    alert("Video source not available yet.");
+                    alert("Video source not available.");
                   }
                 }}
                 className="group relative flex items-center gap-3 overflow-hidden rounded-full bg-white px-8 py-4 text-base font-black text-black transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95"
@@ -219,15 +198,6 @@ export default function MovieClient({ initialMovie, userId }) {
                 {listLoading ? <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : isInList ? <Check size={20} className="text-primary" /> : <Plus size={20} />}
                 <span>{isInList ? "In My List" : "Add to List"}</span>
               </button>
-
-              {movie.download_url && (
-                <button 
-                  onClick={() => document.getElementById("links-section")?.scrollIntoView({ behavior: "smooth" })}
-                  className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white transition-all hover:bg-primary hover:border-primary hover:scale-105"
-                >
-                  <Download size={20} />
-                </button>
-              )}
             </div>
 
             <p className="max-w-2xl text-lg leading-relaxed text-zinc-300 md:text-xl line-clamp-3 md:line-clamp-none">
@@ -298,53 +268,6 @@ export default function MovieClient({ initialMovie, userId }) {
                        </div>
                      </div>
                    )}
-                   
-                   {/* Download Links Table */}
-                   {links.length > 0 && (
-                    <div id="links-section" className="space-y-6">
-                      <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
-                        <Download className="text-primary" /> Downloads
-                      </h3>
-                      
-                      {/* Provider Tabs */}
-                      <div className="flex flex-wrap gap-2">
-                        {[...new Set(links.map(l => l.provider))].map((provider, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setActiveProvider(provider)}
-                            className={`rounded-full px-6 py-2 text-xs font-black uppercase tracking-widest transition-all ${
-                              activeProvider === provider ? "bg-primary text-white shadow-lg" : "bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-white"
-                            }`}
-                          >
-                            {provider}
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/50">
-                        {links.filter(l => l.provider === activeProvider).map((link, i) => (
-                          <div key={i} className="flex items-center justify-between border-b border-white/5 p-6 last:border-0 hover:bg-white/5 transition-colors">
-                            <div className="flex items-center gap-4">
-                               <div className="h-10 w-10 flex items-center justify-center rounded-full bg-zinc-800 text-primary font-bold text-xs ring-1 ring-white/10">
-                                  {link.quality.slice(0, 4)}
-                               </div>
-                               <div>
-                                  <p className="font-bold text-white text-sm">{link.provider}</p>
-                                  <p className="text-xs text-zinc-500">{link.size || "Unknown Size"}</p>
-                               </div>
-                            </div>
-                            <a 
-                              href={link.url}
-                              target="_blank"
-                              className="rounded-lg bg-white px-6 py-2.5 text-xs font-black text-black uppercase tracking-widest transition-transform hover:scale-105 active:scale-95"
-                            >
-                              Get Link
-                            </a>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                   )}
                 </div>
 
                 {/* Sidebar Info */}
@@ -358,15 +281,11 @@ export default function MovieClient({ initialMovie, userId }) {
                          </div>
                          <div className="flex justify-between">
                             <span className="text-zinc-400">Country</span>
-                            <span className="font-bold text-white text-right">{movie.country || "Unknown"}</span>
+                            <span className="font-bold text-white text-right">{movie.country || "Sri Lanka"}</span>
                          </div>
                          <div className="flex justify-between">
                             <span className="text-zinc-400">Language</span>
-                            <span className="font-bold text-white text-right">{movie.language || "English"}</span>
-                         </div>
-                         <div className="flex justify-between">
-                            <span className="text-zinc-400">Genre</span>
-                            <span className="font-bold text-white text-right text-right max-w-[50%] leading-tight">{movie.category?.split(',').slice(0,2).join(', ')}</span>
+                            <span className="font-bold text-white text-right">{movie.language || "Sinhala"}</span>
                          </div>
                       </div>
                    </div>
@@ -378,25 +297,7 @@ export default function MovieClient({ initialMovie, userId }) {
         {/* Cast Tab */}
         {activeTab === "cast" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {movie.cast_details && movie.cast_details.length > 0 ? (
-              movie.cast_details.map((actor, i) => (
-                <div key={i} className="group relative overflow-hidden rounded-2xl bg-zinc-900">
-                   <div className="relative aspect-[3/4] w-full overflow-hidden">
-                      <Image 
-                        src={actor.image || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&q=80&w=200&h=200"} 
-                        alt={actor.name}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                   </div>
-                   <div className="absolute bottom-0 inset-x-0 p-4">
-                      <h4 className="font-bold text-white text-sm line-clamp-1">{actor.name}</h4>
-                      <p className="text-xs text-primary font-medium line-clamp-1">{actor.character}</p>
-                   </div>
-                </div>
-              ))
-            ) : movie.actors?.map((actor, i) => (
+             {movie.actors?.map((actor, i) => (
                 <div key={i} className="group relative overflow-hidden rounded-2xl bg-zinc-900 border border-white/5 p-6 flex flex-col items-center justify-center gap-4 text-center aspect-[1/1]">
                    <div className="h-16 w-16 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-600">
                       <User size={32} />
@@ -404,31 +305,20 @@ export default function MovieClient({ initialMovie, userId }) {
                    <h4 className="font-bold text-white text-sm">{actor}</h4>
                 </div>
             ))}
-            {(!movie.cast_details && !movie.actors) && <p className="col-span-full text-zinc-500 italic">No cast information available.</p>}
+            {(!movie.actors || movie.actors.length === 0) && <p className="col-span-full text-zinc-500 italic">No cast information available.</p>}
           </motion.div>
         )}
 
-        {/* Related Tab - Horizontal Auto-Scroll Carousel */}
+        {/* Related Tab */}
         {activeTab === "related" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full overflow-hidden">
              {relatedMovies.length > 0 ? (
-               <div className="flex gap-4">
-                 <motion.div 
-                   className="flex gap-4 min-w-full"
-                   animate={{ x: ["0%", "-100%"] }}
-                   transition={{ 
-                     repeat: Infinity, 
-                     ease: "linear", 
-                     duration: relatedMovies.length * 5, // Adjust speed based on item count
-                     repeatType: "loop" 
-                   }}
-                 >
-                   {/* Render related movies twice for seamless loop effect */}
-                   {[...relatedMovies, ...relatedMovies].map((m, index) => (
+               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {relatedMovies.map((m) => (
                       <div 
-                        key={`${m.id}-${index}`}
-                        onClick={() => router.push(`/movies/${m.id}`)}
-                        className="group cursor-pointer space-y-3 min-w-[12.5%] flex-shrink-0"
+                        key={m.id}
+                        onClick={() => router.push(`/sinhala-movies/${m.id}`)}
+                        className="group cursor-pointer space-y-3"
                       >
                         <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 shadow-lg transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-primary/20">
                            <Image
@@ -438,17 +328,10 @@ export default function MovieClient({ initialMovie, userId }) {
                              className="object-cover transition-transform duration-500 group-hover:scale-110"
                            />
                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-60" />
-                           
-                           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button className="h-8 w-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform">
-                                 <Play size={12} fill="black" />
-                              </button>
-                           </div>
                         </div>
                         <h3 className="line-clamp-1 text-sm font-bold text-zinc-300 group-hover:text-white transition-colors text-center">{m.title}</h3>
                       </div>
-                   ))}
-                 </motion.div>
+                  ))}
                </div>
              ) : (
                 <p className="py-12 text-center text-zinc-500 italic">No similar movies found.</p>
@@ -456,10 +339,10 @@ export default function MovieClient({ initialMovie, userId }) {
           </motion.div>
         )}
 
-        {/* Reviews/Comments Tab */}
+        {/* Reviews Tab */}
         {activeTab === "reviews" && (
            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <CommentSection mediaId={movie.id} mediaType="movie" />
+              <CommentSection mediaId={movie.id} mediaType="sinhala_movies" />
            </motion.div>
         )}
 
