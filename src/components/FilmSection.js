@@ -25,7 +25,7 @@ export default function FilmSection({ title, movies, href }) {
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-8">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
           {movies.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
           ))}

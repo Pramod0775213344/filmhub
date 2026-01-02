@@ -381,33 +381,51 @@ export default function MovieClient({ initialMovie, userId }) {
           </motion.div>
         )}
 
-        {/* Related Tab */}
+        {/* Related Tab - Horizontal Auto-Scroll Carousel */}
         {activeTab === "related" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {relatedMovies.length > 0 ? relatedMovies.map((m) => (
-               <div 
-                 key={m.id}
-                 onClick={() => router.push(`/movies/${m.id}`)}
-                 className="group cursor-pointer space-y-3"
-               >
-                 <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 shadow-lg transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-primary/20">
-                    <Image
-                      src={m.image_url || m.image}
-                      alt={m.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-60" />
-                    
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                       <button className="h-8 w-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform">
-                          <Play size={12} fill="black" />
-                       </button>
-                    </div>
-                 </div>
-                 <h3 className="line-clamp-1 text-sm font-bold text-zinc-300 group-hover:text-white transition-colors">{m.title}</h3>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full overflow-hidden">
+             {relatedMovies.length > 0 ? (
+               <div className="flex gap-4">
+                 <motion.div 
+                   className="flex gap-4 min-w-full"
+                   animate={{ x: ["0%", "-100%"] }}
+                   transition={{ 
+                     repeat: Infinity, 
+                     ease: "linear", 
+                     duration: relatedMovies.length * 5, // Adjust speed based on item count
+                     repeatType: "loop" 
+                   }}
+                 >
+                   {/* Render related movies twice for seamless loop effect */}
+                   {[...relatedMovies, ...relatedMovies].map((m, index) => (
+                      <div 
+                        key={`${m.id}-${index}`}
+                        onClick={() => router.push(`/movies/${m.id}`)}
+                        className="group cursor-pointer space-y-3 min-w-[12.5%] flex-shrink-0"
+                      >
+                        <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 shadow-lg transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-primary/20">
+                           <Image
+                             src={m.image_url || m.image}
+                             alt={m.title}
+                             fill
+                             className="object-cover transition-transform duration-500 group-hover:scale-110"
+                           />
+                           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-60" />
+                           
+                           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button className="h-8 w-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform">
+                                 <Play size={12} fill="black" />
+                              </button>
+                           </div>
+                        </div>
+                        <h3 className="line-clamp-1 text-sm font-bold text-zinc-300 group-hover:text-white transition-colors text-center">{m.title}</h3>
+                      </div>
+                   ))}
+                 </motion.div>
                </div>
-            )) : <p className="col-span-full text-zinc-500 italic">No similar movies found.</p>}
+             ) : (
+                <p className="py-12 text-center text-zinc-500 italic">No similar movies found.</p>
+             )}
           </motion.div>
         )}
 

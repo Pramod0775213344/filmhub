@@ -79,7 +79,7 @@ export default async function TVShowsPage({ searchParams }) {
             No TV shows found matching these filters
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 lg:gap-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 lg:gap-6">
             {shows.map((show) => (
               <MovieCard key={show.id} show={show} movie={show} />
             ))}

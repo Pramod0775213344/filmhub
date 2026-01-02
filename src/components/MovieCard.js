@@ -130,8 +130,8 @@ export default function MovieCard({ movie }) {
           </div>
         </div>
 
-        {/* Mobile Info (Shown Below Image) */}
-        <div className="mt-3 block md:hidden">
+        {/* Info Below Image (Visible by default, hidden on hover) */}
+        <div className="mt-3 transition-opacity duration-300 md:group-hover:opacity-0">
             <h3 className="font-display text-sm font-bold text-white line-clamp-1">{movie.title}</h3>
             <div className="flex items-center gap-2 text-[10px] font-medium text-zinc-400 mt-1">
               <div className="flex items-center gap-1 text-primary">
