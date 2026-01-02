@@ -22,6 +22,21 @@ export default function MovieClient({ initialMovie, userId }) {
   const supabase = createClient();
 
   useEffect(() => {
+    const incrementView = async () => {
+        if (!movie?.id || !supabase) return;
+        try {
+            const { data } = await supabase.from('movies').select('views').eq('id', movie.id).single();
+            if (data) {
+                await supabase.from('movies').update({ views: (data.views || 0) + 1 }).eq('id', movie.id);
+            }
+        } catch (err) {
+            console.error("Error incrementing views:", err);
+        }
+    };
+    incrementView();
+  }, [movie?.id, supabase]);
+
+  useEffect(() => {
     if (!supabase) return;
     const checkStatus = async () => {
       if (userId && movie) {

@@ -37,6 +37,21 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
   const currentEpisodes = seasons[activeSeason] || [];
 
   useEffect(() => {
+    const incrementView = async () => {
+        if (!show?.id || !supabase) return;
+        try {
+            const { data } = await supabase.from('movies').select('views').eq('id', show.id).single();
+            if (data) {
+                await supabase.from('movies').update({ views: (data.views || 0) + 1 }).eq('id', show.id);
+            }
+        } catch (err) {
+            console.error("Error incrementing views:", err);
+        }
+    };
+    incrementView();
+  }, [show?.id, supabase]);
+
+  useEffect(() => {
     if (!supabase || !userId) return;
     const checkStatus = async () => {
       try {

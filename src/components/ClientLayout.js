@@ -15,7 +15,7 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
-      <SmoothScroll />
+      {!pathname.startsWith("/admin") && <SmoothScroll />}
       {!hideLayout && <Navbar />}
       {children}
       {!hideLayout && <Footer />}
