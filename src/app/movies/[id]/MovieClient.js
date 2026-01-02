@@ -131,6 +131,8 @@ export default function MovieClient({ initialMovie, userId }) {
             fill
             className="object-cover opacity-60"
             priority
+            sizes="100vw"
+            quality={90}
           />
           {/* Cinematic Gradients */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent" />
@@ -152,16 +154,16 @@ export default function MovieClient({ initialMovie, userId }) {
                  initial={{ opacity: 0, scale: 0.8 }}
                  animate={{ opacity: 1, scale: 1 }}
                  transition={{ delay: 0.2 }}
-                 className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-bold backdrop-blur-md"
+                 className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-xs font-bold"
                >
                  <span className="text-primary tracking-wider uppercase">Movie</span>
                </motion.div>
                {movie.quality && (
-                 <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white backdrop-blur-md">
+                 <span className="rounded-full bg-black/40 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
                    {movie.quality}
                  </span>
                )}
-                <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/20 px-3 py-1 text-xs font-bold text-yellow-500 backdrop-blur-md">
+                <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-bold text-yellow-500">
                   <Star size={12} fill="currentColor" />
                   <span>{movie.imdb_rating || movie.rating || "N/A"}</span>
                 </div>
@@ -208,7 +210,7 @@ export default function MovieClient({ initialMovie, userId }) {
 
               <button 
                 onClick={toggleList}
-                className="group flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-8 py-4 text-base font-bold text-white backdrop-blur-md transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
+                className="group flex items-center gap-3 rounded-full border border-white/10 bg-black/50 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
               >
                 {listLoading ? <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : isInList ? <Check size={20} className="text-primary" /> : <Plus size={20} />}
                 <span>{isInList ? "In My List" : "Add to List"}</span>
@@ -217,7 +219,7 @@ export default function MovieClient({ initialMovie, userId }) {
               {movie.download_url && (
                 <button 
                   onClick={() => document.getElementById("links-section")?.scrollIntoView({ behavior: "smooth" })}
-                  className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition-all hover:bg-primary hover:border-primary hover:scale-105"
+                  className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white transition-all hover:bg-primary hover:border-primary hover:scale-105"
                 >
                   <Download size={20} />
                 </button>
