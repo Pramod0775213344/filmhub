@@ -63,19 +63,19 @@ export default function Hero({ featuredMovies }) {
           </motion.div>
 
           {/* Content */}
-          <div className="container-custom relative flex h-full flex-col justify-center pt-20 pb-24 md:pb-0 md:pt-48">
+          <div className="container-custom relative flex h-full flex-col justify-center pt-20 pb-24 md:pb-0 md:pt-32">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="max-w-3xl space-y-10"
+              className="max-w-3xl space-y-6 md:space-y-8"
             >
              
               <motion.h1 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
-                className="font-display text-4xl font-black leading-[0.9] tracking-tighter text-white sm:text-6xl md:text-8xl lg:text-9xl"
+                className={`font-display font-black leading-[0.9] tracking-tighter text-white line-clamp-2 ${getTitleSizeClass(featuredMovies[current].title)}`}
               >
                 {featuredMovies[current].title.split(' ').map((word, i) => (
                   <span key={i} className={i === 1 ? "text-primary italic" : "text-gradient"}>
@@ -84,7 +84,7 @@ export default function Hero({ featuredMovies }) {
                 ))}
               </motion.h1>
 
-              <p className="max-w-xl text-base font-medium leading-relaxed text-zinc-400 md:text-xl line-clamp-3 md:line-clamp-none">
+              <p className="max-w-xl text-base font-medium leading-relaxed text-zinc-400 md:text-xl line-clamp-3 md:line-clamp-4">
                 {featuredMovies[current].description}
               </p>
  <div className="flex items-center gap-3">
@@ -157,5 +157,18 @@ export default function Hero({ featuredMovies }) {
       <div className="absolute bottom-0 h-48 w-full bg-gradient-to-t from-background to-transparent" />
     </div>
   );
+}
+
+function getTitleSizeClass(title) {
+  if (!title) return "text-4xl sm:text-6xl md:text-8xl lg:text-9xl";
+  const length = title.length;
+  
+  if (length > 40) {
+    return "text-2xl sm:text-4xl md:text-5xl lg:text-6xl";
+  }
+  if (length > 20) {
+    return "text-3xl sm:text-5xl md:text-6xl lg:text-7xl";
+  }
+  return "text-4xl sm:text-6xl md:text-8xl lg:text-9xl";
 }
 

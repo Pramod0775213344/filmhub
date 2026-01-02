@@ -55,21 +55,23 @@ async function HomeContent({ search, category }) {
   }
 
   const featuredMovies = movies.slice(0, 5);
-  const trendingMovies = movies.slice(0, 6);
-  const newReleases = movies.slice(0, 8);
+  const trendingMovies = movies.slice(0, 16);
+  const newReleases = movies.slice(0, 16);
   const actionMovies = movies.filter(
     (m) => m.category === "Action" || m.category === "Sci-Fi"
-  );
+  ).slice(0, 16);
+  const tvShows = movies.filter((m) => m.type === "TV Show").slice(0, 16);
 
   return (
     <>
       <Hero featuredMovies={featuredMovies} />
 
-      <div className="container-custom relative z-10 -mt-20 space-y-20 pb-28 md:-mt-32 md:space-y-32">
+      <div className="container-custom relative z-10 -mt-20 space-y-20 pb-28 md:-mt-10 md:space-y-32">
         <FilmSection title="Trending Now" movies={trendingMovies} />
         <FilmSection title="New Releases" movies={newReleases} />
+        <FilmSection title="TV Shows" movies={tvShows} />
         <FilmSection title="Action & Sci-Fi" movies={actionMovies} />
-        <FilmSection title="Most Popular" movies={movies} />
+        <FilmSection title="Most Popular" movies={movies.slice(0, 16)} />
       </div>
     </>
   );
