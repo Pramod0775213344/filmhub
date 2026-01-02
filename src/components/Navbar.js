@@ -197,6 +197,9 @@ export default function Navbar() {
               <Link href="/sinhala-movies" className="transition-all hover:text-primary hover:tracking-[0.25em]">
                 Sinhala
               </Link>
+              <Link href="/korean-dramas" className="transition-all hover:text-primary hover:tracking-[0.25em]">
+                Korean
+              </Link>
               <Link href="/contact" className="transition-all hover:text-primary hover:tracking-[0.25em]">
                 Contact
               </Link>

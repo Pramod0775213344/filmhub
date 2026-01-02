@@ -62,7 +62,12 @@ export default function MovieCard({ movie }) {
   };
 
   return (
-    <Link href={movie.type === "TV Show" ? `/tv-shows/${movie.id}` : movie.type === "Sinhala Movie" ? `/sinhala-movies/${movie.id}` : `/movies/${movie.id}`}>
+    <Link href={
+      movie.type === "TV Show" ? `/tv-shows/${movie.id}` : 
+      movie.type === "Sinhala Movie" ? `/sinhala-movies/${movie.id}` : 
+      movie.type === "Korean Drama" ? `/korean-dramas/${movie.id}` : 
+      `/movies/${movie.id}`
+    }>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
