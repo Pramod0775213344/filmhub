@@ -67,11 +67,11 @@ async function HomeContent({ search, category }) {
       <Hero featuredMovies={featuredMovies} />
 
       <div className="container-custom relative z-10 -mt-20 space-y-20 pb-28 md:-mt-10 md:space-y-32">
-        <FilmSection title="Trending Now" movies={trendingMovies} />
-        <FilmSection title="New Releases" movies={newReleases} />
-        <FilmSection title="TV Shows" movies={tvShows} />
-        <FilmSection title="Action & Sci-Fi" movies={actionMovies} />
-        <FilmSection title="Most Popular" movies={movies.slice(0, 16)} />
+        <FilmSection title="Trending Now" movies={trendingMovies} href="/movies?sort=latest" />
+        <FilmSection title="New Releases" movies={newReleases} href="/movies?sort=year" />
+        <FilmSection title="TV Shows" movies={tvShows} href="/tv-shows" />
+        <FilmSection title="Action & Sci-Fi" movies={actionMovies} href="/movies?category=Action" />
+        <FilmSection title="Most Popular" movies={movies.slice(0, 16)} href="/movies?sort=rating" />
       </div>
     </>
   );
