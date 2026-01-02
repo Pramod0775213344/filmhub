@@ -63,7 +63,7 @@ export default function Hero({ featuredMovies }) {
           </motion.div>
 
           {/* Content */}
-          <div className="container-custom relative flex h-full flex-col justify-center pt-32 md:pt-48">
+          <div className="container-custom relative flex h-full flex-col justify-center pt-20 pb-24 md:pb-0 md:pt-48">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -75,7 +75,7 @@ export default function Hero({ featuredMovies }) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
-                className="font-display text-6xl font-black leading-[0.9] tracking-tighter text-white md:text-8xl lg:text-9xl"
+                className="font-display text-4xl font-black leading-[0.9] tracking-tighter text-white sm:text-6xl md:text-8xl lg:text-9xl"
               >
                 {featuredMovies[current].title.split(' ').map((word, i) => (
                   <span key={i} className={i === 1 ? "text-primary italic" : "text-gradient"}>
@@ -84,7 +84,7 @@ export default function Hero({ featuredMovies }) {
                 ))}
               </motion.h1>
 
-              <p className="max-w-xl text-lg font-medium leading-relaxed text-zinc-400 md:text-xl">
+              <p className="max-w-xl text-base font-medium leading-relaxed text-zinc-400 md:text-xl line-clamp-3 md:line-clamp-none">
                 {featuredMovies[current].description}
               </p>
  <div className="flex items-center gap-3">
@@ -97,10 +97,10 @@ export default function Hero({ featuredMovies }) {
                   {featuredMovies[current].year}
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-6 pt-6">
+              <div className="flex flex-wrap items-center gap-4 pt-6 md:gap-6">
                 <button 
                    onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}` : `/movies/${featuredMovies[current].id}`)}
-                  className="cinematic-glow group relative flex items-center gap-4 overflow-hidden rounded-full bg-primary px-12 py-5 text-lg font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
+                  className="cinematic-glow group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full bg-primary px-6 py-4 text-base font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95 sm:w-auto sm:px-12 sm:py-5 sm:text-lg"
                   aria-label={`Play ${featuredMovies[current].title}`}
                 >
                   <Play size={24} fill="currentColor" />
@@ -109,7 +109,7 @@ export default function Hero({ featuredMovies }) {
                 </button>
                 <button 
                   onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}` : `/movies/${featuredMovies[current].id}`)}
-                  className="group relative flex items-center gap-4 overflow-hidden rounded-full bg-white/5 px-12 py-5 text-lg font-black uppercase tracking-widest text-white backdrop-blur-2xl transition-all hover:bg-white/10 active:scale-95 border border-white/10"
+                  className="group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full bg-white/5 px-6 py-4 text-base font-black uppercase tracking-widest text-white backdrop-blur-2xl transition-all hover:bg-white/10 active:scale-95 border border-white/10 sm:w-auto sm:px-12 sm:py-5 sm:text-lg"
                   aria-label="View details"
                 >
                   <Info size={24} />
@@ -122,25 +122,25 @@ export default function Hero({ featuredMovies }) {
       </AnimatePresence>
 
       {/* Navigation Controls */}
-      <div className="absolute bottom-12 right-12 z-20 flex items-center gap-4">
+      <div className="absolute bottom-6 right-6 z-20 flex items-center gap-4 md:bottom-12 md:right-12">
         <button 
           onClick={prevSlide}
-          className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md transition-all hover:border-primary hover:bg-primary hover:text-white"
+          className="group flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md transition-all hover:border-primary hover:bg-primary hover:text-white md:h-14 md:w-14"
           aria-label="Previous slide"
         >
-          <ChevronLeft size={32} />
+          <ChevronLeft size={20} className="md:w-8 md:h-8"/>
         </button>
         <button 
           onClick={nextSlide}
-          className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md transition-all hover:border-primary hover:bg-primary hover:text-white"
+          className="group flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md transition-all hover:border-primary hover:bg-primary hover:text-white md:h-14 md:w-14"
           aria-label="Next slide"
         >
-          <ChevronRight size={32} />
+          <ChevronRight size={20} className="md:w-8 md:h-8"/>
         </button>
       </div>
 
       {/* Page Indicators */}
-      <div className="absolute bottom-12 left-12 z-20 flex gap-3">
+      <div className="absolute bottom-8 left-6 z-20 flex gap-3 md:bottom-12 md:left-12">
         {featuredMovies && featuredMovies.map((_, i) => (
           <button
             key={i}

@@ -69,65 +69,80 @@ export default function MovieCard({ movie }) {
         viewport={{ once: true }}
         whileHover={{ scale: 1.05, zIndex: 10 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="group relative aspect-[2/3] w-full cursor-pointer overflow-hidden rounded-xl bg-zinc-900 shadow-2xl"
+        className="group relative w-full cursor-pointer"
       >
-      {/* Movie Image */}
-      <Image
-        src={movie.image_url || movie.image}
-        alt={movie.title}
-        fill
-        className="object-cover transition-transform duration-700 group-hover:scale-110"
-        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
-      />
+        <div className="aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-900 shadow-2xl relative">
+          {/* Movie Image */}
+          <Image
+            src={movie.image_url || movie.image}
+            alt={movie.title}
+            fill
+            className="object-cover transition-transform duration-700 md:group-hover:scale-110"
+            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+          />
 
-      {/* Gradient Overlay */}
-      <div className="movie-card-gradient absolute inset-0 opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
+          {/* Gradient Overlay (Desktop Only) */}
+          <div className="movie-card-gradient absolute inset-0 opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 hidden md:block" />
 
-      {/* Badges */}
-      <div className="absolute left-3 top-3 flex flex-col gap-2 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2">
-        <span className="rounded bg-primary px-2 py-0.5 text-[10px] font-black uppercase tracking-tighter text-white shadow-lg">
-          Top 10
-        </span>
-        <span className="rounded bg-white/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-tighter text-white backdrop-blur-md border border-white/10">
-          4K
-        </span>
-      </div>
-
-      {/* Info Overlay */}
-      <div className="absolute inset-0 flex flex-col justify-end p-5 opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 translate-y-6">
-        <h3 className="font-display text-lg font-black leading-tight text-white mb-2 line-clamp-2">
-          {movie.title}
-        </h3>
-        
-        <div className="flex items-center gap-3 text-xs font-bold text-zinc-400">
-          <div className="flex items-center gap-1.5 text-primary">
-            <Star size={12} fill="currentColor" />
-            <span>{movie.rating}</span>
+          {/* Badges */}
+          <div className="absolute left-3 top-3 flex flex-col gap-2">
+             {/* Always visible Top 10 badge for context, or hide if preferred */}
+             {movie.rating > 8.5 && (
+               <span className="rounded bg-primary px-2 py-0.5 text-[10px] font-black uppercase tracking-tighter text-white shadow-lg">
+                Top Rated
+              </span>
+             )}
           </div>
-          <span className="h-1 w-1 rounded-full bg-zinc-700" />
-          <span>{movie.year}</span>
+
+          {/* Info Overlay (Desktop Hover) */}
+          <div className="absolute inset-0 hidden flex-col justify-end p-5 opacity-0 transition-all duration-500 md:flex md:group-hover:opacity-100 md:group-hover:translate-y-0 md:translate-y-6">
+            <h3 className="font-display text-lg font-black leading-tight text-white mb-2 line-clamp-2">
+              {movie.title}
+            </h3>
+            
+            <div className="flex items-center gap-3 text-xs font-bold text-zinc-400">
+              <div className="flex items-center gap-1.5 text-primary">
+                <Star size={12} fill="currentColor" />
+                <span>{movie.rating}</span>
+              </div>
+              <span className="h-1 w-1 rounded-full bg-zinc-700" />
+              <span>{movie.year}</span>
+            </div>
+
+            <div className="mt-4 flex items-center gap-3 scale-90 origin-left">
+              <button 
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-110 active:scale-95 shadow-xl"
+                aria-label={`Play ${movie.title}`}
+              >
+                <Play size={20} fill="currentColor" />
+              </button>
+              <button 
+                onClick={toggleList}
+                disabled={loading}
+                aria-label={isInList ? "Remove from watchlist" : "Add to watchlist"}
+                className={`flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md border border-white/10 transition-all hover:scale-110 active:scale-95 ${
+                  isInList ? "bg-primary text-white" : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                {loading ? <Loader2 className="animate-spin" size={20} /> : isInList ? <Check size={20} /> : <Plus size={20} />}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-3 scale-90 origin-left">
-          <button 
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-110 active:scale-95 shadow-xl"
-            aria-label={`Play ${movie.title}`}
-          >
-            <Play size={20} fill="currentColor" />
-          </button>
-          <button 
-            onClick={toggleList}
-            disabled={loading}
-            aria-label={isInList ? "Remove from watchlist" : "Add to watchlist"}
-            className={`flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md border border-white/10 transition-all hover:scale-110 active:scale-95 ${
-              isInList ? "bg-primary text-white" : "bg-white/10 text-white hover:bg-white/20"
-            }`}
-          >
-            {loading ? <Loader2 className="animate-spin" size={20} /> : isInList ? <Check size={20} /> : <Plus size={20} />}
-          </button>
+        {/* Mobile Info (Shown Below Image) */}
+        <div className="mt-3 block md:hidden">
+            <h3 className="font-display text-sm font-bold text-white line-clamp-1">{movie.title}</h3>
+            <div className="flex items-center gap-2 text-[10px] font-medium text-zinc-400 mt-1">
+              <div className="flex items-center gap-1 text-primary">
+                <Star size={10} fill="currentColor" />
+                <span>{movie.rating}</span>
+              </div>
+              <span className="h-0.5 w-0.5 rounded-full bg-zinc-700" />
+              <span>{movie.year}</span>
+            </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
     </Link>
   );
 }

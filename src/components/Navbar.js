@@ -139,7 +139,7 @@ export default function Navbar() {
 
           {/* Right: Icons */}
           <div className="flex items-center gap-4 text-zinc-100 md:gap-6">
-            <div className={`relative flex items-center transition-all duration-500 ${isSearchOpen ? "w-64" : "w-10"}`}>
+            <div className={`relative flex items-center transition-all duration-500 ${isSearchOpen ? "w-36 md:w-64" : "w-10"}`}>
               <button 
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                 className="absolute left-2 z-10 transition-transform hover:scale-110 hover:text-primary"
@@ -202,7 +202,7 @@ export default function Navbar() {
             ) : (
               <Link 
                 href="/login"
-                className="rounded-full bg-primary px-6 py-2.5 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95 cinematic-glow"
+                className="hidden md:block rounded-full bg-primary px-6 py-2.5 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95 cinematic-glow"
               >
                 Sign In
               </Link>

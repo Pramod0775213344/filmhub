@@ -16,8 +16,8 @@
   --color-primary-hover: var(--primary-hover);
   --color-secondary: var(--secondary);
 
-  --font-sans: 'Inter', var(--font-geist-sans), sans-serif;
-  --font-display: 'Outfit', sans-serif;
+  --font-sans: "Inter", var(--font-geist-sans), sans-serif;
+  --font-display: "Outfit", sans-serif;
 }
 
 body {
@@ -33,24 +33,24 @@ body {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding: 1.5rem; /* Mobile padding (all sides) */
+  padding-inline: 1.5rem; /* Mobile padding (sides only) */
 }
 
 @media (min-width: 768px) {
   .container-custom {
-    padding: 3rem; /* Tablet padding */
+    padding-inline: 3rem; /* Tablet padding */
   }
 }
 
 @media (min-width: 1024px) {
   .container-custom {
-    padding: 4rem; /* Desktop padding */
+    padding-inline: 4rem; /* Desktop padding */
   }
 }
 
 @media (min-width: 1536px) {
   .container-custom {
-    padding: 5rem; /* Large Desktop padding */
+    padding-inline: 5rem; /* Large Desktop padding */
   }
 }
 
@@ -66,14 +66,23 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(to bottom right, #fff 30%, rgba(255, 255, 255, 0.5));
+  background: linear-gradient(
+    to bottom right,
+    #fff 30%,
+    rgba(255, 255, 255, 0.5)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .movie-card-gradient {
-  background: linear-gradient(to top, rgba(2, 2, 2, 0.95) 0%, rgba(2, 2, 2, 0.4) 50%, transparent 100%);
+  background: linear-gradient(
+    to top,
+    rgba(2, 2, 2, 0.95) 0%,
+    rgba(2, 2, 2, 0.4) 50%,
+    transparent 100%
+  );
 }
 
 ::-webkit-scrollbar {

@@ -7,7 +7,7 @@ export default function Footer() {
   return (
     <footer className="bg-secondary py-20 text-zinc-400">
       <div className="container-custom">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-4 lg:gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4 md:gap-12 lg:gap-8">
           {/* Logo and About */}
           <div className="space-y-6 md:col-span-1">
             <Link href="/" className="flex items-center gap-1">
