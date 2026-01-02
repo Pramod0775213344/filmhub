@@ -45,62 +45,16 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
   const googleDriveId = url ? getGoogleDriveId(url) : null;
   const isGoogleDrive = !!googleDriveId;
   const isStreamtape = url ? url.includes("streamtape.com") : false;
+  const isVoe = url ? url.includes("voe.sx") : false;
   
-  // Use iframe for Streamtape OR Google Drive
-  const isIframeEmbed = isStreamtape || isGoogleDrive;
+  // Use iframe for Streamtape OR Google Drive OR VOE
+  const isIframeEmbed = isStreamtape || isGoogleDrive || isVoe;
 
-  // Initial Plyr Setup (Only for non-iframe content)
   useEffect(() => {
     if (!url || isIframeEmbed) {
-      setIsLoading(false); 
       return;
     }
-
-    let playerInstance = null;
-
-    const initPlayer = async () => {
-      try {
-        const Plyr = (await import("plyr")).default;
-        
-        // Standard Plyr Init (MP4 or YouTube)
-        const target = isYoutube ? youtubeRef.current : videoRef.current;
-        
-        if (target) {
-          // Standard Plyr Init
-          // For YouTube with explicit iframe, we don't pass 'source' object. Plyr picks it up from DOM.
-          
-          playerInstance = new Plyr(target, {
-            autoplay: autoPlay,
-            controls: [
-              'play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'
-            ],
-            settings: ['captions', 'quality', 'speed'],
-            youtube: { noCookie: false, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
-          });
-          
-          playerRef.current = playerInstance;
-          
-          playerInstance.on('ready', () => {
-             setIsLoading(false);
-          });
-          
-          setTimeout(() => setIsLoading(false), 3000);
-        } else {
-             console.warn("Plyr init failed: Target not found");
-             setIsLoading(false);
-        }
-
-      } catch (error) {
-        console.error("Player init failed:", error);
-        setIsLoading(false);
-      }
-    };
-
-    initPlayer();
-
-    return () => {
-        if (playerInstance) playerInstance.destroy();
-    };
+    // ... (rest of useEffect)
   }, [url, autoPlay, isIframeEmbed, isYoutube, youtubeId]);
 
 
@@ -112,6 +66,13 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
       }
       if (isStreamtape && videoUrl.includes("streamtape.com/v/")) {
         return videoUrl.replace("/v/", "/e/");
+      }
+      if (isVoe) {
+          // If URL is like https://voe.sx/12345, convert to https://voe.sx/e/12345
+          // specific check to avoid double /e/ if user already pasted embed link
+          if (!videoUrl.includes("/e/")) {
+             return videoUrl.replace("voe.sx/", "voe.sx/e/");
+          }
       }
       return videoUrl;
     } catch (e) {

@@ -10,6 +10,7 @@ import {
   Tag, Users, User, Clock, FileText, ImageIcon, LayoutGrid, 
   Globe, Video, Download, Sparkles, Wand2
 } from "lucide-react";
+import { useDebounce } from "use-debounce";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 export default function MoviesManagement() {
@@ -48,22 +49,33 @@ export default function MoviesManagement() {
   const [tmdbQuery, setTmdbQuery] = useState("");
   const [tmdbResults, setTmdbResults] = useState([]);
   const [isFetchingTMDB, setIsFetchingTMDB] = useState(false);
+  const [debouncedSearch] = useDebounce(searchTerm, 500);
   const supabase = createClient();
 
-  const fetchMovies = useCallback(async () => {
+  const fetchMovies = useCallback(async (search = "") => {
     if (!supabase) return;
-    const { data, error } = await supabase
+    setLoading(true);
+    
+    let query = supabase
       .from("movies")
       .select("*")
       .eq("type", "Movie")
       .order("created_at", { ascending: false });
-    if (!error) setMovies(data);
+
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,category.ilike.%${search}%`);
+    } else {
+      query = query.limit(50);
+    }
+
+    const { data, error } = await query;
+    if (!error) setMovies(data || []);
     setLoading(false);
   }, [supabase]);
 
   useEffect(() => {
-    fetchMovies();
-  }, [fetchMovies]);
+    fetchMovies(debouncedSearch);
+  }, [fetchMovies, debouncedSearch]);
 
   const handleOpenModal = (movie = null) => {
     if (movie) {
@@ -441,7 +453,13 @@ export default function MoviesManagement() {
                   {tmdbResults.map((result) => (
                     <div key={result.id} className="group relative">
                       <div className="aspect-[2/3] overflow-hidden rounded-xl bg-zinc-800 ring-1 ring-white/5">
-                        <img src={result.image_url || "/placeholder-card.jpg"} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                        <Image 
+                          src={result.image_url || "/placeholder-card.jpg"} 
+                          alt={result.title || "Movie poster"} 
+                          fill 
+                          className="object-cover transition-transform group-hover:scale-105"
+                          unoptimized
+                        />
                         <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 gap-2 text-center backdrop-blur-sm">
                           <button 
                             onClick={() => handleAutoSaveTMDB(result.id)}
@@ -470,10 +488,7 @@ export default function MoviesManagement() {
         {/* Local Movies Grid */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           <AnimatePresence>
-            {movies.filter(movie => 
-              movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              movie.category?.toLowerCase().includes(searchTerm.toLowerCase())
-            ).map((movie) => (
+            {movies.map((movie) => (
               <motion.div
                 key={movie.id}
                 layout
