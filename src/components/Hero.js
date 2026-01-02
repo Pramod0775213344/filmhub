@@ -99,8 +99,9 @@ export default function Hero({ featuredMovies }) {
               </div>
               <div className="flex flex-wrap items-center gap-6 pt-6">
                 <button 
-                  onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}` : `/movies/${featuredMovies[current].id}`)}
+                   onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}` : `/movies/${featuredMovies[current].id}`)}
                   className="cinematic-glow group relative flex items-center gap-4 overflow-hidden rounded-full bg-primary px-12 py-5 text-lg font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
+                  aria-label={`Play ${featuredMovies[current].title}`}
                 >
                   <Play size={24} fill="currentColor" />
                   <span>Play Now</span>
@@ -109,6 +110,7 @@ export default function Hero({ featuredMovies }) {
                 <button 
                   onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}` : `/movies/${featuredMovies[current].id}`)}
                   className="group relative flex items-center gap-4 overflow-hidden rounded-full bg-white/5 px-12 py-5 text-lg font-black uppercase tracking-widest text-white backdrop-blur-2xl transition-all hover:bg-white/10 active:scale-95 border border-white/10"
+                  aria-label="View details"
                 >
                   <Info size={24} />
                   <span>Details</span>
@@ -124,12 +126,14 @@ export default function Hero({ featuredMovies }) {
         <button 
           onClick={prevSlide}
           className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md transition-all hover:border-primary hover:bg-primary hover:text-white"
+          aria-label="Previous slide"
         >
           <ChevronLeft size={32} />
         </button>
         <button 
           onClick={nextSlide}
           className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-black/20 text-white backdrop-blur-md transition-all hover:border-primary hover:bg-primary hover:text-white"
+          aria-label="Next slide"
         >
           <ChevronRight size={32} />
         </button>
@@ -141,6 +145,7 @@ export default function Hero({ featuredMovies }) {
           <button
             key={i}
             onClick={() => setCurrent(i)}
+            aria-label={`Go to slide ${i + 1}`}
             className={`h-1.5 transition-all duration-500 rounded-full ${
               current === i ? "w-12 bg-primary" : "w-6 bg-white/30 hover:bg-white/50"
             }`}

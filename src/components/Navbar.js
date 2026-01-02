@@ -97,6 +97,7 @@ export default function Navbar() {
           <button 
             onClick={() => setIsMobileMenuOpen(true)}
             className="mr-4 text-white md:hidden"
+            aria-label="Open menu"
           >
             <Menu size={24} />
           </button>
@@ -115,7 +116,7 @@ export default function Navbar() {
 
           {/* Center: Navigation Links */}
           <div className="hidden flex-grow justify-center md:flex">
-            <div className="flex items-center gap-8 text-[13px] font-bold uppercase tracking-[0.2em] text-zinc-400">
+            <div className="flex items-center gap-8 text-[13px] font-bold uppercase tracking-[0.2em] text-zinc-300">
               <Link href="/" className="text-white transition-all hover:text-primary hover:tracking-[0.25em]">
                 Home
               </Link>
@@ -142,6 +143,7 @@ export default function Navbar() {
               <button 
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                 className="absolute left-2 z-10 transition-transform hover:scale-110 hover:text-primary"
+                aria-label="Toggle search"
               >
                 <Search size={22} />
               </button>
@@ -160,7 +162,7 @@ export default function Navbar() {
                 }`}
               />
             </div>
-            <button className="transition-transform hover:scale-110 hover:text-primary">
+            <button className="transition-transform hover:scale-110 hover:text-primary" aria-label="Notifications">
               <Bell size={22} />
             </button>
             
@@ -240,6 +242,7 @@ export default function Navbar() {
                   <button 
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="rounded-full bg-white/5 p-2 text-zinc-400 hover:text-white"
+                    aria-label="Close menu"
                   >
                     <X size={20} />
                   </button>

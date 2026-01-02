@@ -19,16 +19,16 @@ export default function Footer() {
               Your ultimate destination for cinematic excellence. Stream the latest movies and TV shows in stunning 4K quality.
             </p>
             <div className="flex gap-4">
-              <Link href="#" className="transition-colors hover:text-primary">
+              <Link href="#" className="transition-colors hover:text-primary" aria-label="Facebook">
                 <Facebook size={20} />
               </Link>
-              <Link href="#" className="transition-colors hover:text-primary">
+              <Link href="#" className="transition-colors hover:text-primary" aria-label="Twitter">
                 <Twitter size={20} />
               </Link>
-              <Link href="#" className="transition-colors hover:text-primary">
+              <Link href="#" className="transition-colors hover:text-primary" aria-label="Instagram">
                 <Instagram size={20} />
               </Link>
-              <Link href="#" className="transition-colors hover:text-primary">
+              <Link href="#" className="transition-colors hover:text-primary" aria-label="Youtube">
                 <Youtube size={20} />
               </Link>
             </div>

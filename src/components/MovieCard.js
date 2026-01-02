@@ -109,12 +109,16 @@ export default function MovieCard({ movie }) {
         </div>
 
         <div className="mt-4 flex items-center gap-3 scale-90 origin-left">
-          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-110 active:scale-95 shadow-xl">
+          <button 
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-110 active:scale-95 shadow-xl"
+            aria-label={`Play ${movie.title}`}
+          >
             <Play size={20} fill="currentColor" />
           </button>
           <button 
             onClick={toggleList}
             disabled={loading}
+            aria-label={isInList ? "Remove from watchlist" : "Add to watchlist"}
             className={`flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md border border-white/10 transition-all hover:scale-110 active:scale-95 ${
               isInList ? "bg-primary text-white" : "bg-white/10 text-white hover:bg-white/20"
             }`}

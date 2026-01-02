@@ -11,7 +11,7 @@ export default function FilmSection({ title, movies }) {
           <h2 className="font-display text-2xl font-black tracking-tight text-white md:text-3xl lg:text-4xl">
             {title}
           </h2>
-          <button className="group flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 transition-all hover:text-primary">
+          <button className="group flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-400 transition-all hover:text-primary">
             <span>Explore All</span>
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-900 transition-colors group-hover:bg-primary group-hover:text-white">
               <ChevronRight size={16} />
