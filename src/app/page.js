@@ -34,7 +34,7 @@ function HomeLoading() {
 
 async function HomeContent({ search, category }) {
   const supabase = await createClient();
-  
+
   let query = supabase.from("movies").select("*");
 
   if (search) {
@@ -45,7 +45,9 @@ async function HomeContent({ search, category }) {
     query = query.eq("category", category);
   }
 
-  const { data: movies, error } = await query.order("created_at", { ascending: false });
+  const { data: movies, error } = await query
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   if (error) {
     console.error("Error fetching movies:", error);
@@ -54,13 +56,15 @@ async function HomeContent({ search, category }) {
 
   const featuredMovies = movies.slice(0, 5);
   const trendingMovies = movies.slice(0, 6);
-  const newReleases = movies.slice(0, 8); 
-  const actionMovies = movies.filter(m => m.category === "Action" || m.category === "Sci-Fi");
+  const newReleases = movies.slice(0, 8);
+  const actionMovies = movies.filter(
+    (m) => m.category === "Action" || m.category === "Sci-Fi"
+  );
 
   return (
     <>
       <Hero featuredMovies={featuredMovies} />
-      
+
       <div className="container-custom relative z-10 -mt-20 space-y-20 pb-28 md:-mt-32 md:space-y-32">
         <FilmSection title="Trending Now" movies={trendingMovies} />
         <FilmSection title="New Releases" movies={newReleases} />
@@ -70,5 +74,3 @@ async function HomeContent({ search, category }) {
     </>
   );
 }
-
-

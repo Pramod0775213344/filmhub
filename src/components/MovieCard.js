@@ -77,7 +77,7 @@ export default function MovieCard({ movie }) {
         alt={movie.title}
         fill
         className="object-cover transition-transform duration-700 group-hover:scale-110"
-        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 16vw"
+        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
       />
 
       {/* Gradient Overlay */}

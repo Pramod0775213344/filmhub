@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
+import Image from "next/image";
+
 export default function Hero({ featuredMovies }) {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
@@ -46,11 +48,16 @@ export default function Hero({ featuredMovies }) {
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
             transition={{ duration: 10 }}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ 
-              backgroundImage: `url('${featuredMovies[current].backdrop_url || featuredMovies[current].image_url || featuredMovies[current].image}')`,
-            }}
+            className="absolute inset-0"
           >
+             <Image
+              src={featuredMovies[current].backdrop_url || featuredMovies[current].image_url || featuredMovies[current].image}
+              alt={featuredMovies[current].title}
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-black/20 to-transparent" />
           </motion.div>
