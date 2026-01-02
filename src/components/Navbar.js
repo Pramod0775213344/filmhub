@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { Search, Bell, User, LogOut, ChevronDown, Play, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useDebouncedCallback } from "use-debounce";
+import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -20,6 +22,9 @@ export default function Navbar() {
   const lastScrollY = useRef(0);
   const supabase = createClient();
   const router = useRouter();
+  const searchContainerRef = useRef(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -75,11 +80,53 @@ export default function Navbar() {
     };
   }, [supabase, router]);
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+        setSearchResults([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSearch = useDebouncedCallback(async (term) => {
+    if (!term.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    if (!supabase) {
+      console.error("Supabase client not initialized");
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const { data, error } = await supabase
+        .from("movies")
+        .select("*")
+        .ilike("title", `%${term}%`)
+        .limit(5);
+
+      if (error) throw error;
+      setSearchResults(data || []);
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  }, 300);
+
+  const onSearchInput = (e) => {
+    setSearchQuery(e.target.value);
+    if (!isSearchOpen) setIsSearchOpen(true);
+    handleSearch(e.target.value);
   };
+
+  // ... handleSignOut ...
 
   return (
     <>
@@ -139,9 +186,12 @@ export default function Navbar() {
 
           {/* Right: Icons */}
           <div className="flex items-center gap-4 text-zinc-100 md:gap-6">
-            <div className={`relative flex items-center transition-all duration-500 ${isSearchOpen ? "w-36 md:w-64" : "w-10"}`}>
+            <div ref={searchContainerRef} className={`relative flex items-center transition-all duration-500 ${isSearchOpen ? "w-full md:w-80" : "w-10"}`}>
               <button 
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                onClick={() => {
+                  setIsSearchOpen(!isSearchOpen);
+                  if (isSearchOpen) setSearchResults([]);
+                }}
                 className="absolute left-2 z-10 transition-transform hover:scale-110 hover:text-primary"
                 aria-label="Toggle search"
               >
@@ -149,18 +199,89 @@ export default function Navbar() {
               </button>
               <input
                 type="text"
-                placeholder="Titles, people, genres"
+                placeholder="Search titles..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={onSearchInput}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     router.push(searchQuery ? `/?s=${encodeURIComponent(searchQuery)}` : "/");
+                    setIsSearchOpen(false);
+                    setSearchResults([]);
                   }
                 }}
                 className={`h-10 w-full rounded-full bg-white/10 pl-10 pr-4 text-sm font-bold text-white outline-none ring-1 ring-white/10 transition-all focus:bg-white/20 ${
-                  isSearchOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                  isSearchOpen ? "opacity-100 search-input-visible" : "opacity-0 pointer-events-none"
                 }`}
               />
+              
+              {/* Live Search Results Dropdown */}
+              <AnimatePresence>
+                {isSearchOpen && searchQuery && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute top-12 left-0 right-0 z-50 overflow-hidden rounded-xl bg-black/90 backdrop-blur-xl shadow-2xl ring-1 ring-white/10"
+                  >
+                    {isSearching ? (
+                      <div className="flex items-center justify-center py-4 text-zinc-500">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
+                        {searchResults.map((result) => (
+                          <Link
+                            key={result.id}
+                            href={result.type === "TV Show" ? `/tv-shows/${result.id}` : `/movies/${result.id}`}
+                            onClick={() => {
+                              setIsSearchOpen(false);
+                              setSearchResults([]);
+                              setSearchQuery("");
+                            }}
+                            className="flex items-center gap-3 border-b border-white/5 p-3 transition-colors hover:bg-white/10"
+                          >
+                            <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded bg-zinc-800">
+                              <Image 
+                                src={result.image || result.image_url} 
+                                alt={result.title} 
+                                fill 
+                                className="object-cover"
+                                sizes="48px"
+                              />
+                            </div>
+                            <div className="flex-grow min-w-0">
+                              <h4 className="truncate font-bold text-white text-sm">{result.title}</h4>
+                              <div className="mt-1 flex items-center gap-2 text-[10px] text-zinc-400">
+                                <span>{result.year}</span>
+                                <span className="h-0.5 w-0.5 rounded-full bg-zinc-600" />
+                                <div className="flex items-center gap-1 text-primary">
+                                  <span className="font-bold">{result.imdb_rating}</span>
+                                </div>
+                                <span className="h-0.5 w-0.5 rounded-full bg-zinc-600" />
+                                <span className="uppercase">{result.type || "Movies"}</span>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                         <button
+                            onClick={() => {
+                              router.push(`/?s=${encodeURIComponent(searchQuery)}`);
+                              setIsSearchOpen(false);
+                              setSearchResults([]);
+                            }}
+                            className="w-full bg-white/5 py-3 text-center text-xs font-bold uppercase tracking-widest text-primary hover:bg-white/10"
+                          >
+                            View All Results
+                          </button>
+                      </div>
+                    ) : (
+                      <div className="py-6 text-center text-zinc-500">
+                        <p className="text-sm font-medium">No results found</p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
             <button className="transition-transform hover:scale-110 hover:text-primary" aria-label="Notifications">
               <Bell size={22} />
