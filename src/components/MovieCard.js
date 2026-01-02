@@ -71,7 +71,7 @@ export default function MovieCard({ movie }) {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="group relative w-full cursor-pointer"
       >
-        <div className="aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-900 shadow-2xl relative">
+        <div className="aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-900 shadow-2xl relative transition-all duration-300 group-hover:ring-2 group-hover:ring-primary/50 group-hover:shadow-[0_0_30px_rgba(229,9,20,0.3)]">
           {/* Movie Image */}
           <Image
             src={movie.image_url || movie.image}

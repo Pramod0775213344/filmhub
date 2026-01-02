@@ -58,8 +58,9 @@ export default function Hero({ featuredMovies }) {
               className="object-cover"
               sizes="100vw"
              />
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-black/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.6)_100%)]" />
           </motion.div>
 
           {/* Content */}
@@ -72,16 +73,12 @@ export default function Hero({ featuredMovies }) {
             >
              
               <motion.h1 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className={`font-display font-black leading-[0.9] tracking-tighter text-white line-clamp-2 ${getTitleSizeClass(featuredMovies[current].title)}`}
+                initial={{ opacity: 0, x: -20, filter: "blur(10px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+                className={`font-display font-black leading-[0.9] tracking-tighter text-white drop-shadow-2xl line-clamp-2 ${getTitleSizeClass(featuredMovies[current].title)}`}
               >
-                {featuredMovies[current].title.split(' ').map((word, i) => (
-                  <span key={i} className={i === 1 ? "text-primary italic" : "text-gradient"}>
-                    {word}{" "}
-                  </span>
-                ))}
+                {featuredMovies[current].title}
               </motion.h1>
 
               <p className="max-w-xl text-base font-medium leading-relaxed text-zinc-400 md:text-xl line-clamp-3 md:line-clamp-4">

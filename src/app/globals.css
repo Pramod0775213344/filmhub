@@ -1,11 +1,11 @@
 @import "tailwindcss";
 /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap'); */
 :root {
-  --background: #050505;
-  --foreground: #fafafa;
+  --background: #020202; /* Deeper black for premium feel */
+  --foreground: #ffffff;
   --primary: #e50914;
-  --primary-hover: #b20710;
-  --secondary: #141414;
+  --primary-hover: #ff0f1f; /* Brighter hover */
+  --secondary: #1a1a1a;
   --accent: #ff0a16;
 }
 
@@ -33,55 +33,56 @@ body {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding-inline: 1.5rem; /* Mobile padding (sides only) */
+  padding-inline: 1.5rem;
 }
 
 @media (min-width: 768px) {
   .container-custom {
-    padding-inline: 3rem; /* Tablet padding */
+    padding-inline: 3rem;
   }
 }
 
 @media (min-width: 1024px) {
   .container-custom {
-    padding-inline: 4rem; /* Desktop padding */
+    padding-inline: 4rem;
   }
 }
 
 @media (min-width: 1536px) {
   .container-custom {
-    padding-inline: 5rem; /* Large Desktop padding */
+    padding-inline: 5rem;
   }
 }
 
 .glass {
-  background: rgba(2, 2, 2, 0.6);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .cinematic-glow {
-  box-shadow: 0 0 50px -10px rgba(229, 9, 20, 0.3);
+  box-shadow: 0 0 40px -5px rgba(229, 9, 20, 0.5); /* Stronger, more dispersed glow */
 }
 
 .text-gradient {
   background: linear-gradient(
-    to bottom right,
-    #fff 30%,
-    rgba(255, 255, 255, 0.5)
+    135deg,
+    #ffffff 0%,
+    rgba(255, 255, 255, 0.7) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
 }
 
 .movie-card-gradient {
   background: linear-gradient(
     to top,
-    rgba(2, 2, 2, 0.95) 0%,
-    rgba(2, 2, 2, 0.4) 50%,
-    transparent 100%
+    rgba(2, 2, 2, 0.98) 0%,
+    rgba(2, 2, 2, 0.6) 40%,
+    rgba(2, 2, 2, 0) 100%
   );
 }
 
