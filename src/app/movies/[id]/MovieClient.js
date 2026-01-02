@@ -8,7 +8,7 @@ import VideoPlayer from "@/components/VideoPlayer";
 import { 
   Play, Star, Calendar, Clock, Video, Download, 
   User, Users, MessageSquare, Plus, Check, X, 
-  Share2, Globe, Heart
+  Share2, Globe, Heart, PlayCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -19,7 +19,6 @@ export default function MovieClient({ initialMovie, userId }) {
   const [movie] = useState(initialMovie);
   const [isInList, setIsInList] = useState(false);
   const [listLoading, setListLoading] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [links, setLinks] = useState([]);
   const [activeProvider, setActiveProvider] = useState(null);
   const [relatedMovies, setRelatedMovies] = useState([]);
@@ -194,7 +193,12 @@ export default function MovieClient({ initialMovie, userId }) {
               <button 
                 onClick={() => {
                   if (movie.video_url) {
-                    setIsPlaying(true);
+                    const playerElement = document.getElementById("movie-player");
+                    if (playerElement) {
+                       playerElement.scrollIntoView({ behavior: "smooth", block: "center" });
+                    } else {
+                       alert("Please check the 'Storyline' tab for the video.");
+                    }
                   } else {
                     alert("Video source not available yet.");
                   }
@@ -262,6 +266,17 @@ export default function MovieClient({ initialMovie, userId }) {
         {/* Overview Tab Content */}
         {activeTab === "overview" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-16">
+             
+             {/* Embedded Video Player */}
+             {movie.video_url && (
+               <div id="movie-player" className="w-full scroll-mt-32">
+                 <h3 className="mb-6 text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
+                   <Video className="text-primary" /> Watch Movie
+                 </h3>
+                 <VideoPlayer url={movie.video_url} title={movie.title} />
+               </div>
+             )}
+
              {/* Info Grid */}
              <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
                 <div className="md:col-span-2 space-y-8">
@@ -271,6 +286,18 @@ export default function MovieClient({ initialMovie, userId }) {
                       </h3>
                       <p className="text-zinc-300 leading-8 text-lg">{movie.description}</p>
                    </div>
+
+                   {/* Trailer Section */}
+                   {movie.trailer && (
+                     <div className="space-y-6">
+                       <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
+                         <PlayCircle className="text-primary" /> Official Trailer
+                       </h3>
+                       <div className="overflow-hidden rounded-3xl ring-1 ring-white/10 shadow-2xl">
+                          <VideoPlayer url={movie.trailer} title={`${movie.title} Trailer`} />
+                       </div>
+                     </div>
+                   )}
                    
                    {/* Download Links Table */}
                    {links.length > 0 && (
@@ -437,28 +464,6 @@ export default function MovieClient({ initialMovie, userId }) {
         )}
 
       </div>
-
-      {/* Video Player Modal */}
-      <AnimatePresence>
-        {isPlaying && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/95 backdrop-blur-xl">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative w-full max-w-6xl aspect-video rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10"
-            >
-              <button 
-                onClick={() => setIsPlaying(false)}
-                className="absolute right-6 top-6 z-10 h-10 w-10 flex items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md hover:bg-white hover:text-black transition-all"
-              >
-                <X size={20} />
-              </button>
-              <VideoPlayer url={movie.video_url} title={movie.title} autoPlay={true} />
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
     </main>
   );

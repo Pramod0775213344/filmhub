@@ -30,7 +30,7 @@ export async function getTMDBDetails(id, type = "movie") {
   if (!TMDB_API_KEY) return null;
 
   const endpoint = type === "movie" ? `/movie/${id}` : `/tv/${id}`;
-  const url = `${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&append_to_response=credits`;
+  const url = `${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos`;
 
   try {
     const response = await fetch(url);
@@ -83,7 +83,9 @@ export async function getTMDBDetails(id, type = "movie") {
       director: director,
       duration: data.runtime ? `${data.runtime} min` : (data.episode_run_time?.[0] ? `${data.episode_run_time[0]} min` : ""),
       country: data.production_countries?.[0]?.name || "",
+      country: data.production_countries?.[0]?.name || "",
       imdb_rating: data.vote_average?.toFixed(1) || "0",
+      trailer: data.videos?.results?.find(v => v.type === "Trailer" && v.site === "YouTube") ? `https://www.youtube.com/watch?v=${data.videos.results.find(v => v.type === "Trailer" && v.site === "YouTube").key}` : "",
     };
   } catch (error) {
     console.error("Error getting TMDB details:", error);

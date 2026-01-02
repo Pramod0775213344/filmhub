@@ -37,7 +37,10 @@ export default function MoviesManagement() {
     views: 0,
     subtitle_author: "",
     subtitle_site: "Cineru.LK",
+    subtitle_author: "",
+    subtitle_site: "Cineru.LK",
     cast_details: [],
+    trailer: "",
   });
   const [movieLinks, setMovieLinks] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,7 +90,9 @@ export default function MoviesManagement() {
         views: movie.views || 0,
         subtitle_author: movie.subtitle_author || "",
         subtitle_site: movie.subtitle_site || "Cineru.LK",
+        subtitle_site: movie.subtitle_site || "Cineru.LK",
         cast_details: movie.cast_details || [],
+        trailer: movie.trailer || "",
       });
       
       const fetchLinks = async () => {
@@ -124,7 +129,9 @@ export default function MoviesManagement() {
         views: 0,
         subtitle_author: "",
         subtitle_site: "Cineru.LK",
+        subtitle_site: "Cineru.LK",
         cast_details: [],
+        trailer: "",
       });
     }
     setTmdbResults([]);
@@ -169,7 +176,7 @@ export default function MoviesManagement() {
         const validMovieFields = [
           "title", "description", "rating", "year", "category", "actors", 
           "is_featured", "tag", "video_url", "download_url", "director", 
-          "country", "duration", "imdb_rating", "type", "language", "image_url", "backdrop_url", "cast_details"
+          "country", "duration", "imdb_rating", "type", "language", "image_url", "backdrop_url", "cast_details", "trailer"
         ];
 
         const prunedData = {};
@@ -206,7 +213,7 @@ export default function MoviesManagement() {
     const validMovieFields = [
       "title", "description", "rating", "year", "category", "actors", 
       "is_featured", "tag", "video_url", "download_url", "director", 
-      "country", "duration", "imdb_rating", "type", "language", "image_url", "backdrop_url", "cast_details"
+      "country", "duration", "imdb_rating", "type", "language", "image_url", "backdrop_url", "cast_details", "trailer"
     ];
 
     const prunedData = {};
@@ -260,6 +267,77 @@ export default function MoviesManagement() {
     setIsSubmitting(false);
   };
 
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState("");
+
+  const handleSyncTrailers = async () => {
+    if (!supabase) return;
+    if (!confirm("This will search TMDB for trailers for ALL movies that don't have one correctly set. This might take a while. Continue?")) return;
+    
+    setIsSyncing(true);
+    setSyncProgress("Starting sync...");
+
+    try {
+      // 1. Fetch movies needing trailers
+      const { data: moviesToUpdate, error } = await supabase
+        .from("movies")
+        .select("id, title, year")
+        .or("trailer.is.null,trailer.eq.''");
+
+      if (error) throw error;
+      
+      if (!moviesToUpdate || moviesToUpdate.length === 0) {
+        alert("No movies found that need trailer syncing!");
+        setIsSyncing(false);
+        return;
+      }
+
+      let updatedCount = 0;
+      let notFoundCount = 0;
+
+      for (let i = 0; i < moviesToUpdate.length; i++) {
+        const movie = moviesToUpdate[i];
+        setSyncProgress(`Processing ${i + 1}/${moviesToUpdate.length}: ${movie.title}...`);
+
+        // 2. Search TMDB
+        const searchResults = await searchTMDB(movie.title, "movie");
+        // Try to match by year if possible for better accuracy
+        const match = searchResults.find(r => r.year === movie.year) || searchResults[0];
+
+        if (match) {
+           // 3. Get Details (includes trailer info from our previous update to tmdb.js)
+           const details = await getTMDBDetails(match.id, "movie");
+           
+           if (details && details.trailer) {
+             // 4. Update Database
+             await supabase
+               .from("movies")
+               .update({ trailer: details.trailer })
+               .eq("id", movie.id);
+             updatedCount++;
+           } else {
+             notFoundCount++;
+           }
+        } else {
+          notFoundCount++;
+        }
+        
+        // Small delay to avoid hitting rate limits too hard
+        await new Promise(r => setTimeout(r, 250));
+      }
+
+      alert(`Sync Complete!\nUpdated: ${updatedCount}\nCoould not find: ${notFoundCount}`);
+      fetchMovies();
+
+    } catch (err) {
+      console.error("Sync error:", err);
+      alert("Error during sync: " + err.message);
+    } finally {
+      setIsSyncing(false);
+      setSyncProgress("");
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!supabase) return;
     if (confirm("Are you sure you want to delete this movie?")) {
@@ -279,13 +357,23 @@ export default function MoviesManagement() {
             </h1>
             <p className="mt-2 font-medium text-zinc-500">Add, edit, or remove movies from the library.</p>
           </div>
-          <button 
-            onClick={() => handleOpenModal()}
-            className="cinematic-glow flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
-          >
-            <Plus size={20} />
-            <span>Add New Movie</span>
-          </button>
+          <div className="flex gap-4">
+            <button 
+              onClick={handleSyncTrailers}
+              disabled={isSyncing}
+              className={`flex items-center justify-center gap-3 rounded-2xl border border-primary/20 bg-primary/10 px-6 py-4 text-sm font-black uppercase tracking-widest text-primary transition-all hover:bg-primary/20 active:scale-95 ${isSyncing ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isSyncing ? <Loader2 className="animate-spin" size={20} /> : <Wand2 size={20} />}
+              <span>{isSyncing ? syncProgress : "Auto-Sync Trailers"}</span>
+            </button>
+            <button 
+              onClick={() => handleOpenModal()}
+              className="cinematic-glow flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
+            >
+              <Plus size={20} />
+              <span>Add New Movie</span>
+            </button>
+          </div>
         </div>
 
         {/* Search Bar & TMDB Quick Search */}
@@ -399,6 +487,11 @@ export default function MoviesManagement() {
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black p-4">
                     <h3 className="font-display text-lg font-black text-white">{movie.title}</h3>
                   </div>
+                  {(!movie.trailer || movie.trailer.trim() === "") && (
+                    <div className="absolute top-2 right-2 rounded-md bg-red-600/90 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-sm backdrop-blur-sm">
+                      No Trailer
+                    </div>
+                  )}
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-bold text-zinc-500">
@@ -459,6 +552,10 @@ export default function MoviesManagement() {
                   <div className="space-y-2 md:col-span-2">
                     <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Video URL (m3u8/mp4)</label>
                     <input type="text" value={formData.video_url} onChange={(e) => setFormData({...formData, video_url: e.target.value})} className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10" />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Trailer URL (YouTube)</label>
+                    <input type="text" value={formData.trailer} onChange={(e) => setFormData({...formData, trailer: e.target.value})} className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10" />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Description</label>
