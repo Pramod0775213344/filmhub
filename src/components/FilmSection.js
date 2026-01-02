@@ -1,4 +1,4 @@
-"use client";
+
 
 import MovieCard from "./MovieCard";
 import { ChevronRight } from "lucide-react";

@@ -51,18 +51,21 @@ export default function Navbar() {
     });
 
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Hide if scrolling down and scrolled past a threshold
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setIsVisible(false);
-      } else {
-        // Show if scrolling up
-        setIsVisible(true);
-      }
-
-      setIsScrolled(currentScrollY > 0);
-      lastScrollY.current = currentScrollY;
+      // Simple throttle using requestAnimationFrame
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
+        
+        // Hide if scrolling down and scrolled past a threshold
+        if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+          setIsVisible(false);
+        } else {
+          // Show if scrolling up
+          setIsVisible(true);
+        }
+  
+        setIsScrolled(currentScrollY > 0);
+        lastScrollY.current = currentScrollY;
+      });
     };
 
     window.addEventListener("scroll", handleScroll);
