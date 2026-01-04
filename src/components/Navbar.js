@@ -8,6 +8,7 @@ import { useDebouncedCallback } from "use-debounce";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { slugify } from "@/utils/slugify";
 
 import { createPortal } from "react-dom";
 
@@ -462,9 +463,9 @@ export default function Navbar() {
                         {searchResults.map((result) => (
                           <Link
                             key={result.id}
-                            href={result.type === "TV Show" ? `/tv-shows/${result.id}` : 
-                                  result.type === "Korean Drama" ? `/korean-dramas/${result.id}` : 
-                                  `/movies/${result.id}`}
+                            href={result.type === "TV Show" ? `/tv-shows/${slugify(result.title)}` : 
+                                  result.type === "Korean Drama" ? `/korean-dramas/${slugify(result.title)}` : 
+                                  `/movies/${slugify(result.title)}`}
                             onClick={() => {
                               setIsSearchOpen(false);
                               setSearchResults([]);

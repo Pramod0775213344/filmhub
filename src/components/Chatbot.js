@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, Minus, RefreshCw } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, Minus, RefreshCw, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 // Quick suggestion chips for users
 const QUICK_SUGGESTIONS = [
@@ -328,7 +329,25 @@ export default function Chatbot() {
                                 ? "bg-primary/20 text-white ring-1 ring-primary/30" 
                                 : "bg-white/5 text-zinc-200 ring-1 ring-white/10"
                             }`}>
-                              {msg.content}
+                              {msg.role === "assistant" ? (
+                                msg.content.split(/(\/(?:movies|tv-shows|korean-dramas)\/[a-z0-9-]+)/g).map((part, index) => {
+                                  if (part.startsWith('/') && (part.includes('/movies/') || part.includes('/tv-shows/') || part.includes('/korean-dramas/'))) {
+                                    return (
+                                      <Link 
+                                        key={index} 
+                                        href={part} 
+                                        onClick={handleClose}
+                                        className="inline-flex items-center gap-1 text-primary hover:underline font-bold"
+                                      >
+                                        {part} <ExternalLink size={10} />
+                                      </Link>
+                                    );
+                                  }
+                                  return part;
+                                })
+                              ) : (
+                                msg.content
+                              )}
                             </div>
                           </div>
                         </motion.div>

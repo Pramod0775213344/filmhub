@@ -3,12 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { slugify } from "@/utils/slugify";
 import Footer from "@/components/Footer";
 import VideoPlayer from "@/components/VideoPlayer";
+import { searchTMDB, getTMDBDetails } from "@/utils/tmdb";
 import { 
   Play, Star, Calendar, Clock, Video, Download, 
   User, Users, MessageSquare, Plus, Check, X, 
-  Share2, Globe, Heart, PlayCircle
+  Share2, Globe, Heart, PlayCircle, Image as ImageIcon, Maximize2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -23,6 +25,9 @@ export default function MovieClient({ initialMovie, userId }) {
   const [activeProvider, setActiveProvider] = useState(null);
   const [relatedMovies, setRelatedMovies] = useState([]);
   const [activeTab, setActiveTab] = useState("overview"); // overview, cast, related
+  const [tmdbImages, setTmdbImages] = useState({ backdrops: [], posters: [] });
+  const [currentImgIndex, setCurrentImgIndex] = useState(0);
+  const [selectedImage, setSelectedImage] = useState(null);
   const supabase = createClient();
 
   const [isNavVisible, setIsNavVisible] = useState(true);
@@ -61,11 +66,41 @@ export default function MovieClient({ initialMovie, userId }) {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    // 4. Fetch TMDB Images
+    const fetchTMDBImages = async () => {
+      try {
+        const results = await searchTMDB(movie.title, "movie");
+        const match = results.find(r => r.year === movie.year) || results[0];
+        if (match) {
+          const details = await getTMDBDetails(match.id, "movie");
+          if (details) {
+            setTmdbImages({
+              backdrops: details.backdrops || [],
+              posters: details.posters || []
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching TMDB images:", err);
+      }
+    };
+    fetchTMDBImages();
+
     return () => {
       window.removeEventListener("scroll", onScroll);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, [movie?.id, supabase]);
+  }, [movie?.id, movie?.title, movie?.year, supabase]);
+
+  useEffect(() => {
+    if (tmdbImages.backdrops.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentImgIndex(prev => (prev + 1) % tmdbImages.backdrops.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [tmdbImages.backdrops.length]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -166,102 +201,146 @@ export default function MovieClient({ initialMovie, userId }) {
         </div>
 
         {/* Content Container */}
-        <div className="container-custom relative flex h-full items-end pb-20">
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="max-w-4xl space-y-8"
-          >
-            {/* Badges */}
-            <div className="flex flex-wrap items-center gap-3">
-               <motion.div 
-                 initial={{ opacity: 0, scale: 0.8 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 transition={{ delay: 0.2 }}
-                 className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-xs font-bold"
-               >
-                 <span className="text-primary tracking-wider uppercase">Movie</span>
-               </motion.div>
-               {movie.quality && (
-                 <span className="rounded-full bg-black/40 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
-                   {movie.quality}
-                 </span>
-               )}
-                <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-bold text-yellow-500">
-                  <Star size={12} fill="currentColor" />
-                  <span>{movie.imdb_rating || movie.rating || "N/A"}</span>
-                </div>
-            </div>
+        <div className="container-custom relative h-full flex items-center md:items-end pb-12 md:pb-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
+            
+            {/* Left Content */}
+            <motion.div 
+              initial={{ opacity: 0, x: -40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="space-y-8"
+            >
+              {/* Badges */}
+              <div className="flex flex-wrap items-center gap-3">
+                 <motion.div 
+                   initial={{ opacity: 0, scale: 0.8 }}
+                   animate={{ opacity: 1, scale: 1 }}
+                   transition={{ delay: 0.2 }}
+                   className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-xs font-bold"
+                 >
+                   <span className="text-primary tracking-wider uppercase">Movie</span>
+                 </motion.div>
+                 {movie.quality && (
+                   <span className="rounded-full bg-black/40 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white">
+                     {movie.quality}
+                   </span>
+                 )}
+                  <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-bold text-yellow-500">
+                    <Star size={12} fill="currentColor" />
+                    <span>{movie.imdb_rating || movie.rating || "N/A"}</span>
+                  </div>
+              </div>
 
-            {/* Title */}
-            <h1 className="font-display text-5xl font-black leading-none tracking-tighter text-white drop-shadow-2xl md:text-7xl lg:text-8xl">
-              {movie.title}
-            </h1>
+              {/* Title */}
+              <h1 className="font-display text-5xl font-black leading-none tracking-tighter text-white drop-shadow-2xl md:text-7xl xl:text-8xl">
+                {movie.title}
+              </h1>
 
-            {/* Meta Info Line */}
-            <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-zinc-300">
-              <span className="flex items-center gap-2">
-                <Calendar size={16} className="text-primary" />
-                {movie.year}
-              </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
-              <span className="flex items-center gap-2">
-                <Clock size={16} className="text-primary" />
-                {movie.duration || "1h 45m"}
-              </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
-              <span className="uppercase text-zinc-400">{movie.original_language || movie.language || "English"}</span>
-            </div>
+              {/* Meta Info Line */}
+              <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-zinc-300">
+                <span className="flex items-center gap-2">
+                  <Calendar size={16} className="text-primary" />
+                  {movie.year}
+                </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
+                <span className="flex items-center gap-2">
+                  <Clock size={16} className="text-primary" />
+                  {movie.duration || "1h 45m"}
+                </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
+                <span className="uppercase text-zinc-400">{movie.original_language || movie.language || "English"}</span>
+              </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-4">
-              <button 
-                onClick={() => {
-                  if (movie.video_url) {
-                    const playerElement = document.getElementById("movie-player");
-                    if (playerElement) {
-                       playerElement.scrollIntoView({ behavior: "smooth", block: "center" });
-                    } else {
-                       alert("Please check the 'Storyline' tab for the video.");
-                    }
-                  } else {
-                    alert("Video source not available yet.");
-                  }
-                }}
-                className="group relative flex items-center gap-3 overflow-hidden rounded-full bg-white px-8 py-4 text-base font-black text-black transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95"
-              >
-                <div className="relative z-10 flex items-center gap-3">
-                   <Play size={20} fill="black" />
-                   <span className="uppercase tracking-widest">{movie.video_url ? "Watch Now" : "No Video"}</span>
-                </div>
-                <div className="absolute inset-0 z-0 bg-gradient-to-r from-zinc-200 to-white opacity-0 transition-opacity group-hover:opacity-100" />
-              </button>
+              <p className="max-w-2xl text-lg leading-relaxed text-zinc-300 line-clamp-3 lg:line-clamp-4">
+                {movie.description}
+              </p>
 
-              <button 
-                onClick={toggleList}
-                className="group flex items-center gap-3 rounded-full border border-white/10 bg-black/50 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
-              >
-                {listLoading ? <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : isInList ? <Check size={20} className="text-primary" /> : <Plus size={20} />}
-                <span>{isInList ? "In My List" : "Add to List"}</span>
-              </button>
-
-              {movie.download_url && (
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-4 pt-4">
                 <button 
-                  onClick={() => document.getElementById("links-section")?.scrollIntoView({ behavior: "smooth" })}
-                  className="group flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-black/50 text-white transition-all hover:bg-primary hover:border-primary hover:scale-105"
+                  onClick={() => {
+                    if (movie.video_url) {
+                      const playerElement = document.getElementById("movie-player");
+                      if (playerElement) {
+                         playerElement.scrollIntoView({ behavior: "smooth", block: "center" });
+                      } else {
+                         setActiveTab("overview");
+                         setTimeout(() => {
+                            document.getElementById("movie-player")?.scrollIntoView({ behavior: "smooth", block: "center" });
+                         }, 100);
+                      }
+                    } else {
+                      alert("Video source not available yet.");
+                    }
+                  }}
+                  className="group relative flex items-center gap-3 overflow-hidden rounded-full bg-white px-8 py-4 text-base font-black text-black transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95"
                 >
-                  <Download size={20} />
+                  <div className="relative z-10 flex items-center gap-3">
+                     <Play size={20} fill="black" />
+                     <span className="uppercase tracking-widest">{movie.video_url ? "Watch Now" : "No Video"}</span>
+                  </div>
+                  <div className="absolute inset-0 z-0 bg-gradient-to-r from-zinc-200 to-white opacity-0 transition-opacity group-hover:opacity-100" />
                 </button>
-              )}
-            </div>
 
-            <p className="max-w-2xl text-lg leading-relaxed text-zinc-300 md:text-xl line-clamp-3 md:line-clamp-none">
-              {movie.description}
-            </p>
-          </motion.div>
+                <button 
+                  onClick={toggleList}
+                  className="group flex items-center gap-3 rounded-full border border-white/10 bg-black/50 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
+                >
+                  {listLoading ? <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : isInList ? <Check size={20} className="text-primary" /> : <Plus size={20} />}
+                  <span>{isInList ? "In My List" : "Add to List"}</span>
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Right Side: Image Slider */}
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.9, x: 40 }}
+               animate={{ opacity: 1, scale: 1, x: 0 }}
+               transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+               className="hidden lg:block relative aspect-[16/10] w-full rounded-[2.5rem] overflow-hidden group ring-1 ring-white/10 shadow-2xl"
+            >
+               <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentImgIndex}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1 }}
+                    className="absolute inset-0"
+                  >
+                    <Image
+                      src={tmdbImages.backdrops[currentImgIndex] || movie.image_url || movie.image}
+                      alt={`${movie.title} Backdrop`}
+                      fill
+                      className="object-cover transition-transform duration-[10s] group-hover:scale-110"
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
+                  </motion.div>
+               </AnimatePresence>
+
+               {/* Glass UI Overlay on Slider */}
+               <div className="absolute inset-x-0 bottom-0 p-8 pt-20 bg-gradient-to-t from-black via-black/40 to-transparent">
+                  <div className="flex items-center justify-between">
+                     <div className="flex gap-2">
+                        {(tmdbImages.backdrops.length > 0 ? tmdbImages.backdrops.slice(0, 5) : [1,2,3]).map((_, i) => (
+                           <div 
+                              key={i} 
+                              className={`h-1 rounded-full transition-all duration-500 ${currentImgIndex % 5 === i ? "w-8 bg-primary" : "w-2 bg-white/20"}`}
+                           />
+                        ))}
+                     </div>
+                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 group-hover:text-primary transition-colors">
+                        Cinematic Collection
+                     </span>
+                  </div>
+               </div>
+            </motion.div>
+
         </div>
       </div>
+    </div>
 
       {/* Tabs Navigation */}
       <div 
@@ -270,7 +349,7 @@ export default function MovieClient({ initialMovie, userId }) {
         }`}
       >
         <div className="container-custom flex gap-8 overflow-x-auto no-scrollbar">
-          {["overview", "cast", "related", "reviews"].map((tab) => (
+          {["overview", "trailer", "photos", "cast", "related", "reviews"].map((tab) => (
              <button
                key={tab}
                onClick={() => setActiveTab(tab)}
@@ -278,7 +357,7 @@ export default function MovieClient({ initialMovie, userId }) {
                  activeTab === tab ? "text-white" : "text-zinc-500 hover:text-zinc-300"
                }`}
              >
-               {tab}
+               {tab === "trailer" ? "Official Trailer" : tab}
                {activeTab === tab && (
                  <motion.div 
                    layoutId="activeTab"
@@ -316,18 +395,6 @@ export default function MovieClient({ initialMovie, userId }) {
                       </h3>
                       <p className="text-zinc-300 leading-8 text-lg">{movie.description}</p>
                    </div>
-
-                   {/* Trailer Section */}
-                   {movie.trailer && (
-                     <div className="space-y-6">
-                       <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
-                         <PlayCircle className="text-primary" /> Official Trailer
-                       </h3>
-                       <div className="overflow-hidden rounded-3xl ring-1 ring-white/10 shadow-2xl">
-                          <VideoPlayer url={movie.trailer} title={`${movie.title} Trailer`} />
-                       </div>
-                     </div>
-                   )}
                    
                    {/* Download Links Table */}
                    {links.length > 0 && (
@@ -405,7 +472,112 @@ export default function MovieClient({ initialMovie, userId }) {
           </motion.div>
         )}
 
-        {/* Cast Tab */}
+        {/* Trailer Tab Content */}
+        {activeTab === "trailer" && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            className="space-y-8"
+          >
+            {movie.trailer ? (
+              <div className="max-w-5xl mx-auto space-y-8">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3 font-display">
+                    <Video className="text-primary" size={28} /> Official Trailer
+                  </h3>
+                  <div className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
+                    Cinematic 4K
+                  </div>
+                </div>
+                <div className="overflow-hidden rounded-[2.5rem] ring-1 ring-white/10 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] bg-zinc-900 aspect-video relative group">
+                  <VideoPlayer url={movie.trailer} title={`${movie.title} Trailer`} autoPlay={true} />
+                </div>
+                <div className="p-8 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl">
+                  <p className="text-zinc-400 font-medium leading-relaxed">
+                    Watch the official teaser and trailer for <span className="text-white font-bold">{movie.title}</span>. Explore the world, the characters, and the story through this exclusive preview.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex min-h-[40vh] flex-col items-center justify-center space-y-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-sm">
+                <div className="h-20 w-20 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-600">
+                  <PlayCircle size={40} className="text-zinc-600" />
+                </div>
+                <div className="text-center">
+                  <h4 className="text-xl font-bold text-white mb-2">Trailer Not Available</h4>
+                  <p className="text-zinc-500 max-w-xs">We couldn&apos;t find an official trailer for this movie yet. Please check back later.</p>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Photos Tab */}
+        {activeTab === "photos" && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-12"
+          >
+            {tmdbImages.backdrops.length > 0 || tmdbImages.posters.length > 0 ? (
+              <div className="space-y-16">
+                {/* Backdrops Section */}
+                {tmdbImages.backdrops.length > 0 && (
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3">
+                      <ImageIcon className="text-primary" /> Backdrops
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {tmdbImages.backdrops.map((img, i) => (
+                        <motion.div
+                          key={`backdrop-${i}`}
+                          whileHover={{ scale: 1.02 }}
+                          onClick={() => setSelectedImage(img)}
+                          className="group relative aspect-video overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in ring-1 ring-white/10"
+                        >
+                          <Image src={img} alt={`Backdrop ${i}`} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Maximize2 className="text-white" size={32} />
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Posters Section */}
+                {tmdbImages.posters.length > 0 && (
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3">
+                      <ImageIcon className="text-primary" /> Official Posters
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                      {tmdbImages.posters.map((img, i) => (
+                        <motion.div
+                          key={`poster-${i}`}
+                          whileHover={{ scale: 1.05 }}
+                          onClick={() => setSelectedImage(img)}
+                          className="group relative aspect-[2/3] overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in ring-1 ring-white/10"
+                        >
+                          <Image src={img} alt={`Poster ${i}`} fill className="object-cover" sizes="(max-width: 640px) 50vw, 16vw" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Maximize2 className="text-white" size={24} />
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
+                <ImageIcon size={64} className="mb-4 opacity-20" />
+                <p className="text-lg">No additional photos available for this cinematic masterpiece.</p>
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {activeTab === "cast" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {movie.cast_details && movie.cast_details.length > 0 ? (
@@ -458,7 +630,7 @@ export default function MovieClient({ initialMovie, userId }) {
                    {[...relatedMovies, ...relatedMovies].map((m, index) => (
                       <div 
                         key={`${m.id}-${index}`}
-                        onClick={() => router.push(`/movies/${m.id}`)}
+                        onClick={() => router.push(`/movies/${slugify(m.title)}`)}
                         className="group cursor-pointer space-y-3 min-w-[12.5%] flex-shrink-0"
                       >
                         <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-zinc-900 shadow-lg transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-primary/20">
@@ -496,6 +668,45 @@ export default function MovieClient({ initialMovie, userId }) {
         )}
 
       </div>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-12 backdrop-blur-xl"
+          >
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors z-[110]"
+            >
+              <X size={40} />
+            </motion.button>
+            
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative h-full w-full max-w-7xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Image
+                src={selectedImage}
+                alt="Full Size Image"
+                fill
+                className="object-contain"
+                priority
+                quality={100}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </main>
   );

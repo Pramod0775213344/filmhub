@@ -158,6 +158,15 @@ export default function MoviesManagement() {
     if (!tmdbQuery) return;
     setIsFetchingTMDB(true);
     const results = await searchTMDB(tmdbQuery, "movie");
+    if (results.length === 0) {
+       // Check if it failed due to API key (simple check: usually returns [] on fail)
+       // We can't know for sure here without changing searchTMDB return signature, 
+       // but strictly empty likely means either no results or auth fail.
+       // The console log in searchTMDB handles the explicit 401 log.
+       // We can add a toast or alert if needed, but for now just setting results is fine.
+       // Ideally:
+       // alert("No results found. If this persists, check your TMDB API Key.");
+    }
     setTmdbResults(results);
     setIsFetchingTMDB(false);
   };
@@ -594,27 +603,31 @@ export default function MoviesManagement() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
                   {tmdbResults.map((result) => (
                     <div key={result.id} className="group relative">
-                      <div className="aspect-[2/3] overflow-hidden rounded-xl bg-zinc-800 ring-1 ring-white/5">
+                      <div className="aspect-[2/3] overflow-hidden rounded-xl bg-zinc-800 ring-1 ring-white/5 relative">
                         <Image 
                           src={result.image_url || "/placeholder-card.jpg"} 
                           alt={result.title || "Movie poster"} 
                           fill 
-                          className="object-cover transition-transform group-hover:scale-105"
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
                           unoptimized
                           sizes="200px"
                         />
-                        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 gap-2 text-center backdrop-blur-sm">
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                        
+                        {/* Floating Buttons */}
+                        <div className="absolute inset-x-0 bottom-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 flex flex-col gap-2">
                           <button 
                             onClick={() => handleAutoSaveTMDB(result.id)}
-                            className="w-full rounded-lg bg-primary py-2 text-[10px] font-black uppercase tracking-widest text-white hover:bg-primary-hover flex items-center justify-center gap-2"
+                            className="w-full rounded-xl bg-primary/90 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg backdrop-blur-md transition-all hover:bg-primary hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 border border-primary/50"
                           >
-                            <Sparkles size={12} /> Auto Add
+                            <Sparkles size={12} fill="currentColor" /> Quick Add
                           </button>
                           <button 
                             onClick={() => handleTMDBSelect(result.id)} 
-                            className="w-full rounded-lg bg-white/10 py-2 text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/20 flex items-center justify-center gap-2"
+                            className="w-full rounded-xl bg-white/10 py-3 text-[10px] font-black uppercase tracking-widest text-white shadow-lg backdrop-blur-md transition-all hover:bg-white/20 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 border border-white/20"
                           >
-                            <Edit2 size={12} /> Fill Form
+                            <Edit2 size={12} /> Edit Draft
                           </button>
                         </div>
                       </div>

@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { slugify } from "@/utils/slugify";
 
 export default function MovieCard({ movie }) {
   const [isInList, setIsInList] = useState(movie.isInWatchlist || false);
@@ -40,6 +41,8 @@ export default function MovieCard({ movie }) {
   const toggleList = async (e) => {
     e.stopPropagation();
     if (!supabase) return;
+    
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return router.push("/login");
 
     setLoading(true);
@@ -61,9 +64,9 @@ export default function MovieCard({ movie }) {
 
   return (
     <Link href={
-      movie.type === "TV Show" ? `/tv-shows/${movie.id}` : 
-      movie.type === "Korean Drama" ? `/korean-dramas/${movie.id}` : 
-      `/movies/${movie.id}`
+      movie.type === "TV Show" ? `/tv-shows/${slugify(movie.title)}` : 
+      movie.type === "Korean Drama" ? `/korean-dramas/${slugify(movie.title)}` : 
+      `/movies/${slugify(movie.title)}`
     }>
       <motion.div
         initial={{ opacity: 0, y: 20 }}

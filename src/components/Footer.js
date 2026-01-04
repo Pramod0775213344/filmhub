@@ -1,15 +1,9 @@
 "use client";
 
-import { Facebook, Twitter, Instagram, Youtube, Github } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 
 export default function Footer() {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
   return (
     <footer className="bg-secondary py-20 text-zinc-400">
       <div className="container-custom">
@@ -44,10 +38,10 @@ export default function Footer() {
           <div>
             <h4 className="mb-6 font-bold text-white">Explore</h4>
             <ul className="space-y-4 text-sm font-medium">
-              <li><Link href="#" className="transition-colors hover:text-primary">Movies</Link></li>
-              <li><Link href="#" className="transition-colors hover:text-primary">TV Shows</Link></li>
-              <li><Link href="#" className="transition-colors hover:text-primary">Award Winners</Link></li>
-              <li><Link href="#" className="transition-colors hover:text-primary">Cinephile Picks</Link></li>
+              <li><Link href="/movies" className="transition-colors hover:text-primary">Movies</Link></li>
+              <li><Link href="/tv-shows" className="transition-colors hover:text-primary">TV Shows</Link></li>
+              <li><Link href="/korean-dramas" className="transition-colors hover:text-primary">Korean Dramas</Link></li>
+              <li><Link href="/my-list" className="transition-colors hover:text-primary">My Watchlist</Link></li>
             </ul>
           </div>
 
@@ -75,7 +69,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 border-t border-zinc-800 pt-8 text-center text-xs">
-          <p>&copy; {isMounted ? new Date().getFullYear() : '2026'} FilmHub Inc. Design by Pramod Ravisanka.</p>
+          <p suppressHydrationWarning>&copy; {new Date().getFullYear()} FilmHub Inc. Design by Pramod Ravisanka.</p>
         </div>
       </div>
     </footer>

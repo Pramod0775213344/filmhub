@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 import Image from "next/image";
+import { slugify } from "@/utils/slugify";
 
 export default function Hero({ featuredMovies }) {
   const router = useRouter();
@@ -95,23 +96,36 @@ export default function Hero({ featuredMovies }) {
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-4 pt-6 md:gap-6">
-                <button 
-                  onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}#movie-player` : `/movies/${featuredMovies[current].id}#movie-player`)}
-                  className="cinematic-glow group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full bg-primary px-6 py-4 text-base font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95 sm:w-auto sm:px-12 sm:py-5 sm:text-lg"
-                  aria-label={`Play ${featuredMovies[current].title}`}
-                >
-                  <Play size={24} fill="currentColor" />
-                  <span>Play Now</span>
-                  <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 transition-all group-hover:h-full group-hover:bg-white/10" />
-                </button>
-                <button 
-                  onClick={() => router.push(featuredMovies[current].type === "TV Show" ? `/tv-shows/${featuredMovies[current].id}` : `/movies/${featuredMovies[current].id}`)}
-                  className="group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full bg-white/5 px-6 py-4 text-base font-black uppercase tracking-widest text-white backdrop-blur-2xl transition-all hover:bg-white/10 active:scale-95 border border-white/10 sm:w-auto sm:px-12 sm:py-5 sm:text-lg"
-                  aria-label="View details"
-                >
-                  <Info size={24} />
-                  <span>Details</span>
-                </button>
+                {(() => {
+                  const currentMovie = featuredMovies[current];
+                  const movieUrl = currentMovie.type === "TV Show" 
+                    ? `/tv-shows/${slugify(currentMovie.title)}` 
+                    : currentMovie.type === "Korean Drama" 
+                      ? `/korean-dramas/${slugify(currentMovie.title)}`
+                      : `/movies/${slugify(currentMovie.title)}`;
+
+                  return (
+                    <>
+                      <button 
+                        onClick={() => router.push(`${movieUrl}#movie-player`)}
+                        className="cinematic-glow group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full bg-primary px-6 py-4 text-base font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95 sm:w-auto sm:px-12 sm:py-5 sm:text-lg"
+                        aria-label={`Play ${currentMovie.title}`}
+                      >
+                        <Play size={24} fill="currentColor" />
+                        <span>Play Now</span>
+                        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 transition-all group-hover:h-full group-hover:bg-white/10" />
+                      </button>
+                      <button 
+                        onClick={() => router.push(movieUrl)}
+                        className="group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full bg-white/5 px-6 py-4 text-base font-black uppercase tracking-widest text-white backdrop-blur-2xl transition-all hover:bg-white/10 active:scale-95 border border-white/10 sm:w-auto sm:px-12 sm:py-5 sm:text-lg"
+                        aria-label="View details"
+                      >
+                        <Info size={24} />
+                        <span>Details</span>
+                      </button>
+                    </>
+                  );
+                })()}
               </div>
             </motion.div>
           </div>

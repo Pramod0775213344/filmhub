@@ -1,4 +1,6 @@
-const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+"use server";
+
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
 export async function searchTMDB(query, type = "movie") {
@@ -7,11 +9,24 @@ export async function searchTMDB(query, type = "movie") {
     return [];
   }
 
+  // Diagnostic check for common key errors
+  if (TMDB_API_KEY.length > 32 && TMDB_API_KEY.startsWith("ey")) {
+    console.error("TMDB CONFIG ERROR: You seem to be using a v4 Bearer Token (JWT) as the API Key. Please use the shorter 'API Key (v3 auth)' string.");
+    return [];
+  }
+  if (TMDB_API_KEY.length !== 32) {
+    console.warn(`TMDB CONFIG WARNING: Your API Key is ${TMDB_API_KEY.length} characters long. A standard v3 API Key is exactly 32 hex characters. Check for spaces.`);
+  }
+
   const endpoint = type === "movie" ? "/search/movie" : "/search/tv";
   const url = `${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`;
 
   try {
     const response = await fetch(url);
+    if (response.status === 401) {
+      console.error("TMDB API Error: 401 Unauthorized. Invalid or missing API key.");
+      return [];
+    }
     const data = await response.json();
     return (data.results || []).map(item => ({
       ...item,
@@ -30,7 +45,7 @@ export async function getTMDBDetails(id, type = "movie") {
   if (!TMDB_API_KEY) return null;
 
   const endpoint = type === "movie" ? `/movie/${id}` : `/tv/${id}`;
-  const url = `${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos`;
+  const url = `${TMDB_BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos,images`;
 
   try {
     const response = await fetch(url);
@@ -86,6 +101,8 @@ export async function getTMDBDetails(id, type = "movie") {
       country: data.production_countries?.[0]?.name || "",
       imdb_rating: data.vote_average?.toFixed(1) || "0",
       trailer: data.videos?.results?.find(v => v.type === "Trailer" && v.site === "YouTube") ? `https://www.youtube.com/watch?v=${data.videos.results.find(v => v.type === "Trailer" && v.site === "YouTube").key}` : "",
+      backdrops: data.images?.backdrops?.slice(0, 10).map(img => `https://image.tmdb.org/t/p/original${img.file_path}`) || [],
+      posters: data.images?.posters?.slice(0, 10).map(img => `https://image.tmdb.org/t/p/w500${img.file_path}`) || [],
     };
   } catch (error) {
     console.error("Error getting TMDB details:", error);

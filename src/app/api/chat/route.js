@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { slugify } from "@/utils/slugify";
 
 // Initialize Supabase client for API route
 const supabase = createClient(
@@ -196,8 +197,9 @@ function formatResultsForAI(results, contentType = "all") {
     formatted += `\n🎬 ${contentLabel} found:\n`;
     results.movies.forEach((m, i) => {
       const rating = m.rating ? `⭐ ${m.rating}` : "";
+      const segment = m.type === "TV Show" ? "tv-shows" : "movies";
       formatted += `${i + 1}. "${m.title}" (${m.year || "N/A"}) - ${m.category || m.type || "Film"} ${rating}\n`;
-      formatted += `   👉 Link: /movies/${m.id}\n`;
+      formatted += `   👉 Link: /${segment}/${slugify(m.title)}\n`;
     });
   }
 
@@ -206,7 +208,7 @@ function formatResultsForAI(results, contentType = "all") {
     results.koreanDramas.forEach((m, i) => {
       const rating = m.rating ? `⭐ ${m.rating}` : "";
       formatted += `${i + 1}. "${m.title}" (${m.year || "N/A"}) - ${m.category || "Drama"} ${rating}\n`;
-      formatted += `   👉 Link: /korean-dramas/${m.id}\n`;
+      formatted += `   👉 Link: /korean-dramas/${slugify(m.title)}\n`;
     });
   }
 
