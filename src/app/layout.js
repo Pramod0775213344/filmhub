@@ -45,6 +45,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${outfit.variable} antialiased`}
+        suppressHydrationWarning
       >
         <NextTopLoader 
           color="#E50914"

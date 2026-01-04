@@ -2,8 +2,14 @@
 
 import { Facebook, Twitter, Instagram, Youtube, Github } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export default function Footer() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   return (
     <footer className="bg-secondary py-20 text-zinc-400">
       <div className="container-custom">
@@ -69,7 +75,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 border-t border-zinc-800 pt-8 text-center text-xs">
-          <p>&copy; {new Date().getFullYear()} FilmHub Inc. Design by Pramod Ravisanka.</p>
+          <p>&copy; {isMounted ? new Date().getFullYear() : '2026'} FilmHub Inc. Design by Pramod Ravisanka.</p>
         </div>
       </div>
     </footer>
