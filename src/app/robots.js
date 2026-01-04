@@ -1,12 +1,12 @@
 export default function robots() {
-  // මෙතැන ඇති baseUrl එක sitemap.js හි ඇති baseUrl එකටම සමාන විය යුතුය.
-  const baseUrl = "https://filmhub-movie.vercel.app"; 
+  // baseUrl must match what is used in sitemap.js
+  const baseUrl = "https://filmhub-three.vercel.app"; 
   
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/profile/", "/my-list/"],
+      disallow: ["/admin/", "/profile/", "/my-list/", "/api/"],
     },
     sitemap: `${baseUrl}/sitemap.xml`,
   };

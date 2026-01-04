@@ -26,6 +26,7 @@ export default async function sitemap() {
     "/movies",
     "/tv-shows",
     "/korean-dramas",
+    "/upcoming",
     "/contact",
   ].map((route) => ({
     url: `${baseUrl}${route}`,
