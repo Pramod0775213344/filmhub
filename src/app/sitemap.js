@@ -1,7 +1,10 @@
 import { createClient } from "@/utils/supabase/server";
 
 export default async function sitemap() {
-  const baseUrl = "https://filmhub-movie.vercel.app"; // Replace with your actual domain
+  // CRITICAL: මෙතැන ඇති URL එක ඔබගේ Google Search Console එකේ ඇති URL එකට (Property) 
+  // අකුරක් නෑර සමාන විය යුතුය. (www අවශ්‍ය නම් එයද ඇතුළත් කරන්න)
+  const baseUrl = "https://filmhub-movie.vercel.app"; 
+  
   const supabase = await createClient();
 
   // 1. Fetch Movies & TV Shows
@@ -10,13 +13,7 @@ export default async function sitemap() {
     .select("id, updated_at, type")
     .order("created_at", { ascending: false });
 
-  // 2. Fetch Sinhala Movies
-  const { data: sinhalaMovies } = await supabase
-    .from("sinhala_movies")
-    .select("id, updated_at")
-    .order("created_at", { ascending: false });
-
-  // 3. Fetch Korean Dramas
+  // 2. Fetch Korean Dramas
   const { data: koreanDramas } = await supabase
     .from("korean_dramas")
     .select("id, updated_at")
@@ -27,7 +24,6 @@ export default async function sitemap() {
     "",
     "/movies",
     "/tv-shows",
-    "/sinhala-movies",
     "/korean-dramas",
     "/contact",
   ].map((route) => ({
@@ -48,14 +44,6 @@ export default async function sitemap() {
     };
   });
 
-  // Dynamic Sinhala Movie Routes
-  const sinhalaEntries = (sinhalaMovies || []).map((movie) => ({
-    url: `${baseUrl}/sinhala-movies/${movie.id}`,
-    lastModified: movie.updated_at || new Date().toISOString(),
-    changeFrequency: "weekly",
-    priority: 0.6,
-  }));
-
   // Dynamic Korean Drama Routes
   const koreanEntries = (koreanDramas || []).map((drama) => ({
     url: `${baseUrl}/korean-dramas/${drama.id}`,
@@ -64,5 +52,5 @@ export default async function sitemap() {
     priority: 0.6,
   }));
 
-  return [...routes, ...movieEntries, ...sinhalaEntries, ...koreanEntries];
+  return [...routes, ...movieEntries, ...koreanEntries];
 }

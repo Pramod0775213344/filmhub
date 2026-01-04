@@ -213,9 +213,6 @@ export default function Navbar() {
               <Link href="/tv-shows" className="transition-all hover:text-primary hover:tracking-[0.25em]">
                 TV Shows
               </Link>
-              <Link href="/sinhala-movies" className="transition-all hover:text-primary hover:tracking-[0.25em]">
-                Sinhala
-              </Link>
               <Link href="/korean-dramas" className="transition-all hover:text-primary hover:tracking-[0.25em]">
                 Korean
               </Link>
@@ -465,7 +462,9 @@ export default function Navbar() {
                         {searchResults.map((result) => (
                           <Link
                             key={result.id}
-                            href={result.type === "TV Show" ? `/tv-shows/${result.id}` : `/movies/${result.id}`}
+                            href={result.type === "TV Show" ? `/tv-shows/${result.id}` : 
+                                  result.type === "Korean Drama" ? `/korean-dramas/${result.id}` : 
+                                  `/movies/${result.id}`}
                             onClick={() => {
                               setIsSearchOpen(false);
                               setSearchResults([]);
@@ -559,7 +558,6 @@ export default function Navbar() {
                         { name: "Home", href: "/" },
                         { name: "Movies", href: "/movies" },
                         { name: "TV Shows", href: "/tv-shows" },
-                        { name: "Sinhala Movies", href: "/sinhala-movies" },
                         { name: "Korean Dramas", href: "/korean-dramas" },
                         { name: "Contact", href: "/contact" },
                       ].map((item) => (

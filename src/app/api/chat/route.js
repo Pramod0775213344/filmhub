@@ -26,23 +26,15 @@ async function searchMovies(query, limit = 5) {
       .or(`title.ilike.${searchTerm},category.ilike.${searchTerm}`)
       .limit(limit);
 
-    // Search in sinhala_movies table
-    const { data: sinhalaMovies, error: sinhalaError } = await supabase
-      .from("sinhala_movies")
-      .select("id, title, year, category, image_url, rating")
-      .or(`title.ilike.${searchTerm},category.ilike.${searchTerm}`)
-      .limit(limit);
-
     const results = {
       movies: movies || [],
-      koreanDramas: kdramas || [],
-      sinhalaMovies: sinhalaMovies || []
+      koreanDramas: kdramas || []
     };
 
     return results;
   } catch (error) {
     console.error("Database search error:", error);
-    return { movies: [], koreanDramas: [], sinhalaMovies: [] };
+    return { movies: [], koreanDramas: [] };
   }
 }
 
@@ -63,19 +55,12 @@ async function getByGenre(genre, limit = 5) {
       .ilike("category", genreTerm)
       .limit(limit);
 
-    const { data: sinhalaMovies } = await supabase
-      .from("sinhala_movies")
-      .select("id, title, year, category, image_url, rating")
-      .ilike("category", genreTerm)
-      .limit(limit);
-
     return {
       movies: movies || [],
-      koreanDramas: kdramas || [],
-      sinhalaMovies: sinhalaMovies || []
+      koreanDramas: kdramas || []
     };
   } catch (error) {
-    return { movies: [], koreanDramas: [], sinhalaMovies: [] };
+    return { movies: [], koreanDramas: [] };
   }
 }
 
@@ -143,7 +128,6 @@ function analyzeQuery(query) {
   // Category patterns
   const categoryPatterns = {
     korean: /korean|k-drama|kdrama|k drama/i,
-    sinhala: /sinhala|sri lankan|local/i,
     tvshow: /tv show|tv series|series|show/i,
     movie: /movie|film/i,
     trending: /trending|popular|top|best|most watched/i,
@@ -167,11 +151,7 @@ function analyzeQuery(query) {
     intent = "korean";
     searchTerm = lowerQuery.replace(categoryPatterns.korean, "").trim();
   }
-  // Check for Sinhala content
-  else if (categoryPatterns.sinhala.test(lowerQuery)) {
-    intent = "sinhala";
-    searchTerm = lowerQuery.replace(categoryPatterns.sinhala, "").trim();
-  }
+
   // Check for genre
   else {
     for (const genre of genreKeywords) {
@@ -230,14 +210,7 @@ function formatResultsForAI(results, contentType = "all") {
     });
   }
 
-  if (results.sinhalaMovies && results.sinhalaMovies.length > 0) {
-    formatted += `\n🇱🇰 Sinhala Movies found:\n`;
-    results.sinhalaMovies.forEach((m, i) => {
-      const rating = m.rating ? `⭐ ${m.rating}` : "";
-      formatted += `${i + 1}. "${m.title}" (${m.year || "N/A"}) - ${m.category || "Movie"} ${rating}\n`;
-      formatted += `   👉 Link: /sinhala-movies/${m.id}\n`;
-    });
-  }
+
 
   return formatted || "No results found in the database.";
 }
@@ -246,7 +219,7 @@ function formatResultsForAI(results, contentType = "all") {
 const SYSTEM_PROMPT = `You are FilmHub AI, a helpful movie search assistant for the FilmHub streaming platform.
 
 IMPORTANT CAPABILITIES:
-- You can search the FilmHub database for movies, TV shows, Korean dramas, and Sinhala movies
+- You can search the FilmHub database for movies, TV shows, and Korean dramas
 - When users ask about finding content, you will provide REAL results from the database
 - Always include the direct links to content when showing results
 
@@ -254,7 +227,6 @@ CONTENT AVAILABLE ON FILMHUB:
 1. Movies - Hollywood and international films
 2. TV Shows - Popular series
 3. Korean Dramas (K-Dramas) - Korean TV series
-4. Sinhala Movies - Sri Lankan films
 
 YOUR BEHAVIOR:
 - Be friendly and helpful with a cinematic enthusiasm 🎬
@@ -267,7 +239,6 @@ SITE NAVIGATION HELP:
 - Browse Movies: /movies
 - Browse TV Shows: /tv-shows
 - Browse Korean Dramas: /korean-dramas
-- Browse Sinhala Movies: /sinhala-movies
 - My List: /my-list (requires login)`;
 
 export async function POST(req) {
@@ -313,11 +284,7 @@ export async function POST(req) {
         // Filter to only Korean dramas
         dbContext = `\n\n[KOREAN DRAMAS]${formatResultsForAI({ koreanDramas: dbResults.koreanDramas })}`;
         break;
-      case "sinhala":
-        dbResults = await searchMovies(searchTerm || "");
-        // Filter to only Sinhala movies
-        dbContext = `\n\n[SINHALA MOVIES]${formatResultsForAI({ sinhalaMovies: dbResults.sinhalaMovies })}`;
-        break;
+
       case "genre":
         if (searchTerm) {
           dbResults = await getByGenre(searchTerm);
@@ -330,8 +297,7 @@ export async function POST(req) {
           dbResults = await searchMovies(userMessage);
           const totalResults = 
             (dbResults.movies?.length || 0) + 
-            (dbResults.koreanDramas?.length || 0) + 
-            (dbResults.sinhalaMovies?.length || 0);
+            (dbResults.koreanDramas?.length || 0);
           
           if (totalResults > 0) {
             dbContext = `\n\n[POTENTIAL MATCHES FOUND]${formatResultsForAI(dbResults)}`;
@@ -349,7 +315,7 @@ export async function POST(req) {
     });
     contents.push({
       role: "model",
-      parts: [{ text: "I'm FilmHub AI, ready to help you find amazing movies and shows! 🎬 I can search our database for movies, TV shows, Korean dramas, and Sinhala films. What would you like to watch?" }]
+      parts: [{ text: "I'm FilmHub AI, ready to help you find amazing movies and shows! 🎬 I can search our database for movies, TV shows, and Korean dramas. What would you like to watch?" }]
     });
 
     // Add conversation history
@@ -420,7 +386,7 @@ export async function GET() {
     geminiConfigured: !!apiKey,
     supabaseConfigured: !!supabaseUrl,
     model: "gemini-2.5-flash",
-    features: ["movie_search", "trending", "genre_filter", "korean_dramas", "sinhala_movies"],
+    features: ["movie_search", "trending", "genre_filter", "korean_dramas"],
     message: apiKey && supabaseUrl
       ? "✅ FilmHub AI is fully configured with database search!"
       : "⚠️ Missing configuration - check .env.local"

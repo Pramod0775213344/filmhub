@@ -9,7 +9,6 @@ const QUICK_SUGGESTIONS = [
   "What's trending? 🔥",
   "Action movies",
   "Korean dramas 🇰🇷",
-  "Sinhala movies 🇱🇰",
   "New releases"
 ];
 
@@ -19,7 +18,7 @@ export default function Chatbot() {
   const [messages, setMessages] = useState([
     { 
       role: "assistant", 
-      content: "Hello! 🎬 I'm FilmHub AI, your personal movie guide. Ask me about movies, TV shows, Korean dramas, or Sinhala films. What are you in the mood to watch?" 
+      content: "Hello! 🎬 I'm FilmHub AI, your personal movie guide. Ask me about movies, TV shows, or Korean dramas. What are you in the mood to watch?" 
     }
   ]);
   const [input, setInput] = useState("");
@@ -148,7 +147,7 @@ export default function Chatbot() {
     setMessages([
       { 
         role: "assistant", 
-        content: "Hello! 🎬 I'm FilmHub AI, your personal movie guide. Ask me about movies, TV shows, Korean dramas, or Sinhala films. What are you in the mood to watch?" 
+        content: "Hello! 🎬 I'm FilmHub AI, your personal movie guide. Ask me about movies, TV shows, or Korean dramas. What are you in the mood to watch?" 
       }
     ]);
   };

@@ -1,5 +1,6 @@
 export default function robots() {
-  const baseUrl = "https://filmhub-movie.vercel.app"; // Replace with your actual domain
+  // මෙතැන ඇති baseUrl එක sitemap.js හි ඇති baseUrl එකටම සමාන විය යුතුය.
+  const baseUrl = "https://filmhub-movie.vercel.app"; 
   
   return {
     rules: {

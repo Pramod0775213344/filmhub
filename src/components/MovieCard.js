@@ -62,7 +62,6 @@ export default function MovieCard({ movie }) {
   return (
     <Link href={
       movie.type === "TV Show" ? `/tv-shows/${movie.id}` : 
-      movie.type === "Sinhala Movie" ? `/sinhala-movies/${movie.id}` : 
       movie.type === "Korean Drama" ? `/korean-dramas/${movie.id}` : 
       `/movies/${movie.id}`
     }>
