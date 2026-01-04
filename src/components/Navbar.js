@@ -82,7 +82,9 @@ export default function Navbar() {
 
   /* Notifications Logic */
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notificationRef = useRef(null);
+  const profileRef = useRef(null);
   const notifications = [
     { id: 1, title: "New Arrival", message: "Inception is now available in 4K!", time: "2m ago", read: false },
     { id: 2, title: "System Update", message: "We've updated our player for better performance.", time: "1h ago", read: false },
@@ -99,9 +101,27 @@ export default function Navbar() {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
         setIsNotificationsOpen(false);
       }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
     };
+
+    // Listen for close event from Chatbot
+    const handleCloseFromChatbot = () => {
+      setIsSearchOpen(false);
+      setIsNotificationsOpen(false);
+      setIsProfileOpen(false);
+      setSearchResults([]);
+      setSearchQuery("");
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("closeNavbarPanels", handleCloseFromChatbot);
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("closeNavbarPanels", handleCloseFromChatbot);
+    };
   }, []);
 
   const handleSearch = useDebouncedCallback(async (term) => {
@@ -160,8 +180,7 @@ export default function Navbar() {
         }`}
       >
         <div className="flex items-center px-6 md:px-12 justify-between">
-          {/* ... (Mobile Menu Button & Logo Left Unchanged) ... */}
-           {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Always visible */}
           <button 
             onClick={() => setIsMobileMenuOpen(true)}
             className="mr-4 text-white md:hidden"
@@ -170,7 +189,7 @@ export default function Navbar() {
             <Menu size={24} />
           </button>
 
-          {/* Left: Logo */}
+          {/* Left: Logo - Always visible */}
           <div className="flex-shrink-0">
             <Link href="/" className="group flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-transform group-hover:scale-110">
@@ -212,106 +231,50 @@ export default function Navbar() {
           </div>
 
           {/* Right: Icons */}
-          <div className="flex items-center gap-4 text-zinc-100 md:gap-6">
-            <div ref={searchContainerRef} className={`relative flex items-center transition-all duration-500 ${isSearchOpen ? "w-full md:w-80" : "w-10"}`}>
-              {/* Search Implementation ... (Existing Search Code) */}
-               <button 
+          <div className="flex items-center gap-3 md:gap-6 text-zinc-100">
+            {/* Search - Mobile & Desktop */}
+            <div className="relative">
+              <button 
                 onClick={() => {
+                  if (!isSearchOpen) {
+                    // Close other panels when opening search
+                    setIsNotificationsOpen(false);
+                    setIsProfileOpen(false);
+                    window.dispatchEvent(new CustomEvent('closeChatbot'));
+                  } else {
+                    setSearchResults([]);
+                    setSearchQuery("");
+                  }
                   setIsSearchOpen(!isSearchOpen);
-                  if (isSearchOpen) setSearchResults([]);
                 }}
-                className="absolute left-2 z-10 transition-transform hover:scale-110 hover:text-primary"
+                className="z-10 transition-transform hover:scale-110 hover:text-primary flex-shrink-0"
                 aria-label="Toggle search"
               >
                 <Search size={22} />
               </button>
-              <input
-                type="text"
-                placeholder="Search titles..."
-                value={searchQuery}
-                onChange={onSearchInput}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    router.push(searchQuery ? `/?s=${encodeURIComponent(searchQuery)}` : "/");
-                    setIsSearchOpen(false);
-                    setSearchResults([]);
-                  }
-                }}
-                className={`h-10 w-full rounded-full bg-white/10 pl-10 pr-4 text-sm font-bold text-white outline-none ring-1 ring-white/10 transition-all focus:bg-white/20 ${
-                  isSearchOpen ? "opacity-100 search-input-visible" : "opacity-0 pointer-events-none"
-                }`}
-              />
-               <AnimatePresence>
-                {isSearchOpen && searchQuery && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute top-12 left-0 right-0 z-50 overflow-hidden rounded-xl bg-black/90 backdrop-blur-xl shadow-2xl ring-1 ring-white/10"
-                  >
-                     {/* Search Result display logic removed for brevity but assumed preserved in replacement if matching range correctly */}
-                     {isSearching ? (
-                      <div className="flex items-center justify-center py-4 text-zinc-500">
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
-                      </div>
-                    ) : searchResults.length > 0 ? (
-                      <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
-                        {searchResults.map((result) => (
-                          <Link
-                            key={result.id}
-                            href={result.type === "TV Show" ? `/tv-shows/${result.id}` : `/movies/${result.id}`}
-                            onClick={() => {
-                              setIsSearchOpen(false);
-                              setSearchResults([]);
-                              setSearchQuery("");
-                            }}
-                            className="flex items-center gap-3 border-b border-white/5 p-3 transition-colors hover:bg-white/10"
-                          >
-                            <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded bg-zinc-800">
-                              <Image 
-                                src={result.image || result.image_url} 
-                                alt={result.title} 
-                                fill 
-                                className="object-cover"
-                                sizes="48px"
-                              />
-                            </div>
-                            <div className="flex-grow min-w-0">
-                              <h4 className="truncate font-bold text-white text-sm">{result.title}</h4>
-                             {/* ... details ... */}
-                            </div>
-                          </Link>
-                        ))}
-                         <button
-                            onClick={() => {
-                              router.push(`/?s=${encodeURIComponent(searchQuery)}`);
-                              setIsSearchOpen(false);
-                              setSearchResults([]);
-                            }}
-                            className="w-full bg-white/5 py-3 text-center text-xs font-bold uppercase tracking-widest text-primary hover:bg-white/10"
-                          >
-                            View All Results
-                          </button>
-                      </div>
-                    ) : (
-                      <div className="py-6 text-center text-zinc-500">
-                        <p className="text-sm font-medium">No results found</p>
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
             
             {/* Notification Bell */}
             <div className="relative" ref={notificationRef}>
               <button 
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                onClick={() => {
+                  if (!isNotificationsOpen) {
+                    // Close other panels when opening notifications
+                    setIsSearchOpen(false);
+                    setIsProfileOpen(false);
+                    setSearchResults([]);
+                    setSearchQuery("");
+                    window.dispatchEvent(new CustomEvent('closeChatbot'));
+                  }
+                  setIsNotificationsOpen(!isNotificationsOpen);
+                }}
                 className="relative transition-transform hover:scale-110 hover:text-primary flex items-center justify-center p-1" 
                 aria-label="Notifications"
               >
                 <Bell size={22} />
-                <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-black"></span>
+                {notifications.some(n => !n.read) && (
+                  <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-black"></span>
+                )}
               </button>
 
               <AnimatePresence>
@@ -320,19 +283,19 @@ export default function Navbar() {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 top-full mt-4 w-80 origin-top-right overflow-hidden rounded-2xl bg-zinc-900 shadow-2xl ring-1 ring-white/10"
+                    className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-20 md:top-full md:mt-4 w-auto md:w-80 origin-top-right overflow-hidden rounded-2xl bg-zinc-900/95 md:bg-zinc-900 backdrop-blur-xl shadow-2xl ring-1 ring-white/10 z-[60]"
                   >
                     <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] p-4">
                       <h3 className="text-xs font-black uppercase tracking-widest text-white">Notifications</h3>
                       <button className="text-[10px] font-bold text-primary hover:underline">Mark all read</button>
                     </div>
-                    <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                    <div className="max-h-[60vh] md:max-h-[300px] overflow-y-auto custom-scrollbar">
                       {notifications.map((notif) => (
                         <div key={notif.id} className={`flex gap-3 border-b border-white/5 p-4 transition-colors hover:bg-white/5 ${!notif.read ? 'bg-primary/5' : ''}`}>
                           <div className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${!notif.read ? 'bg-primary' : 'bg-zinc-600'}`} />
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <h4 className="text-sm font-bold text-white">{notif.title}</h4>
-                            <p className="mt-1 text-xs font-medium text-zinc-400">{notif.message}</p>
+                            <p className="mt-1 text-xs font-medium text-zinc-400 break-words">{notif.message}</p>
                             <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-zinc-600">{notif.time}</p>
                           </div>
                         </div>
@@ -344,37 +307,74 @@ export default function Navbar() {
             </div>
             
             {user ? (
-              <div className="group relative">
-                <div className="flex items-center gap-2 cursor-pointer">
-                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-zinc-800 ring-1 ring-white/10 transition-all group-hover:ring-primary">
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => {
+                    if (!isProfileOpen) {
+                      // Close other panels when opening profile
+                      setIsSearchOpen(false);
+                      setIsNotificationsOpen(false);
+                      setSearchResults([]);
+                      setSearchQuery("");
+                      window.dispatchEvent(new CustomEvent('closeChatbot'));
+                    }
+                    setIsProfileOpen(!isProfileOpen);
+                  }}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-zinc-800 ring-1 ring-white/10 transition-all hover:ring-primary">
                     <User size={20} />
                   </div>
-                  <ChevronDown size={14} className="text-zinc-500 transition-transform group-hover:rotate-180" />
-                </div>
+                  <ChevronDown size={14} className={`hidden md:block text-zinc-500 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                </button>
                 
-                <div className="absolute right-0 top-full mt-2 w-48 origin-top-right overflow-hidden rounded-xl bg-zinc-900 p-2 opacity-0 invisible shadow-2xl ring-1 ring-white/10 transition-all group-hover:opacity-100 group-hover:visible">
-                  <div className="px-4 py-3 text-xs font-bold text-zinc-500 uppercase tracking-widest border-bottom border-white/5">
-                    Account
-                  </div>
-                  <Link href="/profile" className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">
-                    Profile Settings
-                  </Link>
-                  <Link href="/my-list" className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">
-                    My List
-                  </Link>
-                  {user?.email === "admin@gmail.com" && (
-                    <Link href="/admin/dashboard" className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">
-                      Admin Dashboard
-                    </Link>
+                <AnimatePresence>
+                  {isProfileOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 top-full mt-2 w-48 origin-top-right overflow-hidden rounded-xl bg-zinc-900 p-2 shadow-2xl ring-1 ring-white/10 z-50"
+                    >
+                      <div className="px-4 py-3 text-xs font-bold text-zinc-500 uppercase tracking-widest border-b border-white/5">
+                        Account
+                      </div>
+                      <Link 
+                        href="/profile" 
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+                      >
+                        Profile Settings
+                      </Link>
+                      <Link 
+                        href="/my-list" 
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+                      >
+                        My List
+                      </Link>
+                      {user?.email === "admin@gmail.com" && (
+                        <Link 
+                          href="/admin/dashboard" 
+                          onClick={() => setIsProfileOpen(false)}
+                          className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+                        >
+                          Admin Dashboard
+                        </Link>
+                      )}
+                      <button 
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          handleSignOut();
+                        }}
+                        className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-primary/10"
+                      >
+                        <LogOut size={16} />
+                        <span>Sign Out</span>
+                      </button>
+                    </motion.div>
                   )}
-                  <button 
-                    onClick={handleSignOut}
-                    className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-primary/10"
-                  >
-                    <LogOut size={16} />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
+                </AnimatePresence>
               </div>
             ) : (
               <Link 
@@ -387,6 +387,132 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
+
+      {/* Search Overlay - Appears below navbar when search is open */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setIsSearchOpen(false);
+                setSearchResults([]);
+                setSearchQuery("");
+              }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55]"
+              style={{ top: '80px' }}
+            />
+            
+            {/* Search Container */}
+            <motion.div
+              ref={searchContainerRef}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="fixed left-4 right-4 md:left-auto md:right-12 top-20 md:top-20 z-[60] md:w-96"
+            >
+              <div className="bg-zinc-900/95 backdrop-blur-xl rounded-2xl shadow-2xl ring-1 ring-white/10 overflow-hidden">
+                {/* Search Input */}
+                <div className="p-4 border-b border-white/10">
+                  <div className="relative flex items-center">
+                    <Search size={20} className="absolute left-4 text-zinc-400" />
+                    <input
+                      type="text"
+                      placeholder="Search movies, TV shows..."
+                      value={searchQuery}
+                      onChange={onSearchInput}
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          router.push(searchQuery ? `/?s=${encodeURIComponent(searchQuery)}` : "/");
+                          setIsSearchOpen(false);
+                          setSearchResults([]);
+                          setSearchQuery("");
+                        } else if (e.key === "Escape") {
+                          setIsSearchOpen(false);
+                          setSearchResults([]);
+                          setSearchQuery("");
+                        }
+                      }}
+                      className="w-full h-12 rounded-xl bg-white/10 pl-12 pr-12 text-sm font-medium text-white placeholder:text-zinc-400 outline-none ring-1 ring-white/20 transition-all focus:bg-white/15 focus:ring-primary/50"
+                    />
+                    <button
+                      onClick={() => {
+                        setIsSearchOpen(false);
+                        setSearchResults([]);
+                        setSearchQuery("");
+                      }}
+                      className="absolute right-4 text-zinc-400 hover:text-white transition-colors"
+                      aria-label="Close search"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Search Results */}
+                {searchQuery && (
+                  <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
+                    {isSearching ? (
+                      <div className="flex items-center justify-center py-8 text-zinc-500">
+                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      <>
+                        {searchResults.map((result) => (
+                          <Link
+                            key={result.id}
+                            href={result.type === "TV Show" ? `/tv-shows/${result.id}` : `/movies/${result.id}`}
+                            onClick={() => {
+                              setIsSearchOpen(false);
+                              setSearchResults([]);
+                              setSearchQuery("");
+                            }}
+                            className="flex items-center gap-4 border-b border-white/5 p-4 transition-colors hover:bg-white/10"
+                          >
+                            <div className="relative h-20 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-800">
+                              <Image 
+                                src={result.image || result.image_url} 
+                                alt={result.title} 
+                                fill 
+                                className="object-cover"
+                                sizes="56px"
+                              />
+                            </div>
+                            <div className="flex-grow min-w-0">
+                              <h4 className="truncate font-bold text-white text-base">{result.title}</h4>
+                              <p className="text-xs text-zinc-400 mt-1">{result.type || "Movie"} • {result.year || "N/A"}</p>
+                            </div>
+                          </Link>
+                        ))}
+                        <button
+                          onClick={() => {
+                            router.push(`/?s=${encodeURIComponent(searchQuery)}`);
+                            setIsSearchOpen(false);
+                            setSearchResults([]);
+                            setSearchQuery("");
+                          }}
+                          className="w-full bg-white/5 py-3 text-center text-xs font-bold uppercase tracking-widest text-primary hover:bg-white/10 transition-colors"
+                        >
+                          View All Results
+                        </button>
+                      </>
+                    ) : (
+                      <div className="py-8 px-4 text-center text-zinc-500">
+                        <p className="text-sm font-medium">No results found for &ldquo;{searchQuery}&rdquo;</p>
+                        <p className="text-xs mt-2 text-zinc-600">Try a different search term</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Mobile Menu Docker */}
       {mounted && createPortal(
@@ -433,6 +559,8 @@ export default function Navbar() {
                         { name: "Home", href: "/" },
                         { name: "Movies", href: "/movies" },
                         { name: "TV Shows", href: "/tv-shows" },
+                        { name: "Sinhala Movies", href: "/sinhala-movies" },
+                        { name: "Korean Dramas", href: "/korean-dramas" },
                         { name: "Contact", href: "/contact" },
                       ].map((item) => (
                         <Link
@@ -445,21 +573,50 @@ export default function Navbar() {
                         </Link>
                       ))}
                       {user && (
-                        <Link
-                          href="/my-list"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
-                        >
-                          My List
-                        </Link>
+                        <>
+                          <Link
+                            href="/my-list"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+                          >
+                            My List
+                          </Link>
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+                          >
+                            Profile
+                          </Link>
+                          {user?.email === "admin@gmail.com" && (
+                            <Link
+                              href="/admin/dashboard"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className="rounded-xl px-4 py-3 text-sm font-bold text-primary transition-colors hover:bg-white/5 hover:text-white"
+                            >
+                              Admin Dashboard
+                            </Link>
+                          )}
+                        </>
                       )}
                     </nav>
                   </div>
                 </div>
                 
-                <div className="absolute bottom-8 left-6 right-6">
-                  {!user && (
-                     <Link 
+                <div className="absolute bottom-8 left-6 right-6 space-y-3">
+                  {user ? (
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleSignOut();
+                      }}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/5 py-4 text-sm font-black uppercase tracking-widest text-primary transition-all hover:bg-white/10 active:scale-95"
+                    >
+                      <LogOut size={18} />
+                      <span>Sign Out</span>
+                    </button>
+                  ) : (
+                    <Link 
                       href="/login"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="flex w-full items-center justify-center rounded-xl bg-primary py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"

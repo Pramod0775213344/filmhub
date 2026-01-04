@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
 import Chatbot from "@/components/Chatbot";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -19,6 +20,7 @@ export default function ClientLayout({ children }) {
       {!pathname.startsWith("/admin") && <SmoothScroll />}
       {!hideLayout && <Navbar />}
       {children}
+      {!hideLayout && <ScrollToTop />}
       {!hideLayout && <Chatbot />}
       {!hideLayout && <Footer />}
     </>
