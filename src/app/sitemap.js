@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 export default async function sitemap() {
   // CRITICAL: මෙතැන ඇති URL එක ඔබගේ Google Search Console එකේ ඇති URL එකට (Property) 
   // අකුරක් නෑර සමාන විය යුතුය. (www අවශ්‍ය නම් එයද ඇතුළත් කරන්න)
-  const baseUrl = "https://filmhub-movie.vercel.app"; 
+  const baseUrl = "https://filmhub-three.vercel.app"; 
   
   const supabase = await createClient();
 
