@@ -15,6 +15,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "www.themoviedb.org",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
     ],
     qualities: [75, 90],
   },

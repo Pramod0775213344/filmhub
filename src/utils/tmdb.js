@@ -41,6 +41,36 @@ export async function searchTMDB(query, type = "movie") {
   }
 }
 
+export async function getUpcomingMovies() {
+  if (!TMDB_API_KEY) return [];
+
+  const url = `${TMDB_BASE_URL}/movie/upcoming?api_key=${TMDB_API_KEY}&language=en-US&page=1`;
+
+  try {
+    const response = await fetch(url, { next: { revalidate: 3600 } }); // Cache for 1 hour
+    const data = await response.json();
+    
+    // STRICTLY FILTER: Only show movies where release_date > today
+    const today = new Date().toISOString().split('T')[0];
+
+    return (data.results || [])
+      .filter(item => item.release_date && item.release_date >= today)
+      .map(item => ({
+      id: item.id,
+      title: item.title,
+      image_url: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
+      backdrop_url: item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : null,
+      year: (item.release_date || "").split("-")[0],
+      release_date: item.release_date,
+      rating: item.vote_average?.toFixed(1) || "NR",
+      overview: item.overview
+    }));
+  } catch (error) {
+    console.error("Error fetching upcoming movies:", error);
+    return [];
+  }
+}
+
 export async function getTMDBDetails(id, type = "movie") {
   if (!TMDB_API_KEY) return null;
 

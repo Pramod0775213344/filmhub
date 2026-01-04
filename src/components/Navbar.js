@@ -162,7 +162,7 @@ export default function Navbar() {
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
-      router.push("/login");
+      router.push("/");
       router.refresh();
     } catch (error) {
       console.error("Error signing out:", error);
@@ -216,6 +216,9 @@ export default function Navbar() {
               </Link>
               <Link href="/korean-dramas" className="transition-all hover:text-primary hover:tracking-[0.25em]">
                 Korean
+              </Link>
+              <Link href="/upcoming" className="transition-all hover:text-primary hover:tracking-[0.25em]">
+                Upcoming
               </Link>
               <Link href="/contact" className="transition-all hover:text-primary hover:tracking-[0.25em]">
                 Contact
@@ -318,12 +321,28 @@ export default function Navbar() {
                     }
                     setIsProfileOpen(!isProfileOpen);
                   }}
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center gap-3 cursor-pointer"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-zinc-800 ring-1 ring-white/10 transition-all hover:ring-primary">
-                    <User size={20} />
+                  <div className="hidden md:flex flex-col items-end mr-1">
+                      <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Ayubowan,</span>
+                      <span className="text-xs font-bold text-white max-w-[100px] truncate">
+                        {user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0]}
+                      </span>
                   </div>
-                  <ChevronDown size={14} className={`hidden md:block text-zinc-500 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-zinc-800 ring-1 ring-white/10 transition-all hover:ring-primary">
+                    {user.user_metadata?.avatar_url ? (
+                      <Image 
+                        src={user.user_metadata.avatar_url} 
+                        alt="User" 
+                        width={40} 
+                        height={40} 
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <User size={20} />
+                    )}
+                  </div>
+                  <ChevronDown size={14} className={`hidden lg:block text-zinc-500 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 <AnimatePresence>
@@ -560,6 +579,7 @@ export default function Navbar() {
                         { name: "Movies", href: "/movies" },
                         { name: "TV Shows", href: "/tv-shows" },
                         { name: "Korean Dramas", href: "/korean-dramas" },
+                        { name: "Upcoming", href: "/upcoming" },
                         { name: "Contact", href: "/contact" },
                       ].map((item) => (
                         <Link

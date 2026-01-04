@@ -41,6 +41,7 @@ export default function Footer() {
               <li><Link href="/movies" className="transition-colors hover:text-primary">Movies</Link></li>
               <li><Link href="/tv-shows" className="transition-colors hover:text-primary">TV Shows</Link></li>
               <li><Link href="/korean-dramas" className="transition-colors hover:text-primary">Korean Dramas</Link></li>
+              <li><Link href="/upcoming" className="transition-colors hover:text-primary">Upcoming</Link></li>
               <li><Link href="/my-list" className="transition-colors hover:text-primary">My Watchlist</Link></li>
             </ul>
           </div>
