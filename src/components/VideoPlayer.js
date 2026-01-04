@@ -16,7 +16,6 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
     setIsMounted(true);
   }, []);
 
-  // ... (keep getYoutubeId and getGoogleDriveId helpers same) ...
   // Helper to extract YouTube ID
   const getYoutubeId = (url) => {
     try {
@@ -37,7 +36,6 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
   const getGoogleDriveId = (url) => {
     try {
       if (!url) return null;
-      // Handle drive.google.com/file/d/ID/preview or /view or /edit
       const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
       return match ? match[1] : null;
     } catch (e) {
@@ -51,19 +49,49 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
   const isGoogleDrive = !!googleDriveId;
   const isStreamtape = url ? url.includes("streamtape.com") : false;
   const isVoe = url ? url.includes("voe.sx") : false;
+  const isDood = url ? (url.includes("dood") || url.includes("ds2play") || url.includes("myvidplay")) : false;
   
-  // Use iframe for Streamtape OR Google Drive OR VOE
-  const isIframeEmbed = isStreamtape || isGoogleDrive || isVoe;
+  const isIframeEmbed = isStreamtape || isGoogleDrive || isVoe || isDood;
 
   useEffect(() => {
-    if (!url || isIframeEmbed) {
-      return;
-    }
-    // ... (rest of useEffect)
-  }, [url, autoPlay, isIframeEmbed, isYoutube, youtubeId]);
+    if (!url || isIframeEmbed || !isMounted) return;
 
+    let player;
+    const initPlayer = async () => {
+      try {
+        const Plyr = (await import("plyr")).default;
+        const playerElement = isYoutube ? youtubeRef.current : videoRef.current;
+        
+        if (!playerElement) return;
 
-  // Embed Logic
+        player = new Plyr(playerElement, {
+          autoplay: autoPlay,
+          controls: [
+            "play-large", "play", "progress", "current-time", "duration", 
+            "mute", "volume", "captions", "settings", "pip", "airplay", "fullscreen"
+          ],
+          quality: { default: 1080, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] },
+          settings: ["quality", "speed"],
+          tooltips: { controls: true, seek: true },
+        });
+
+        playerRef.current = player;
+        player.on("ready", () => setIsLoading(false));
+      } catch (err) {
+        console.error("Plyr error:", err);
+        setIsLoading(false);
+      }
+    };
+
+    initPlayer();
+
+    return () => {
+      if (player) {
+         player.destroy();
+      }
+    };
+  }, [url, autoPlay, isIframeEmbed, isYoutube, youtubeId, isMounted]);
+
   const getEmbedUrl = (videoUrl) => {
     try {
       if (isGoogleDrive && googleDriveId) {
@@ -73,11 +101,13 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
         return videoUrl.replace("/v/", "/e/");
       }
       if (isVoe) {
-          // If URL is like https://voe.sx/12345, convert to https://voe.sx/e/12345
-          // specific check to avoid double /e/ if user already pasted embed link
-          if (!videoUrl.includes("/e/")) {
-             return videoUrl.replace("voe.sx/", "voe.sx/e/");
-          }
+        if (!videoUrl.includes("/e/")) {
+           return videoUrl.replace("voe.sx/", "voe.sx/e/");
+        }
+      }
+      if (isDood) {
+        // Handle doodstream embed conversion if needed
+        return videoUrl;
       }
       return videoUrl;
     } catch (e) {
@@ -88,22 +118,17 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
   if (!url) return null;
 
   if (isIframeEmbed) {
-    // Custom Cover for Iframes
     if (!isPlaying && poster) {
       return (
         <div 
           onClick={() => setIsPlaying(true)}
           className="group relative aspect-video w-full overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl ring-1 ring-white/10 cursor-pointer"
         >
-          {/* Poster Image */}
           <div 
             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
             style={{ backgroundImage: `url(${poster})` }}
           />
-          {/* Overlay */}
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
-          
-          {/* Custom Play Button */}
           <div className="absolute inset-0 flex items-center justify-center">
              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/90 text-white shadow-[0_0_40px_rgba(229,9,20,0.5)] transition-all duration-300 group-hover:scale-110 group-hover:bg-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 ml-1">
@@ -131,7 +156,6 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
 
   return (
     <div className="relative aspect-video w-full overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl ring-1 ring-white/10">
-      {/* Loading State */}
       {isLoading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-zinc-900 text-zinc-500 z-10 pointer-events-none">
           <Loader2 className="animate-spin" size={40} />
@@ -139,7 +163,6 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
         </div>
       )}
 
-      {/* Plyr Video Element */}
       <div className="plyr-wrapper h-full w-full">
          {isYoutube ? (
             <div className="plyr__video-embed" ref={youtubeRef}>
