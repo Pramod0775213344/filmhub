@@ -198,7 +198,7 @@ export default function KoreanDramasManagement() {
                 className="group relative overflow-hidden rounded-2xl bg-zinc-900/50 p-4 ring-1 ring-white/10 transition-all hover:bg-zinc-900 hover:ring-white/20"
               >
                 <div className="relative aspect-[2/3] overflow-hidden rounded-xl">
-                  <Image src={movie.image_url || "/placeholder-card.jpg"} alt={movie.title} fill className="object-cover transition-transform group-hover:scale-105" />
+                  <Image src={movie.image_url || "/placeholder-card.jpg"} alt={movie.title} fill className="object-cover transition-transform group-hover:scale-105" sizes="200px" />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black p-4">
                     <h3 className="font-display text-lg font-black text-white">{movie.title}</h3>
                   </div>

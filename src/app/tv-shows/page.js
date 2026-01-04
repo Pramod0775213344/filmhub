@@ -12,10 +12,28 @@ export default async function TVShowsPage({ searchParams }) {
 
   const supabase = await createClient();
 
+  // Get current user to fetch their watchlist once
+  const { data: { user } } = await supabase.auth.getUser();
+  let watchlistIds = new Set();
+  
+  if (user) {
+    const { data: watchlistData } = await supabase
+      .from("watchlists")
+      .select("movie_id")
+      .eq("user_id", user.id);
+    
+    if (watchlistData) {
+      watchlistIds = new Set(watchlistData.map(item => item.movie_id));
+    }
+  }
+
   // Optimized parallel fetching
   const [showsResponse, filterResponse] = await Promise.all([
     (() => {
-      let query = supabase.from("movies").select("*").eq("type", "TV Show");
+      let query = supabase
+        .from("movies")
+        .select("id, title, year, category, rating, type, image_url")
+        .eq("type", "TV Show");
       
       // Filters
       if (category && category !== "All") query = query.eq("category", category);
@@ -29,7 +47,7 @@ export default async function TVShowsPage({ searchParams }) {
           query = query.order("created_at", { ascending: true });
           break;
         case "rating":
-          query = query.order("imdb_rating", { ascending: false });
+          query = query.order("rating", { ascending: false });
           break;
         case "year":
           query = query.order("year", { ascending: false });
@@ -47,6 +65,12 @@ export default async function TVShowsPage({ searchParams }) {
   const { data: shows, error } = showsResponse;
   const filterData = filterResponse.data;
   
+  // Enrich shows with watchlist status
+  const enrichedShows = shows?.map(s => ({
+    ...s,
+    isInWatchlist: watchlistIds.has(s.id)
+  })) || [];
+
   const uniqueCategories = ["All", ...new Set(filterData?.map(m => m.category).filter(Boolean))];
   const uniqueYears = ["All", ...new Set(filterData?.map(m => m.year).filter(Boolean))].sort((a, b) => b - a);
   const uniqueLanguages = ["All", ...new Set(filterData?.map(m => m.language).filter(Boolean))];
@@ -80,8 +104,8 @@ export default async function TVShowsPage({ searchParams }) {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 lg:gap-6">
-            {shows.map((show) => (
-              <MovieCard key={show.id} show={show} movie={show} />
+            {enrichedShows.map((show) => (
+              <MovieCard key={show.id} movie={show} />
             ))}
           </div>
         )}

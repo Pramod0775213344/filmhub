@@ -16,8 +16,8 @@
   --color-primary-hover: var(--primary-hover);
   --color-secondary: var(--secondary);
 
-  --font-sans: "Inter", var(--font-geist-sans), sans-serif;
-  --font-display: "Outfit", sans-serif;
+  --font-sans: var(--font-inter), var(--font-geist-sans), sans-serif;
+  --font-display: var(--font-outfit), sans-serif;
 }
 
 body {
@@ -28,11 +28,11 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   /* Plyr Theme Overrides */
-  --plyr-color-main: #E50914;
+  --plyr-color-main: #e50914;
   --plyr-video-background: #020202;
   --plyr-menu-background: #111;
   --plyr-menu-color: #fff;
-  --plyr-menu-shadow: 0 0 20px rgba(0,0,0,0.5);
+  --plyr-menu-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .plyr--video {
@@ -46,7 +46,7 @@ body {
 }
 
 .plyr__control--overlaid:hover {
-  background: #E50914 !important;
+  background: #e50914 !important;
 }
 
 .container-custom {

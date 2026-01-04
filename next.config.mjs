@@ -16,6 +16,7 @@ const nextConfig = {
         hostname: "www.themoviedb.org",
       },
     ],
+    qualities: [75, 90],
   },
   devIndicators: {
     appIsrStatus: false,

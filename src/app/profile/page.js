@@ -130,6 +130,7 @@ export default function ProfilePage() {
                         alt="Profile Avatar"
                         fill
                         className="object-cover"
+                        sizes="128px"
                       />
                     ) : (
                       <User size={64} className="text-zinc-800" />

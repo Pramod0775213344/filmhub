@@ -10,6 +10,11 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
   const videoRef = useRef(null);
   const youtubeRef = useRef(null);
   const playerRef = useRef(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // ... (keep getYoutubeId and getGoogleDriveId helpers same) ...
   // Helper to extract YouTube ID
@@ -139,7 +144,7 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
          {isYoutube ? (
             <div className="plyr__video-embed" ref={youtubeRef}>
               <iframe
-                src={`https://www.youtube.com/embed/${youtubeId}?origin=${typeof window !== 'undefined' ? window.location.origin : ''}&iv_load_policy=3&modestbranding=1&playsinline=1&showinfo=0&rel=0&enablejsapi=1`}
+                src={`https://www.youtube.com/embed/${youtubeId}?origin=${isMounted ? window.location.origin : ''}&iv_load_policy=3&modestbranding=1&playsinline=1&showinfo=0&rel=0&enablejsapi=1`}
                 allowFullScreen
                 allowtransparency="true"
                 allow="autoplay"

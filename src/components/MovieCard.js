@@ -9,27 +9,25 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 export default function MovieCard({ movie }) {
-  const [isInList, setIsInList] = useState(false);
+  const [isInList, setIsInList] = useState(movie.isInWatchlist || false);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
   const supabase = createClient();
   const router = useRouter();
 
+  // If isInWatchlist wasn't provided (e.g. on other pages), check it locally
   useEffect(() => {
-    if (!supabase) return;
+    if (movie.isInWatchlist !== undefined || !supabase) return;
+    
     const checkStatus = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-        
         if (user) {
           const { data } = await supabase
             .from("watchlists")
-            .select("*")
+            .select("id")
             .eq("user_id", user.id)
             .eq("movie_id", movie.id)
             .single();
-          
           if (data) setIsInList(true);
         }
       } catch (err) {
@@ -37,7 +35,7 @@ export default function MovieCard({ movie }) {
       }
     };
     checkStatus();
-  }, [movie.id, supabase]);
+  }, [movie.id, movie.isInWatchlist, supabase]);
 
   const toggleList = async (e) => {
     e.stopPropagation();

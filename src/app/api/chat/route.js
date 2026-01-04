@@ -15,21 +15,21 @@ async function searchMovies(query, limit = 5) {
     // Search in movies table (Movies & TV Shows)
     const { data: movies, error: moviesError } = await supabase
       .from("movies")
-      .select("id, title, year, category, type, poster_url, rating")
+      .select("id, title, year, category, type, image_url, rating")
       .or(`title.ilike.${searchTerm},category.ilike.${searchTerm},cast.ilike.${searchTerm}`)
       .limit(limit);
 
     // Search in korean_dramas table
     const { data: kdramas, error: kdramasError } = await supabase
       .from("korean_dramas")
-      .select("id, title, year, category, poster_url, rating")
+      .select("id, title, year, category, image_url, rating")
       .or(`title.ilike.${searchTerm},category.ilike.${searchTerm}`)
       .limit(limit);
 
     // Search in sinhala_movies table
     const { data: sinhalaMovies, error: sinhalaError } = await supabase
       .from("sinhala_movies")
-      .select("id, title, year, category, poster_url, rating")
+      .select("id, title, year, category, image_url, rating")
       .or(`title.ilike.${searchTerm},category.ilike.${searchTerm}`)
       .limit(limit);
 
@@ -53,19 +53,19 @@ async function getByGenre(genre, limit = 5) {
   try {
     const { data: movies } = await supabase
       .from("movies")
-      .select("id, title, year, category, type, poster_url, rating")
+      .select("id, title, year, category, type, image_url, rating")
       .ilike("category", genreTerm)
       .limit(limit);
 
     const { data: kdramas } = await supabase
       .from("korean_dramas")
-      .select("id, title, year, category, poster_url, rating")
+      .select("id, title, year, category, image_url, rating")
       .ilike("category", genreTerm)
       .limit(limit);
 
     const { data: sinhalaMovies } = await supabase
       .from("sinhala_movies")
-      .select("id, title, year, category, poster_url, rating")
+      .select("id, title, year, category, image_url, rating")
       .ilike("category", genreTerm)
       .limit(limit);
 
@@ -84,13 +84,13 @@ async function getTrending(limit = 5) {
   try {
     const { data: movies } = await supabase
       .from("movies")
-      .select("id, title, year, category, type, poster_url, rating, views")
+      .select("id, title, year, category, type, image_url, rating, views")
       .order("views", { ascending: false, nullsFirst: false })
       .limit(limit);
 
     const { data: kdramas } = await supabase
       .from("korean_dramas")
-      .select("id, title, year, category, poster_url, rating, views")
+      .select("id, title, year, category, image_url, rating, views")
       .order("views", { ascending: false, nullsFirst: false })
       .limit(limit);
 
@@ -108,13 +108,13 @@ async function getRecent(limit = 5) {
   try {
     const { data: movies } = await supabase
       .from("movies")
-      .select("id, title, year, category, type, poster_url, rating")
+      .select("id, title, year, category, type, image_url, rating")
       .order("created_at", { ascending: false })
       .limit(limit);
 
     const { data: kdramas } = await supabase
       .from("korean_dramas")
-      .select("id, title, year, category, poster_url, rating")
+      .select("id, title, year, category, image_url, rating")
       .order("created_at", { ascending: false })
       .limit(limit);
 

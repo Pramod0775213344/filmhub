@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -23,8 +23,11 @@ export default function SinhalaMovieClient({ initialMovie, userId }) {
   const [activeTab, setActiveTab] = useState("overview"); // overview, cast, related
   const supabase = createClient();
 
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const scrollRef = useRef(0);
+
   useEffect(() => {
-    // Increment view count
+    // 1. Increment view count
     const incrementView = async () => {
         if (!movie?.id || !supabase) return;
         try {
@@ -37,6 +40,29 @@ export default function SinhalaMovieClient({ initialMovie, userId }) {
         }
     };
     incrementView();
+
+    // 2. Handle Scroll (Throttled)
+    let animationFrameId;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > 100) {
+        setIsNavVisible(currentScrollY < scrollRef.current);
+      } else {
+        setIsNavVisible(true);
+      }
+      scrollRef.current = currentScrollY;
+    };
+
+    const onScroll = () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(handleScroll);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
   }, [movie?.id, supabase]);
 
   useEffect(() => {
@@ -117,15 +143,15 @@ export default function SinhalaMovieClient({ initialMovie, userId }) {
       {/* Immersive Hero Section */}
       <div className="relative h-[85vh] w-full overflow-hidden">
         {/* Backdrop Image */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 transform translate-z-0">
           <Image
             src={movie.image_url || movie.image}
             alt={movie.title}
             fill
-            className="object-cover opacity-60"
+            className="object-cover opacity-60 transition-opacity duration-1000"
             priority
             sizes="100vw"
-            quality={90}
+            quality={85}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/40 to-transparent" />
@@ -208,7 +234,11 @@ export default function SinhalaMovieClient({ initialMovie, userId }) {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="sticky top-[70px] z-40 w-full border-b border-white/5 bg-[#020202]/80 backdrop-blur-xl">
+      <div 
+        className={`sticky z-40 w-full border-b border-white/5 bg-[#020202]/85 backdrop-blur-md transition-all duration-300 ${
+          isNavVisible ? "top-[72px]" : "top-0"
+        }`}
+      >
         <div className="container-custom flex gap-8 overflow-x-auto no-scrollbar">
           {["overview", "cast", "related", "reviews"].map((tab) => (
              <button
@@ -326,6 +356,7 @@ export default function SinhalaMovieClient({ initialMovie, userId }) {
                              alt={m.title}
                              fill
                              className="object-cover transition-transform duration-500 group-hover:scale-110"
+                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
                            />
                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-60" />
                         </div>

@@ -360,7 +360,14 @@ export default function TVShowsManagement() {
                   {tmdbResults.map((result) => (
                     <div key={result.id} className="group relative">
                       <div className="aspect-[2/3] overflow-hidden rounded-xl bg-zinc-800 ring-1 ring-white/5">
-                        <img src={result.image_url || "/placeholder-card.jpg"} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                        <Image 
+                          src={result.image_url || "/placeholder-card.jpg"} 
+                          alt="" 
+                          fill 
+                          className="object-cover transition-transform group-hover:scale-105" 
+                          unoptimized 
+                          sizes="200px"
+                        />
                         <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-4 gap-2 text-center backdrop-blur-sm">
                           <button 
                             onClick={() => handleAutoSaveTMDB(result.id)}
@@ -392,7 +399,7 @@ export default function TVShowsManagement() {
             <div key={show.id} className="glass group overflow-hidden rounded-3xl ring-1 ring-white/5 transition-all hover:bg-white/[0.02]">
               <div className="flex flex-col md:flex-row md:items-center p-6 gap-6">
                 <div className="relative h-24 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-zinc-800">
-                  <Image src={show.image_url || "/placeholder-card.jpg"} alt={show.title} fill className="object-cover" />
+                  <Image src={show.image_url || "/placeholder-card.jpg"} alt={show.title} fill className="object-cover" sizes="100px" />
                 </div>
                 <div className="flex-grow">
                   <h3 className="text-xl font-black text-white uppercase tracking-tight">{show.title}</h3>

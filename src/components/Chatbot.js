@@ -161,10 +161,26 @@ export default function Chatbot() {
     }
   };
 
+  // Minimize handler
+  const handleMinimize = useCallback(() => {
+    setIsMinimized(true);
+    // Notify components that scroll is active again but chatbot is still there
+    window.dispatchEvent(new CustomEvent('chatbotMinimized'));
+  }, []);
+
+  // Expand handler
+  const handleExpand = useCallback(() => {
+    setIsMinimized(false);
+    // Notify components that chatbot is full screen / scroll locked
+    window.dispatchEvent(new CustomEvent('chatbotExpanded'));
+  }, []);
+
   // Close modal handler
   const handleClose = useCallback(() => {
     setIsOpen(false);
     setIsMinimized(false);
+    // Notify other components that chatbot is closed
+    window.dispatchEvent(new CustomEvent('closeChatbot'));
   }, []);
 
   // Open modal handler - also close navbar panels
@@ -173,6 +189,7 @@ export default function Chatbot() {
     window.dispatchEvent(new CustomEvent('closeNavbarPanels'));
     setIsOpen(true);
     setIsMinimized(false);
+    window.dispatchEvent(new CustomEvent('chatbotExpanded'));
   }, []);
 
   return (
@@ -191,33 +208,29 @@ export default function Chatbot() {
         )}
       </AnimatePresence>
 
-      {/* Chat Container */}
-      <div className="fixed bottom-6 right-6 z-[60]">
+      {/* Chat Container - Single anchor point to prevent layout jumps */}
+      <div className="fixed bottom-6 right-6 z-[60] pointer-events-none">
         {/* Chat Window */}
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
           {isOpen && (
             <motion.div
               key="chat-modal"
-              initial={{ opacity: 0, scale: 0.85, y: 30 }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ 
                 opacity: 1, 
                 scale: 1, 
-                y: 0,
                 height: isMinimized ? "64px" : "520px"
               }}
               exit={{ 
                 opacity: 0, 
-                scale: 0.85, 
-                y: 30,
-                transition: { duration: 0.2, ease: "easeIn" }
+                scale: 0.8,
+                transition: { duration: 0.15 }
               }}
               transition={{ 
-                type: "spring", 
-                damping: 25, 
-                stiffness: 350,
-                mass: 0.8
+                duration: 0.2,
+                ease: "easeOut"
               }}
-              className="mb-4 flex w-[360px] flex-col overflow-hidden rounded-2xl bg-zinc-900/95 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl md:w-[420px]"
+              className="absolute bottom-0 right-0 flex w-[360px] origin-bottom-right flex-col overflow-hidden rounded-2xl bg-zinc-900/95 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl md:w-[420px] pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -256,11 +269,11 @@ export default function Chatbot() {
                     <RefreshCw size={14} />
                   </button>
                   <button 
-                    onClick={() => setIsMinimized(!isMinimized)}
+                    onClick={isMinimized ? handleExpand : handleMinimize}
                     className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
                     title={isMinimized ? "Expand" : "Minimize"}
                   >
-                    <Minus size={14} />
+                    <Minus size={14} className={`transition-transform ${isMinimized ? 'rotate-180' : ''}`} />
                   </button>
                   <button 
                     onClick={handleClose}
@@ -396,17 +409,23 @@ export default function Chatbot() {
           )}
         </AnimatePresence>
 
-        {/* Floating Action Button - Immediate show/hide */}
-        {!isOpen && (
-          <motion.button
-            key="chat-fab"
-            initial={{ opacity: 1, scale: 1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.92 }}
-            onClick={handleOpen}
-            className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-[0_0_25px_rgba(229,9,20,0.5)] transition-shadow hover:shadow-[0_0_35px_rgba(229,9,20,0.7)]"
-          >
+        {/* Floating Action Button - Snappy transitions */}
+        <AnimatePresence>
+          {!isOpen && (
+            <motion.button
+              key="chat-fab"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ 
+                duration: 0.15,
+                ease: "easeOut"
+              }}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.92 }}
+              onClick={handleOpen}
+              className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-[0_0_25px_rgba(229,9,20,0.5)] transition-shadow hover:shadow-[0_0_35px_rgba(229,9,20,0.7)] pointer-events-auto"
+            >
             <MessageCircle size={26} className="text-white" />
             {/* Sparkle decoration */}
             <motion.div 
@@ -416,14 +435,9 @@ export default function Chatbot() {
             >
               <Sparkles size={14} className="text-yellow-400 fill-yellow-400" />
             </motion.div>
-            {/* Pulse ring */}
-            <motion.div
-              animate={{ scale: [1, 1.5], opacity: [0.4, 0] }}
-              transition={{ repeat: Infinity, duration: 2, ease: "easeOut" }}
-              className="absolute inset-0 rounded-full bg-primary"
-            />
           </motion.button>
-        )}
+          )}
+        </AnimatePresence>
       </div>
     </>
   );
