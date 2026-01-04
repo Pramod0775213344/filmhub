@@ -53,6 +53,15 @@ export default function RootLayout({ children }) {
           strategy="afterInteractive"
           src="https://pl28402819.effectivegatecpm.com/36/34/3c/36343c27af3a082c6657e27a6566cde1.js" 
           />
+      {/* PropellerAds Popunder Script */}
+        <Script id="propeller-ads-popunder" strategy="afterInteractive">
+          {`
+            (function(s){
+              s.dataset.zone='10418767';
+              s.src='https://al5sm.com/tag.min.js';
+            })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
+          `}
+        </Script>
         <NextTopLoader 
           color="#E50914"
           initialPosition={0.08}
