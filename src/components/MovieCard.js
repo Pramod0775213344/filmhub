@@ -89,11 +89,21 @@ export default function MovieCard({ movie }) {
           {/* Gradient Overlay (Desktop Only) */}
           <div className="movie-card-gradient absolute inset-0 opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 hidden md:block" />
 
-          {/* Badges */}
-          <div className="absolute left-3 top-3 flex flex-col gap-2">
-             {/* Always visible Top 10 badge for context, or hide if preferred */}
+          {/* Badges Container - Left */}
+          <div className="absolute left-3 top-3 flex flex-col gap-2 z-20">
+             {/* TV Show Episode Badge (Green Style like user image) */}
+             {movie.latest_episode && (
+                <span className="flex items-center justify-center rounded bg-green-600 px-2 py-1 text-[10px] font-black uppercase tracking-tighter text-white shadow-lg">
+                  S{movie.latest_episode.season.toString().padStart(2, '0')} EP{movie.latest_episode.episode.toString().padStart(2, '0')}
+                </span>
+             )}
+          </div>
+
+          {/* Badges Container - Right */}
+          <div className="absolute right-3 top-3 flex flex-col gap-2 z-20">
+             {/* Top Rated Badge (Yellow) */}
              {movie.rating > 8.5 && (
-               <span className="rounded bg-primary px-2 py-0.5 text-[10px] font-black uppercase tracking-tighter text-white shadow-lg">
+               <span className="rounded bg-yellow-500 px-2 py-1 text-[10px] font-black uppercase tracking-tighter text-black shadow-lg">
                 Top Rated
               </span>
              )}

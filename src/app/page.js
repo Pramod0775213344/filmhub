@@ -36,7 +36,7 @@ function HomeLoading() {
 async function HomeContent({ search, category }) {
   const supabase = await createClient();
 
-  // Get current user to fetch their watchlist once
+  // Get current user for watchlist
   const { data: { user } } = await supabase.auth.getUser();
   let watchlistIds = new Set();
   
@@ -51,70 +51,164 @@ async function HomeContent({ search, category }) {
     }
   }
 
-  // Optimize: Select only necessary fields for the homepage to reduce payload size
-  let moviesQuery = supabase.from("movies").select("id, title, year, category, type, rating, image_url, backdrop_url, description");
-  let kdramaQuery = supabase.from("korean_dramas").select("id, title, year, category, rating, image_url, backdrop_url, description").limit(18).order("created_at", { ascending: false });
+  // Helper to enrich with watchlist
+  let episodeMap = {};
+  // Helper to enrich with watchlist and episode info
+  const enrich = (list, type) => list?.map(m => ({ 
+    ...m, 
+    isInWatchlist: watchlistIds.has(m.id), 
+    type: type || m.type || "Movie",
+    latest_episode: episodeMap[m.id]
+  })) || [];
 
-  if (search) {
-    moviesQuery = moviesQuery.ilike("title", `%${search}%`);
-    kdramaQuery = kdramaQuery.ilike("title", `%${search}%`);
-  }
+  // if search or category is present, fall back to a single list view (implied by previous code logic, though not fully shown here)
+  // But strictly for the "Sections", we want specific queries.
 
-  if (category && category !== "All") { // Added "All" check just in case
-    moviesQuery = moviesQuery.eq("category", category);
-    // kdramaQuery might not have the same categories, so we might skip filtering it or apply strict match if applicable
-    // For now, assuming category filter applies mainly to generic Movies
-  }
+  // 1. Featured (Latest Uploads)
+  const featuredQuery = supabase.from("movies")
+    .select("id, title, year, category, type, rating, imdb_rating, image_url, backdrop_url, description")
+    .order("created_at", { ascending: false })
+    .limit(5);
 
-  const [moviesResponse, kdramaResponse] = await Promise.all([
-    moviesQuery.order("created_at", { ascending: false }).limit(100),
-    kdramaQuery
+  // 2. Recently Added (New Request - Top 8 Latest)
+  const recentsQuery = supabase.from("movies")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .order("created_at", { ascending: false })
+    .limit(8);
+
+  // 3. Trending Now (High Rated from TMDB)
+  const trendingQuery = supabase.from("movies")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .order("rating", { ascending: false }) // Using TMDB rating
+    .limit(16);
+
+  // 4. Korean Dramas (Latest)
+  const kdramaQuery = supabase.from("korean_dramas")
+    .select("id, title, year, category, rating, image_url, backdrop_url")
+    .order("created_at", { ascending: false })
+    .limit(18);
+
+  // 5. New Releases (By Year)
+  const newReleasesQuery = supabase.from("movies")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .order("year", { ascending: false }) // Actual release year
+    .limit(16);
+
+  // 6. TV Shows
+  const tvShowsQuery = supabase.from("movies")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .eq("type", "TV Show")
+    .order("created_at", { ascending: false })
+    .limit(16);
+    
+  // 7. Action Movies
+  const actionQuery = supabase.from("movies")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .ilike("category", "%Action%")
+    .limit(16);
+
+  // Execute in parallel
+  const [featuredRes, recentsRes, trendingRes, kdramaRes, newReleaseRes, tvRes, actionRes] = await Promise.all([
+    featuredQuery,
+    recentsQuery,
+    trendingQuery,
+    kdramaQuery,
+    newReleasesQuery,
+    tvShowsQuery,
+    actionQuery
   ]);
 
-  const movies = moviesResponse.data;
-  const error = moviesResponse.error;
-  const kdramas = kdramaResponse.data || [];
+  // Fetch Latest Episodes for all displayed TV Shows
+  const allMovies = [
+    ...(featuredRes.data || []),
+    ...(recentsRes.data || []),
+    ...(trendingRes.data || []),
+    ...(newReleaseRes.data || []),
+    ...(tvRes.data || []),
+    ...(actionRes.data || [])
+  ];
 
-  if (error) {
-    console.error("Error fetching movies:", error);
-    return <div className="py-20 text-center text-zinc-500">Error loading movies. Please try again later.</div>;
+  // Identify TV Show IDs
+  const tvShowIds = [...new Set(allMovies.filter(m => m.type === "TV Show").map(m => m.id))];
+  
+  // Populate episodeMap
+  if (tvShowIds.length > 0) {
+     const { data: allEpisodes } = await supabase
+       .from("tv_episodes")
+       .select("tv_show_id, season_number, episode_number")
+       .in("tv_show_id", tvShowIds);
+       
+     if (allEpisodes) {
+       allEpisodes.forEach(ep => {
+         const current = episodeMap[ep.tv_show_id];
+         // Logic to find absolute latest episode
+         if (!current || 
+            (ep.season_number > current.season) || 
+            (ep.season_number === current.season && ep.episode_number > current.episode)) {
+           episodeMap[ep.tv_show_id] = { season: ep.season_number, episode: ep.episode_number };
+         }
+       });
+     }
   }
 
-  if ((!movies || movies.length === 0) && kdramas.length === 0) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 pt-20">
-        <div className="rounded-full bg-zinc-900 p-6 ring-1 ring-white/10">
-          <Play size={40} className="text-zinc-700" />
+  // Handle Search/Category (Override sections if search is active)
+  if (search || (category && category !== "All")) {
+    let query = supabase.from("movies").select("id, title, year, category, type, rating, image_url, backdrop_url, description");
+    let kQuery = supabase.from("korean_dramas").select("id, title, year, category, rating, image_url, backdrop_url, description");
+
+    if (search) {
+      query = query.ilike("title", `%${search}%`);
+      kQuery = kQuery.ilike("title", `%${search}%`);
+    }
+    if (category && category !== "All") {
+      query = query.eq("category", category);
+    }
+    
+    const [mRes, kRes] = await Promise.all([query.limit(50), kQuery.limit(50)]);
+    const results = [...(mRes.data || []), ...(kRes.data || [])];
+
+    if (results.length === 0) {
+      return (
+        <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 pt-20">
+          <div className="rounded-full bg-zinc-900 p-6 ring-1 ring-white/10">
+            <Play size={40} className="text-zinc-700" />
+          </div>
+          <h2 className="text-xl font-bold text-white">No content found</h2>
+          <p className="text-zinc-500">Try adjusting your search or filters</p>
         </div>
-        <h2 className="text-xl font-bold text-white">No content found</h2>
-        <p className="text-zinc-500">Try adjusting your search or filters</p>
+      );
+    }
+    
+    // Simple grid for search results
+    return (
+      <div className="container-custom py-32">
+        <h2 className="text-2xl font-bold text-white mb-8">Search Results</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {enrich(results).map((movie) => (
+             <FilmSection key={movie.id} title="" movies={[movie]} /> 
+          ))} 
+        </div>
+         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 -mt-8">
+             <FilmSection title="" movies={enrich(results)} />
+         </div>
       </div>
     );
   }
 
-  const featuredMovies = movies?.slice(0, 5) || [];
-  const trendingMovies = movies?.slice(0, 16) || [];
-  const newReleases = movies?.slice(0, 16) || [];
-  const actionMovies = movies?.filter(
-    (m) => m.category === "Action" || m.category === "Sci-Fi"
-  ).slice(0, 16) || [];
-  const tvShows = movies?.filter((m) => m.type === "TV Show").slice(0, 16) || [];
 
-  // Helper to inject watchlist status
-  const enrichWithWatchlist = (movieList, type = "") => 
-    movieList?.map(m => ({ ...m, isInWatchlist: watchlistIds.has(m.id), type: type || m.type || "Movie" })) || [];
 
+  // Normal View with Sections
   return (
     <>
-      <Hero featuredMovies={enrichWithWatchlist(featuredMovies)} />
+      <Hero featuredMovies={enrich(featuredRes.data)} />
 
       <div className="container-custom relative z-10 -mt-20 space-y-20 pb-28 md:-mt-10 md:space-y-32">
-        <FilmSection title="Trending Now" movies={enrichWithWatchlist(trendingMovies)} href="/movies?sort=latest" />
-        <FilmSection title="Korean Dramas" movies={enrichWithWatchlist(kdramas, "Korean Drama")} href="/korean-dramas" />
-        <FilmSection title="New Releases" movies={enrichWithWatchlist(newReleases)} href="/movies?sort=year" />
-        <FilmSection title="TV Shows" movies={enrichWithWatchlist(tvShows)} href="/tv-shows" />
-        <FilmSection title="Action & Sci-Fi" movies={enrichWithWatchlist(actionMovies)} href="/movies?category=Action" />
-        <FilmSection title="Most Popular" movies={enrichWithWatchlist(movies.slice(0, 16))} href="/movies?sort=rating" />
+        <FilmSection title="Recently Added" movies={enrich(recentsRes.data)} href="/movies?sort=latest" />
+        <FilmSection title="Trending Now" movies={enrich(trendingRes.data)} href="/movies?sort=rating" />
+        <FilmSection title="Korean Dramas" movies={enrich(kdramaRes.data, "Korean Drama")} href="/korean-dramas" />
+        <FilmSection title="New Releases" movies={enrich(newReleaseRes.data)} href="/movies?sort=year" />
+        <FilmSection title="TV Shows" movies={enrich(tvRes.data)} href="/tv-shows" />
+        <FilmSection title="Action & Sci-Fi" movies={enrich(actionRes.data)} href="/movies?category=Action" />
       </div>
     </>
   );
