@@ -10,8 +10,13 @@ export default function CommentSection({ mediaId, mediaType }) {
   const [newComment, setNewComment] = useState("");
   const [replyContent, setReplyContent] = useState("");
   const [replyingTo, setReplyingTo] = useState(null);
-  const [user, setUser] = useState(null);
+   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const supabase = createClient();
   const isAdmin = user?.email === "admin@gmail.com";
 
@@ -181,7 +186,7 @@ export default function CommentSection({ mediaId, mediaType }) {
                           {comment.user_email?.split('@')[0]}
                         </span>
                         <span className="text-zinc-500 text-xs">
-                          {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                          {isMounted && formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
                         </span>
                       </div>
                       {(user?.id === comment.user_id || isAdmin) && (
@@ -249,7 +254,7 @@ export default function CommentSection({ mediaId, mediaType }) {
                                 Admin <span className="bg-primary text-white text-[9px] px-1.5 py-0.5 rounded-full uppercase tracking-wider">Staff</span>
                               </span>
                               <span className="text-zinc-500 text-[10px]">
-                                {formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
+                                {isMounted && formatDistanceToNow(new Date(reply.created_at), { addSuffix: true })}
                               </span>
                             </div>
                              {(user?.id === reply.user_id || isAdmin) && (
