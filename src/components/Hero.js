@@ -80,6 +80,7 @@ export default function Hero({ featuredMovies }) {
                 className={`font-display font-black leading-[0.9] tracking-tighter text-white drop-shadow-2xl line-clamp-2 ${getTitleSizeClass(featuredMovies[current].title)}`}
               >
                 {featuredMovies[current].title}
+                <span className="block text-base md:text-2xl font-bold text-zinc-300 mt-2 tracking-normal">| සිංහල උපසිරැසි සමඟ</span>
               </motion.h1>
 
               <p className="max-w-xl text-base font-medium leading-relaxed text-zinc-400 md:text-xl line-clamp-3 md:line-clamp-4">

@@ -102,7 +102,7 @@ export default function MovieCard({ movie }) {
           {/* Info Overlay (Desktop Hover) */}
           <div className="absolute inset-0 hidden flex-col justify-end p-5 opacity-0 transition-all duration-500 md:flex md:group-hover:opacity-100 md:group-hover:translate-y-0 md:translate-y-6">
             <h3 className="font-display text-lg font-black leading-tight text-white mb-2 line-clamp-2">
-              {movie.title}
+              {movie.title} <span className="text-xs font-medium text-zinc-300 block">| සිංහල උපසිරැසි සමඟ</span>
             </h3>
             
             <div className="flex items-center gap-3 text-xs font-bold text-zinc-400">
@@ -137,7 +137,9 @@ export default function MovieCard({ movie }) {
 
         {/* Info Below Image (Visible by default, hidden on hover) */}
         <div className="mt-3 transition-opacity duration-300 md:group-hover:opacity-0">
-            <h3 className="font-display text-sm font-bold text-white line-clamp-1">{movie.title}</h3>
+            <h3 className="font-display text-sm font-bold text-white line-clamp-1">
+              {movie.title} <span className="text-[10px] font-normal text-zinc-400">| සිංහල උපසිරැසි සමඟ</span>
+            </h3>
             <div className="flex items-center gap-2 text-[10px] font-medium text-zinc-400 mt-1">
               <div className="flex items-center gap-1 text-primary">
                 <Star size={10} fill="currentColor" />

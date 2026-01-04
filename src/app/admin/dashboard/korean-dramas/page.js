@@ -107,13 +107,19 @@ export default function KoreanDramasManagement() {
       const details = await getTMDBDetails(tmdbId, "tv");
       if (details) {
         const movieData = {
-          ...details,
           title: details.title || details.name,
+          description: details.description,
+          image_url: details.image_url,
+          backdrop_url: details.backdrop_url,
           rating: parseFloat(details.rating) || 0,
+          year: details.year,
+          category: details.category,
           actors: details.actors ? (Array.isArray(details.actors) ? details.actors : details.actors.split(",").map(s => s.trim())) : [],
           country: "South Korea",
           language: "Korean",
-          type: "Korean Drama",
+          duration: details.duration,
+          imdb_rating: details.imdb_rating,
+          trailer: details.trailer,
           views: 0
         };
 

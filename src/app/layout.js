@@ -3,6 +3,7 @@ import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import ClientLayout from "@/components/ClientLayout";
 import Script from "next/script";
+import AdManager from "@/components/AdManager";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,20 +49,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${outfit.variable} antialiased`}
         suppressHydrationWarning
       >
-        <Script
-        id="adsterra-social-bar"
-          strategy="afterInteractive"
-          src="https://pl28402819.effectivegatecpm.com/36/34/3c/36343c27af3a082c6657e27a6566cde1.js" 
-          />
-      {/* PropellerAds Popunder Script */}
-        <Script id="propeller-ads-popunder" strategy="afterInteractive">
-          {`
-            (function(s){
-              s.dataset.zone='10418767';
-              s.src='https://al5sm.com/tag.min.js';
-            })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
-          `}
-        </Script>
+        <AdManager />
         <NextTopLoader 
           color="#E50914"
           initialPosition={0.08}

@@ -235,6 +235,7 @@ export default function MovieClient({ initialMovie, userId }) {
               {/* Title */}
               <h1 className="font-display text-5xl font-black leading-none tracking-tighter text-white drop-shadow-2xl md:text-7xl xl:text-8xl">
                 {movie.title}
+                <span className="block text-2xl md:text-4xl font-bold text-zinc-400 mt-2 tracking-normal">| සිංහල උපසිරැසි සමඟ</span>
               </h1>
 
               {/* Meta Info Line */}
@@ -349,7 +350,7 @@ export default function MovieClient({ initialMovie, userId }) {
         }`}
       >
         <div className="container-custom flex gap-8 overflow-x-auto no-scrollbar">
-          {["overview", "trailer", "photos", "cast", "related", "reviews"].map((tab) => (
+          {["overview", "trailer", "cast", "related", "reviews"].map((tab) => (
              <button
                key={tab}
                onClick={() => setActiveTab(tab)}
@@ -513,70 +514,7 @@ export default function MovieClient({ initialMovie, userId }) {
         )}
 
         {/* Photos Tab */}
-        {activeTab === "photos" && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-12"
-          >
-            {tmdbImages.backdrops.length > 0 || tmdbImages.posters.length > 0 ? (
-              <div className="space-y-16">
-                {/* Backdrops Section */}
-                {tmdbImages.backdrops.length > 0 && (
-                  <div className="space-y-6">
-                    <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3">
-                      <ImageIcon className="text-primary" /> Backdrops
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {tmdbImages.backdrops.map((img, i) => (
-                        <motion.div
-                          key={`backdrop-${i}`}
-                          whileHover={{ scale: 1.02 }}
-                          onClick={() => setSelectedImage(img)}
-                          className="group relative aspect-video overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in ring-1 ring-white/10"
-                        >
-                          <Image src={img} alt={`Backdrop ${i}`} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Maximize2 className="text-white" size={32} />
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                {/* Posters Section */}
-                {tmdbImages.posters.length > 0 && (
-                  <div className="space-y-6">
-                    <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3">
-                      <ImageIcon className="text-primary" /> Official Posters
-                    </h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                      {tmdbImages.posters.map((img, i) => (
-                        <motion.div
-                          key={`poster-${i}`}
-                          whileHover={{ scale: 1.05 }}
-                          onClick={() => setSelectedImage(img)}
-                          className="group relative aspect-[2/3] overflow-hidden rounded-2xl bg-zinc-900 cursor-zoom-in ring-1 ring-white/10"
-                        >
-                          <Image src={img} alt={`Poster ${i}`} fill className="object-cover" sizes="(max-width: 640px) 50vw, 16vw" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Maximize2 className="text-white" size={24} />
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-20 text-zinc-500">
-                <ImageIcon size={64} className="mb-4 opacity-20" />
-                <p className="text-lg">No additional photos available for this cinematic masterpiece.</p>
-              </div>
-            )}
-          </motion.div>
-        )}
 
         {activeTab === "cast" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
