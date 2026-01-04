@@ -40,6 +40,13 @@ export default function AdManager() {
     return null;
   }
 
+  // 2. Wait for auth check to complete
+  // If we don't wait, ads might load for a split second before we know the user is an admin.
+  // Once loaded, external scripts are hard to remove.
+  if (loading) {
+    return null;
+  }
+
   // 2. Block ads if the user is an Admin
   const adminEmails = ["admin@gmail.com", "pramodravishanka3344@gmail.com"];
   if (userEmail && adminEmails.includes(userEmail)) {
