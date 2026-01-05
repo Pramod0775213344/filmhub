@@ -63,14 +63,14 @@ export default function AdManager() {
       />
       
       {/* PropellerAds Popunder Script */}
-      <Script id="propeller-ads-popunder" strategy="afterInteractive">
+      {/* <Script id="propeller-ads-popunder" strategy="afterInteractive">
         {`
           (function(s){
             s.dataset.zone='10418767';
             s.src='https://al5sm.com/tag.min.js';
           })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
         `}
-      </Script>
+      </Script> */}
     </>
   );
 }
