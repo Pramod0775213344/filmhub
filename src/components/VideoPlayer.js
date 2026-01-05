@@ -106,7 +106,13 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
         }
       }
       if (isDood) {
-        // Handle doodstream embed conversion if needed
+        // Convert DoodStream/DS2Play/MyVidPlay /d/ or /f/ to /e/ for embed
+        if (videoUrl.includes("/d/")) {
+            return videoUrl.replace("/d/", "/e/");
+        }
+        if (videoUrl.includes("/f/")) {
+            return videoUrl.replace("/f/", "/e/");
+        }
         return videoUrl;
       }
       return videoUrl;
