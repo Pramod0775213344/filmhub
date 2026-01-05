@@ -1,198 +1,138 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Loader2 } from "lucide-react";
-import "plyr/dist/plyr.css";
+import { useState, useEffect } from "react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 export default function VideoPlayer({ url, title, autoPlay = false, poster = null }) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
-  const videoRef = useRef(null);
-  const youtubeRef = useRef(null);
-  const playerRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    setLoading(true);
+    setHasError(false);
+  }, [url]);
 
-  // Helper to extract YouTube ID
-  const getYoutubeId = (url) => {
-    try {
-      if (!url) return null;
-      if (url.includes("youtube.com/watch")) {
-        return new URL(url).searchParams.get("v");
-      }
-      if (url.includes("youtu.be/")) {
-        return url.split("/").pop().split("?")[0];
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  };
-
-  // Helper to extract Google Drive ID
-  const getGoogleDriveId = (url) => {
-    try {
-      if (!url) return null;
-      const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      return match ? match[1] : null;
-    } catch (e) {
-      return null;
-    }
+  if (!url || !isMounted) {
+    return (
+      <div className="relative w-full aspect-video bg-zinc-900 rounded-2xl flex items-center justify-center">
+        <Loader2 className="animate-spin text-zinc-700" size={32} />
+      </div>
+    );
   }
 
-  const youtubeId = url ? getYoutubeId(url) : null;
-  const isYoutube = !!youtubeId;
-  const googleDriveId = url ? getGoogleDriveId(url) : null;
-  const isGoogleDrive = !!googleDriveId;
-  const isStreamtape = url ? url.includes("streamtape.com") : false;
-  const isVoe = url ? url.includes("voe.sx") : false;
-  const isDood = url ? (url.includes("dood") || url.includes("ds2play") || url.includes("myvidplay")) : false;
-  
-  const isIframeEmbed = isStreamtape || isGoogleDrive || isVoe || isDood;
-
-  useEffect(() => {
-    if (!url || isIframeEmbed || !isMounted) return;
-
-    let player;
-    const initPlayer = async () => {
-      try {
-        const Plyr = (await import("plyr")).default;
-        const playerElement = isYoutube ? youtubeRef.current : videoRef.current;
-        
-        if (!playerElement) return;
-
-        player = new Plyr(playerElement, {
-          autoplay: autoPlay,
-          controls: [
-            "play-large", "play", "progress", "current-time", "duration", 
-            "mute", "volume", "captions", "settings", "pip", "airplay", "fullscreen"
-          ],
-          quality: { default: 1080, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] },
-          settings: ["quality", "speed"],
-          tooltips: { controls: true, seek: true },
-        });
-
-        playerRef.current = player;
-        player.on("ready", () => setIsLoading(false));
-      } catch (err) {
-        console.error("Plyr error:", err);
-        setIsLoading(false);
-      }
-    };
-
-    initPlayer();
-
-    return () => {
-      if (player) {
-         player.destroy();
-      }
-    };
-  }, [url, autoPlay, isIframeEmbed, isYoutube, youtubeId, isMounted]);
-
-  const getEmbedUrl = (videoUrl) => {
+  // Helper to safely extract YouTube ID
+  const getYoutubeId = (targetUrl) => {
     try {
-      if (isGoogleDrive && googleDriveId) {
-        return `https://drive.google.com/file/d/${googleDriveId}/preview`;
+      if (targetUrl.includes("v=")) {
+        return new URL(targetUrl).searchParams.get("v");
       }
-      if (isStreamtape && videoUrl.includes("streamtape.com/v/")) {
-        return videoUrl.replace("/v/", "/e/");
-      }
-      if (isVoe) {
-        if (!videoUrl.includes("/e/")) {
-           return videoUrl.replace("voe.sx/", "voe.sx/e/");
-        }
-      }
-      if (isDood) {
-        // Convert DoodStream/DS2Play/MyVidPlay /d/ or /f/ to /e/ for embed
-        if (videoUrl.includes("/d/")) {
-            return videoUrl.replace("/d/", "/e/");
-        }
-        if (videoUrl.includes("/f/")) {
-            return videoUrl.replace("/f/", "/e/");
-        }
-        return videoUrl;
-      }
-      return videoUrl;
+      return targetUrl.split("/").pop().split("?")[0];
     } catch (e) {
-      return videoUrl;
+      return targetUrl.split("/").pop().split("?")[0];
     }
   };
 
-  if (!url) return null;
-
-  if (isIframeEmbed) {
-    if (!isPlaying && poster) {
-      return (
-        <div 
-          onClick={() => setIsPlaying(true)}
-          className="group relative aspect-video w-full overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl ring-1 ring-white/10 cursor-pointer"
-        >
-          <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-            style={{ backgroundImage: `url(${poster})` }}
-          />
-          <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
-          <div className="absolute inset-0 flex items-center justify-center">
-             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/90 text-white shadow-[0_0_40px_rgba(229,9,20,0.5)] transition-all duration-300 group-hover:scale-110 group-hover:bg-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 ml-1">
-                  <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clipRule="evenodd" />
-                </svg>
-             </div>
-          </div>
-        </div>
-      );
+  const isYoutube = url.includes("youtube.com") || url.includes("youtu.be");
+  const isEmbed = url.includes("dood") || url.includes("ds2play") || url.includes("myvidplay") || url.includes("streamtape") || url.includes("voe") || url.includes("drive.google.com");
+  
+  const getFinalUrl = (rawUrl) => {
+    try {
+      let clean = rawUrl;
+      // Doodstream / MyVidPlay / DS2Play
+      if (clean.includes("dood") || clean.includes("ds2play") || clean.includes("myvidplay")) {
+        clean = clean.replace("/d/", "/e/").replace("/f/", "/e/");
+      }
+      // Streamtape
+      if (clean.includes("streamtape.com/v/")) {
+        clean = clean.replace("/v/", "/e/");
+      }
+      // VOE
+      if (clean.includes("voe.sx") && !clean.includes("/e/")) {
+        clean = clean.replace("voe.sx/", "voe.sx/e/");
+      }
+      // Google Drive
+      if (clean.includes("drive.google.com") && clean.includes("/view")) {
+        clean = clean.replace("/view", "/preview");
+      }
+      return clean;
+    } catch (err) {
+      return rawUrl;
     }
+  };
 
-    const embedUrl = getEmbedUrl(url);
+  const finalUrl = getFinalUrl(url);
+
+  // 1. YouTube Strategy
+  if (isYoutube) {
+    const videoId = getYoutubeId(url);
     return (
-      <div className="group relative aspect-video w-full overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl ring-1 ring-white/10">
+      <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
         <iframe
-          src={embedUrl}
-          title={title}
-          className="h-full w-full border-none"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=${autoPlay ? 1 : 0}&rel=0&modestbranding=1&playsinline=1`}
+          className="absolute inset-0 w-full h-full border-0"
           allowFullScreen
-          sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          title={title}
         />
       </div>
     );
   }
 
-  return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-3xl bg-zinc-900 shadow-2xl ring-1 ring-white/10">
-      {isLoading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-zinc-900 text-zinc-500 z-10 pointer-events-none">
-          <Loader2 className="animate-spin" size={40} />
-          <p className="text-xs font-black uppercase tracking-widest">Loading Player...</p>
-        </div>
-      )}
+  // 2. Embed Strategy (Dood, MyVidPlay, etc.)
+  if (isEmbed) {
+    return (
+      <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+        {loading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 z-10">
+            <Loader2 className="animate-spin text-primary mb-2" size={32} />
+            <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Connecting to Server...</p>
+          </div>
+        )}
+        
+        <iframe
+          src={finalUrl}
+          className="absolute inset-0 w-full h-full border-0"
+          scrolling="no"
+          allowFullScreen
+          allow="autoplay; encrypted-media; picture-in-picture; web-share"
+          onLoad={() => setLoading(false)}
+          referrerPolicy="origin"
+          title={title}
+        />
 
-      <div className="plyr-wrapper h-full w-full">
-         {isYoutube ? (
-            <div className="plyr__video-embed" ref={youtubeRef}>
-              <iframe
-                src={`https://www.youtube.com/embed/${youtubeId}?origin=${isMounted ? window.location.origin : ''}&iv_load_policy=3&modestbranding=1&playsinline=1&showinfo=0&rel=0&enablejsapi=1`}
-                allowFullScreen
-                allowtransparency="true"
-                allow="autoplay"
-                title={title}
-              />
-            </div>
-         ) : (
-            <video 
-              ref={videoRef} 
-              className="plyr" 
-              playsInline 
-              controls
-              crossOrigin="anonymous"
+        {hasError && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 z-20 text-center p-4">
+            <AlertCircle className="text-red-500 mb-2" size={32} />
+            <p className="text-white font-bold text-sm">Video cannot be loaded</p>
+            <button 
+              onClick={() => window.open(finalUrl, '_blank')}
+              className="mt-4 px-6 py-2 bg-primary text-white text-xs font-bold rounded-full uppercase tracking-widest"
             >
-              <source src={url} type="video/mp4" />
-            </video>
-         )}
+              Play in New Tab
+            </button>
+          </div>
+        )}
       </div>
+    );
+  }
+
+  // 3. Direct MP4 Strategy
+  return (
+    <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+      <video
+        src={url}
+        poster={poster}
+        controls
+        playsInline
+        className="w-full h-full"
+        style={{ objectFit: 'contain' }}
+        onLoadedData={() => setLoading(false)}
+        onError={() => setHasError(true)}
+      >
+        Your browser does not support the video tag.
+      </video>
     </div>
   );
 }
