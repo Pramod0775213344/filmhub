@@ -32,6 +32,10 @@ export const metadata = {
     template: "%s | FilmHub",
   },
   description: "Discover the latest movies, trending releases, Korean dramas, and curate your personal watchlist with FilmHub. The premium platform for film enthusiasts.",
+  applicationName: 'FilmHub', // මෙය එකතු කරන්න
+  appleWebApp: {
+    title: 'FilmHub', // iPhone වලට පෙනෙන නම
+  },
   keywords: ["movies", "streaming", "Trending Movies","Movie Database","films", "watchlist", "cinema", "trailers", "korean dramas", "tv shows", "entertainment", "sri lanka movie site", "sinhala subtitles", "english subtitles", "4k movies","FilmHub"],
   authors: [{ name: "FilmHub Team" }],
   creator: "FilmHub Team",
