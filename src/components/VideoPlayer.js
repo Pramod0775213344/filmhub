@@ -155,6 +155,7 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
           className="h-full w-full border-none"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
+          sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"
         />
       </div>
     );
