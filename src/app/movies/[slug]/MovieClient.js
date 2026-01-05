@@ -49,14 +49,24 @@ export default function MovieClient({ initialMovie, userId }) {
     incrementView();
 
     // 2. Handle Scroll (Throttled via RequestAnimationFrame)
+    // 2. Handle Scroll (Optimized to prevent unnecessary re-renders)
     let animationFrameId;
+    let lastNavVisible = true;
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      let isVisible = true;
+      
       if (currentScrollY > 100) {
-        setIsNavVisible(currentScrollY < scrollRef.current);
-      } else {
-        setIsNavVisible(true);
+        isVisible = currentScrollY < scrollRef.current;
       }
+
+      // Only update state if the visibility actually changed
+      if (isVisible !== lastNavVisible) {
+        setIsNavVisible(isVisible);
+        lastNavVisible = isVisible;
+      }
+      
       scrollRef.current = currentScrollY;
     };
 
@@ -285,6 +295,14 @@ export default function MovieClient({ initialMovie, userId }) {
                 </button>
 
                 <button 
+                  onClick={() => router.push(`/download/${movie.id}`)}
+                  className="group flex items-center gap-3 rounded-full border border-primary/30 bg-primary/10 px-8 py-4 text-base font-bold text-primary transition-all hover:bg-primary/20 hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(229,9,20,0.15)]"
+                >
+                  <Download size={20} />
+                  <span>Download Now</span>
+                </button>
+
+                <button 
                   onClick={toggleList}
                   className="group flex items-center gap-3 rounded-full border border-white/10 bg-black/50 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
                 >
@@ -343,12 +361,8 @@ export default function MovieClient({ initialMovie, userId }) {
       </div>
     </div>
 
-      {/* Tabs Navigation */}
-      <div 
-        className={`sticky z-40 w-full border-b border-white/5 bg-[#020202]/85 backdrop-blur-md transition-all duration-300 ${
-          isNavVisible ? "top-[72px]" : "top-0"
-        }`}
-      >
+      {/* Tabs Navigation (Not Sticky) */}
+      <div className="w-full border-b border-white/5 bg-[#020202]">
         <div className="container-custom flex gap-8 overflow-x-auto no-scrollbar">
           {["overview", "trailer", "cast", "related", "reviews"].map((tab) => (
              <button
@@ -396,53 +410,6 @@ export default function MovieClient({ initialMovie, userId }) {
                       </h3>
                       <p className="text-zinc-300 leading-8 text-lg">{movie.description}</p>
                    </div>
-                   
-                   {/* Download Links Table */}
-                   {links.length > 0 && (
-                    <div id="links-section" className="space-y-6">
-                      <h3 className="text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
-                        <Download className="text-primary" /> Downloads
-                      </h3>
-                      
-                      {/* Provider Tabs */}
-                      <div className="flex flex-wrap gap-2">
-                        {[...new Set(links.map(l => l.provider))].map((provider, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setActiveProvider(provider)}
-                            className={`rounded-full px-6 py-2 text-xs font-black uppercase tracking-widest transition-all ${
-                              activeProvider === provider ? "bg-primary text-white shadow-lg" : "bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-white"
-                            }`}
-                          >
-                            {provider}
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/50">
-                        {links.filter(l => l.provider === activeProvider).map((link, i) => (
-                          <div key={i} className="flex items-center justify-between border-b border-white/5 p-6 last:border-0 hover:bg-white/5 transition-colors">
-                            <div className="flex items-center gap-4">
-                               <div className="h-10 w-10 flex items-center justify-center rounded-full bg-zinc-800 text-primary font-bold text-xs ring-1 ring-white/10">
-                                  {link.quality.slice(0, 4)}
-                               </div>
-                               <div>
-                                  <p className="font-bold text-white text-sm">{link.provider}</p>
-                                  <p className="text-xs text-zinc-500">{link.size || "Unknown Size"}</p>
-                               </div>
-                            </div>
-                            <a 
-                              href={link.url}
-                              target="_blank"
-                              className="rounded-lg bg-white px-6 py-2.5 text-xs font-black text-black uppercase tracking-widest transition-transform hover:scale-105 active:scale-95"
-                            >
-                              Get Link
-                            </a>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                   )}
                 </div>
 
                 {/* Sidebar Info */}
@@ -555,12 +522,12 @@ export default function MovieClient({ initialMovie, userId }) {
              {relatedMovies.length > 0 ? (
                <div className="flex gap-4">
                  <motion.div 
-                   className="flex gap-4 min-w-full"
+                   className="flex gap-4 min-w-full will-change-transform"
                    animate={{ x: ["0%", "-100%"] }}
                    transition={{ 
                      repeat: Infinity, 
                      ease: "linear", 
-                     duration: relatedMovies.length * 5, // Adjust speed based on item count
+                     duration: Math.max(relatedMovies.length * 4, 15), 
                      repeatType: "loop" 
                    }}
                  >

@@ -1,23 +1,78 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Loader2, AlertCircle } from "lucide-react";
+import { useState, useEffect, useSyncExternalStore } from "react";
+import { Loader2, AlertCircle, Play } from "lucide-react";
+import Image from "next/image";
+
+const subscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 export default function VideoPlayer({ url, title, autoPlay = false, poster = null }) {
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [prevUrl, setPrevUrl] = useState(url);
 
-  useEffect(() => {
-    setIsMounted(true);
+  // Safely detect if we are on the client (replaces isMounted state)
+  const isMounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  // Reset state synchronously when the URL prop changes
+  if (url !== prevUrl) {
+    setPrevUrl(url);
     setLoading(true);
     setHasError(false);
-  }, [url]);
+    setIsPlaying(false); // Reset play state when movie changes
+  }
 
   if (!url || !isMounted) {
     return (
-      <div className="relative w-full aspect-video bg-zinc-900 rounded-2xl flex items-center justify-center">
+      <div className="relative w-full aspect-video max-h-[450px] bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/5">
         <Loader2 className="animate-spin text-zinc-700" size={32} />
+      </div>
+    );
+  }
+
+  // Cover Photo / Poster State before playing
+  if (!isPlaying) {
+    return (
+      <div 
+        onClick={() => setIsPlaying(true)}
+        className="relative w-full aspect-video max-h-[500px] bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 cursor-pointer group"
+      >
+        {poster ? (
+          <Image 
+            src={poster} 
+            alt={title} 
+            fill 
+            className="object-cover opacity-60 transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
+             <Image src="/logo.png" alt="FilmHub" width={150} height={50} className="opacity-20 grayscale" />
+          </div>
+        )}
+        
+        {/* Play Button Overlay */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary blur-2xl opacity-40 group-hover:opacity-60 transition-opacity" />
+            <div className="relative h-20 w-20 flex items-center justify-center rounded-full bg-primary text-white shadow-[0_0_30px_rgba(229,9,20,0.5)] transition-transform duration-300 group-hover:scale-110">
+              <Play size={32} fill="currentColor" className="ml-1" />
+            </div>
+          </div>
+        </div>
+
+        {/* Info Label */}
+        <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
+           <div className="flex flex-col">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-1">Status: Ready</span>
+              <p className="text-white font-bold text-sm tracking-wide">{title}</p>
+           </div>
+           <div className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-[10px] font-bold text-white uppercase tracking-widest">
+             Click to Watch
+           </div>
+        </div>
       </div>
     );
   }
@@ -68,10 +123,10 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
   if (isYoutube) {
     const videoId = getYoutubeId(url);
     return (
-      <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
+      <div className="relative w-full aspect-video max-h-[500px] bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
         <iframe
           src={`https://www.youtube.com/embed/${videoId}?autoplay=${autoPlay ? 1 : 0}&rel=0&modestbranding=1&playsinline=1`}
-          className="absolute inset-0 w-full h-full border-0"
+          className="absolute inset-0 w-full h-full border-0 pointer-events-auto"
           allowFullScreen
           allow="autoplay; encrypted-media; picture-in-picture"
           title={title}
@@ -83,9 +138,9 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
   // 2. Embed Strategy (Dood, MyVidPlay, etc.)
   if (isEmbed) {
     return (
-      <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+      <div className="relative w-full aspect-video max-h-[500px] bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
         {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 z-10">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 z-10 transition-opacity duration-500">
             <Loader2 className="animate-spin text-primary mb-2" size={32} />
             <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">Connecting to Server...</p>
           </div>
@@ -93,7 +148,7 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
         
         <iframe
           src={finalUrl}
-          className="absolute inset-0 w-full h-full border-0"
+          className="absolute inset-0 w-full h-full border-0 pointer-events-auto"
           scrolling="no"
           allowFullScreen
           allow="autoplay; encrypted-media; picture-in-picture; web-share"
@@ -101,6 +156,9 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
           referrerPolicy="origin"
           title={title}
         />
+        
+        {/* Anti-scroll-hijack overlay (invisible but helps capture intent) */}
+        <div className="absolute inset-0 pointer-events-none ring-1 ring-inset ring-white/5 rounded-2xl" />
 
         {hasError && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 z-20 text-center p-4">
@@ -120,7 +178,7 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
 
   // 3. Direct MP4 Strategy
   return (
-    <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+    <div className="relative w-full aspect-video max-h-[500px] bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
       <video
         src={url}
         poster={poster}

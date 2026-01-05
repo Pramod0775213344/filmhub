@@ -755,6 +755,149 @@ export default function MoviesManagement() {
                      <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Tag (e.g. 4K, HD)</label>
                     <input type="text" value={formData.tag} onChange={e => setFormData({...formData, tag: e.target.value})} className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10" />
                   </div>
+
+                  {/* Download Links Management Section */}
+                  <div className="md:col-span-2 space-y-6 pt-6 mt-4 border-t border-white/5">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
+                          <Download size={18} /> Manage Download Links
+                        </h3>
+                        <p className="text-[10px] text-zinc-500 font-medium">Grouped by quality for easier management.</p>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const randomQuality = "720p";
+                          setMovieLinks([...movieLinks, { quality: randomQuality, provider: "Direct", url: "", size: "" }]);
+                        }}
+                        className="flex items-center gap-2 rounded-xl bg-primary/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-primary transition-all hover:bg-primary/20"
+                      >
+                        <Plus size={14} /> Add New Quality Group
+                      </button>
+                    </div>
+
+                    <div className="space-y-8">
+                      {/* Grouping Logic for Rendering */}
+                      {Object.entries(movieLinks.reduce((acc, link, idx) => {
+                        if (!acc[link.quality]) acc[link.quality] = { size: link.size, links: [] };
+                        acc[link.quality].links.push({ ...link, originalIndex: idx });
+                        return acc;
+                      }, {})).map(([quality, group], groupIdx) => (
+                        <div key={groupIdx} className="space-y-4 p-8 rounded-[2rem] bg-white/[0.02] border border-white/5">
+                          {/* Group Header: Quality & Size */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-white/5">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-zinc-500 uppercase ml-1">Quality Group</label>
+                              <div className="flex gap-3">
+                                <select 
+                                  value={quality} 
+                                  onChange={(e) => {
+                                    const newLinks = [...movieLinks];
+                                    group.links.forEach(l => { newLinks[l.originalIndex].quality = e.target.value; });
+                                    setMovieLinks(newLinks);
+                                  }}
+                                  className="flex-grow rounded-xl bg-zinc-950 py-3 px-4 text-xs text-white outline-none border border-white/5 focus:border-primary/50"
+                                >
+                                  <option value="480p">480p</option>
+                                  <option value="720p">720p</option>
+                                  <option value="1080p">1080p</option>
+                                  <option value="4K">4K UHD</option>
+                                </select>
+                                <button 
+                                  type="button"
+                                  onClick={() => {
+                                    const newLinks = movieLinks.filter((_, i) => !group.links.find(l => l.originalIndex === i));
+                                    setMovieLinks(newLinks);
+                                  }}
+                                  className="px-4 rounded-xl bg-red-500/10 text-red-500 text-[10px] font-black uppercase hover:bg-red-500/20 transition-all"
+                                >
+                                  Delete Group
+                                </button>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-zinc-500 uppercase ml-1">Common File Size</label>
+                              <input 
+                                type="text" 
+                                placeholder="e.g. 1.2 GB"
+                                value={group.size} 
+                                onChange={(e) => {
+                                  const newLinks = [...movieLinks];
+                                  group.links.forEach(l => { newLinks[l.originalIndex].size = e.target.value; });
+                                  setMovieLinks(newLinks);
+                                }}
+                                className="w-full rounded-xl bg-zinc-950 py-3 px-4 text-xs text-white outline-none border border-white/5 focus:border-primary/50"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Mirrors within this group */}
+                          <div className="space-y-3 pt-2">
+                            <label className="text-[10px] font-black text-zinc-400 uppercase ml-1">Available Mirrors (Google Drive, Telegram, etc.)</label>
+                            {group.links.map((link, lIdx) => (
+                              <div key={lIdx} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center group/mirror">
+                                <div className="md:col-span-3">
+                                  <select 
+                                    value={link.provider} 
+                                    onChange={(e) => {
+                                      const newLinks = [...movieLinks];
+                                      newLinks[link.originalIndex].provider = e.target.value;
+                                      setMovieLinks(newLinks);
+                                    }}
+                                    className="w-full rounded-xl bg-zinc-900 py-3 px-4 text-xs text-white outline-none border border-white/5"
+                                  >
+                                    <option value="Direct">Direct</option>
+                                    <option value="Google Drive">Google Drive</option>
+                                    <option value="Telegram">Telegram</option>
+                                    <option value="Mega.nz">Mega.nz</option>
+                                    <option value="Doodstream">Doodstream</option>
+                                  </select>
+                                </div>
+                                <div className="md:col-span-8">
+                                  <input 
+                                    type="text" 
+                                    placeholder="Mirror URL"
+                                    value={link.url} 
+                                    onChange={(e) => {
+                                      const newLinks = [...movieLinks];
+                                      newLinks[link.originalIndex].url = e.target.value;
+                                      setMovieLinks(newLinks);
+                                    }}
+                                    className="w-full rounded-xl bg-zinc-900 py-3 px-4 text-xs text-white outline-none border border-white/5"
+                                  />
+                                </div>
+                                <div className="md:col-span-1 flex justify-end">
+                                  <button 
+                                    type="button"
+                                    onClick={() => setMovieLinks(movieLinks.filter((_, i) => i !== link.originalIndex))}
+                                    className="h-8 w-8 flex items-center justify-center rounded-lg bg-red-500/5 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                setMovieLinks([...movieLinks, { quality: quality, provider: "Google Drive", url: "", size: group.size }]);
+                              }}
+                              className="mt-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-primary transition-colors flex items-center gap-2"
+                            >
+                              <Plus size={12} /> Add Another Mirror to {quality}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {movieLinks.length === 0 && (
+                        <div className="p-12 text-center rounded-[2rem] border border-dashed border-white/5 bg-white/[0.01]">
+                          <p className="text-zinc-500 text-xs font-medium">No download links configured. Click &quot;Add Quality Group&quot; to begin.</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </form>
               </div>
               <div className="p-8 border-t border-white/5 bg-white/[0.02]">
