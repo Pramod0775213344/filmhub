@@ -28,11 +28,11 @@ const outfit = Outfit({
 export const metadata = {
   metadataBase: new URL('https://filmhub-three.vercel.app'),
   title: {
-    default: "FilmHub | Your Ultimate Cinematic Experience",
+    default: "FilmHub | Discover Movies & Curate Your Watchlist",
     template: "%s | FilmHub",
   },
   description: "Discover the latest movies, trending releases, Korean dramas, and curate your personal watchlist with FilmHub. The premium platform for film enthusiasts.",
-  keywords: ["movies", "streaming", "films", "watchlist", "cinema", "trailers", "korean dramas", "tv shows", "entertainment", "sri lanka movie site", "sinhala subtitles", "english subtitles", "4k movies"],
+  keywords: ["movies", "streaming", "Trending Movies","Movie Database","films", "watchlist", "cinema", "trailers", "korean dramas", "tv shows", "entertainment", "sri lanka movie site", "sinhala subtitles", "english subtitles", "4k movies","FilmHub"],
   authors: [{ name: "FilmHub Team" }],
   creator: "FilmHub Team",
   publisher: "FilmHub",
