@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader2, Github, Home } from "lucide-react";
 
@@ -69,9 +70,18 @@ export default function LoginPage() {
           Back Home
         </span>
       </Link>
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute -left-20 -top-20 h-80 w-80 rounded-full bg-primary/20 blur-[120px]" />
-        <div className="absolute -right-20 -bottom-20 h-80 w-80 rounded-full bg-primary/10 blur-[120px]" />
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/login-bg.png"
+          alt="Cinema Background"
+          fill
+          className="object-cover opacity-30"
+          priority
+          quality={100}
+        />
+        {/* Gradient Overlay for Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/60" />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
       </div>
 
       <motion.div

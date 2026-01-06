@@ -5,6 +5,7 @@ import { Search, Bell, User, LogOut, ChevronDown, Play, Menu, X } from "lucide-r
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useDebouncedCallback } from "use-debounce";
+import { InlineSpinner } from "@/components/LoadingSpinner";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
@@ -26,6 +27,8 @@ export default function Navbar() {
   const searchContainerRef = useRef(null);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [hoveredTab, setHoveredTab] = useState(null);
+  const [mobileExpanded, setMobileExpanded] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -208,6 +211,69 @@ export default function Navbar() {
               <Link href="/" className="text-white transition-all hover:text-primary hover:tracking-[0.25em]">
                 Home
               </Link>
+
+              
+              {/* Categories Dropdown */}
+              <div 
+                className="relative group"
+                onMouseEnter={() => setHoveredTab("categories")}
+                onMouseLeave={() => setHoveredTab(null)}
+              >
+                <button className="flex items-center gap-1 transition-all hover:text-primary hover:tracking-[0.25em] focus:outline-none uppercase">
+                  Categories <ChevronDown size={14} className="text-primary" />
+                </button>
+                <AnimatePresence>
+                  {hoveredTab === "categories" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 15 }}
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-64 rounded-2xl bg-black/90 backdrop-blur-xl border border-white/10 p-2 shadow-2xl overflow-hidden grid grid-cols-1 gap-1 z-50"
+                    >
+                      {["Action", "Adventure", "Comedy", "Drama", "Horror", "Sci-Fi", "Thriller", "Romance", "Animation", "Documentary"].map((cat) => (
+                        <Link 
+                          key={cat} 
+                          href={`/category/${slugify(cat)}`}
+                          className="block px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/10 transition-all uppercase tracking-widest text-center"
+                        >
+                          {cat}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Languages Dropdown */}
+              <div 
+                className="relative group"
+                onMouseEnter={() => setHoveredTab("languages")}
+                onMouseLeave={() => setHoveredTab(null)}
+              >
+                <button className="flex items-center gap-1 transition-all hover:text-primary hover:tracking-[0.25em] focus:outline-none uppercase">
+                  Languages <ChevronDown size={14} className="text-primary" />
+                </button>
+                <AnimatePresence>
+                  {hoveredTab === "languages" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 15 }}
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-48 rounded-2xl bg-black/90 backdrop-blur-xl border border-white/10 p-2 shadow-2xl overflow-hidden grid grid-cols-1 gap-1 z-50"
+                    >
+                      {["Sinhala", "Tamil", "English", "Hindi", "Korean", "Malayalam", "Telugu"].map((lang) => (
+                        <Link 
+                          key={lang} 
+                          href={`/language/${slugify(lang)}`}
+                          className="block px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/10 transition-all uppercase tracking-widest text-center"
+                        >
+                          {lang}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
               <Link href="/movies" className="transition-all hover:text-primary hover:tracking-[0.25em]">
                 Movies
               </Link>
@@ -474,8 +540,8 @@ export default function Navbar() {
                 {searchQuery && (
                   <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
                     {isSearching ? (
-                      <div className="flex items-center justify-center py-8 text-zinc-500">
-                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-500 border-t-transparent" />
+                      <div className="flex items-center justify-center py-8">
+                        <InlineSpinner />
                       </div>
                     ) : searchResults.length > 0 ? (
                       <>
@@ -574,23 +640,51 @@ export default function Navbar() {
                   <div className="space-y-2">
                     <p className="px-4 text-xs font-black uppercase tracking-widest text-zinc-500">Menu</p>
                     <nav className="flex flex-col space-y-1">
-                      {[
-                        { name: "Home", href: "/" },
-                        { name: "Movies", href: "/movies" },
-                        { name: "TV Shows", href: "/tv-shows" },
-                        { name: "Korean Dramas", href: "/korean-dramas" },
-                        { name: "Upcoming", href: "/upcoming" },
-                        { name: "Contact", href: "/contact" },
-                      ].map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+                      <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Home</Link>
+                      
+                      {/* Mobile Categories Expandable */}
+                      <div>
+                        <button 
+                          onClick={() => setMobileExpanded(mobileExpanded === 'categories' ? null : 'categories')}
+                          className="w-full flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
                         >
-                          {item.name}
-                        </Link>
-                      ))}
+                          Categories <ChevronDown size={14} className={`transition-transform ${mobileExpanded === 'categories' ? 'rotate-180' : ''}`} />
+                        </button>
+                        <AnimatePresence>
+                          {mobileExpanded === 'categories' && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white/5 px-4 rounded-b-xl">
+                              {["Action", "Adventure", "Comedy", "Drama", "Horror", "Sci-Fi", "Thriller", "Romance", "Animation", "Documentary"].map(cat => (
+                                <Link key={cat} href={`/category/${slugify(cat)}`} onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-xs font-semibold text-zinc-400 hover:text-white border-b border-white/5 last:border-0">{cat}</Link>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* Mobile Languages Expandable */}
+                      <div>
+                        <button 
+                          onClick={() => setMobileExpanded(mobileExpanded === 'languages' ? null : 'languages')}
+                          className="w-full flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+                        >
+                          Languages <ChevronDown size={14} className={`transition-transform ${mobileExpanded === 'languages' ? 'rotate-180' : ''}`} />
+                        </button>
+                        <AnimatePresence>
+                          {mobileExpanded === 'languages' && (
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white/5 px-4 rounded-b-xl">
+                              {["Sinhala", "Tamil", "English", "Hindi", "Korean", "Malayalam", "Telugu"].map(lang => (
+                                <Link key={lang} href={`/language/${slugify(lang)}`} onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-xs font-semibold text-zinc-400 hover:text-white border-b border-white/5 last:border-0">{lang}</Link>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      <Link href="/movies" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Movies</Link>
+                      <Link href="/tv-shows" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">TV Shows</Link>
+                      <Link href="/korean-dramas" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Korean Dramas</Link>
+                      <Link href="/upcoming" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Upcoming</Link>
+                      <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Contact</Link>
                       {user && (
                         <>
                           <Link

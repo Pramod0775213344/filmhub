@@ -4,6 +4,7 @@ import NextTopLoader from "nextjs-toploader";
 import ClientLayout from "@/components/ClientLayout";
 import Script from "next/script";
 import AdManager from "@/components/AdManager";
+import SpotlightEffect from "@/components/SpotlightEffect";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,6 +76,8 @@ export const metadata = {
       'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
     },
   },
 };
@@ -93,6 +96,7 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning
       >
         <AdManager />
+        <SpotlightEffect />
         <NextTopLoader 
           color="#E50914"
           initialPosition={0.08}

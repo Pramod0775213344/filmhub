@@ -13,11 +13,20 @@ import {
 import { useDebounce } from "use-debounce";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { sendMovieNotification } from "@/app/actions/sendEmail";
+import { useUpload } from "@/context/UploadContext";
 import GoogleDriveUploader from "@/components/admin/GoogleDriveUploader";
 
 
 
-export default function MoviesManagement() {
+export default function MoviesManagementPage() {
+  return (
+    <AdminLayout>
+      <MoviesContent />
+    </AdminLayout>
+  );
+}
+
+function MoviesContent() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,10 +63,12 @@ export default function MoviesManagement() {
   const [tmdbResults, setTmdbResults] = useState([]);
   const [isFetchingTMDB, setIsFetchingTMDB] = useState(false);
   
-  // Upload State
-  const [activeUpload, setActiveUpload] = useState({ movieId: null, progress: 0, status: 'idle', movieTitle: '' });
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [isUploadMinimized, setIsUploadMinimized] = useState(false);
+  // Global Upload Context
+  const { startUpload, accessToken, requestAuth } = useUpload();
+  const [isLocalUploadModalOpen, setIsLocalUploadModalOpen] = useState(false);
+  const [selectedMovieForUpload, setSelectedMovieForUpload] = useState(null);
+  const localFileInputRef = useRef(null);
+
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef(null);
@@ -507,6 +518,74 @@ export default function MoviesManagement() {
     }
   };
 
+  const handleSyncLanguages = async () => {
+    if (!supabase) return;
+    if (!confirm("This will search TMDB for languages for ALL movies and update them. This might take a while. Continue?")) return;
+    
+    setIsSyncing(true);
+    setSyncProgress("Starting language sync...");
+
+    try {
+      // 1. Fetch all movies
+      const { data: moviesToUpdate, error } = await supabase
+        .from("movies")
+        .select("id, title, year")
+        .eq("type", "Movie");
+
+      if (error) throw error;
+      
+      if (!moviesToUpdate || moviesToUpdate.length === 0) {
+        alert("No movies found to sync!");
+        setIsSyncing(false);
+        return;
+      }
+
+      let updatedCount = 0;
+      let notFoundCount = 0;
+
+      for (let i = 0; i < moviesToUpdate.length; i++) {
+        const movie = moviesToUpdate[i];
+        setSyncProgress(`Processing ${i + 1}/${moviesToUpdate.length}: ${movie.title}...`);
+
+        // 2. Search TMDB
+        const searchResults = await searchTMDB(movie.title, "movie");
+        // Try to match by year if possible for better accuracy
+        const match = searchResults.find(r => r.year === movie.year) || searchResults[0];
+
+        if (match) {
+           // 3. Get Details
+           const details = await getTMDBDetails(match.id, "movie");
+           
+           if (details && details.language) {
+             // 4. Update Database
+             await supabase
+               .from("movies")
+               .update({ language: details.language })
+               .eq("id", movie.id);
+             updatedCount++;
+           } else {
+             notFoundCount++;
+           }
+        } else {
+          notFoundCount++;
+        }
+        
+        // Small delay to avoid hitting rate limits too hard
+        await new Promise(r => setTimeout(r, 250));
+      }
+
+      alert(`Language Sync Complete!\nUpdated: ${updatedCount}\nCould not find: ${notFoundCount}`);
+      fetchMovies();
+
+    } catch (err) {
+      console.error("Sync error:", err);
+      alert("Error during sync: " + err.message);
+    } finally {
+      setIsSyncing(false);
+      setSyncProgress("");
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!supabase) return;
     if (confirm("Are you sure you want to delete this movie?")) {
@@ -516,7 +595,7 @@ export default function MoviesManagement() {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-12">
         {/* Header */}
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -557,6 +636,14 @@ export default function MoviesManagement() {
             >
               {isSyncing ? <Loader2 className="animate-spin" size={20} /> : <Wand2 size={20} />}
               <span>{isSyncing ? syncProgress : "Auto-Sync Trailers"}</span>
+            </button>
+            <button 
+              onClick={handleSyncLanguages}
+              disabled={isSyncing}
+              className={`flex items-center justify-center gap-3 rounded-2xl border border-primary/20 bg-primary/10 px-6 py-4 text-sm font-black uppercase tracking-widest text-primary transition-all hover:bg-primary/20 active:scale-95 ${isSyncing ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isSyncing ? <Loader2 className="animate-spin" size={20} /> : <Globe size={20} />}
+              <span>{isSyncing ? syncProgress : "Sync Languages"}</span>
             </button>
             <button 
               onClick={() => handleOpenModal()}
@@ -615,24 +702,7 @@ export default function MoviesManagement() {
           </div>
         </div>
 
-        {/* Upload Status Bar (When Minimized) */}
-        <AnimatePresence>
-          {isUploadMinimized && activeUpload.status === 'uploading' && (
-            <motion.div 
-              initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
-              className="fixed bottom-6 right-6 z-[60] bg-zinc-900 border border-primary/30 p-4 rounded-xl shadow-2xl flex items-center gap-4 w-80 cursor-pointer hover:bg-zinc-800"
-              onClick={() => { setIsUploadMinimized(false); setIsUploadModalOpen(true); }}
-            >
-              <Loader2 className="animate-spin text-primary" size={24} />
-              <div className="flex-grow">
-                 <p className="text-xs font-bold text-white uppercase truncate">Uploading: {activeUpload.movieTitle}</p>
-                 <div className="h-1.5 w-full bg-zinc-800 rounded-full mt-2 overflow-hidden">
-                   <div className="h-full bg-primary transition-all duration-300" style={{ width: `${activeUpload.progress}%` }} />
-                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
 
         {/* TMDB Results Drawer */}
         <AnimatePresence>
@@ -716,22 +786,6 @@ export default function MoviesManagement() {
                     <h3 className="font-display text-lg font-black text-white">{movie.title}</h3>
                   </div>
 
-                  {/* Upload Progress Overlay */}
-                  {activeUpload.movieId === movie.id && activeUpload.status === 'uploading' && (
-                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
-                      <div className="relative h-16 w-16 mb-2">
-                        <svg className="h-full w-full -rotate-90 text-zinc-700" viewBox="0 0 36 36">
-                          <path className="fill-none stroke-current stroke-[3]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                          <path className="fill-none stroke-primary stroke-[3] transition-all duration-300 drop-shadow-[0_0_10px_rgba(229,9,20,0.8)]" 
-                            strokeDasharray={`${activeUpload.progress}, 100`}
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
-                          />
-                        </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-white">{activeUpload.progress}%</span>
-                      </div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-primary animate-pulse">Uploading...</p>
-                    </div>
-                  )}
                   {(!movie.trailer || movie.trailer.trim() === "") && (
                     <div className="absolute top-2 right-2 rounded-md bg-red-600/90 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-sm backdrop-blur-sm">
                       No Trailer
@@ -751,9 +805,13 @@ export default function MoviesManagement() {
                     </button>
                     <button 
                       onClick={() => {
-                        setActiveUpload({ movieId: movie.id, progress: 0, status: 'idle', movieTitle: movie.title });
-                        setIsUploadModalOpen(true);
-                        setIsUploadMinimized(false);
+                         if(!accessToken) {
+                            alert("Please connect Google Drive first (Click the Cloud icon in the Add Movie modal global Uploader or just try again).");
+                            requestAuth();
+                            return;
+                         }
+                         setSelectedMovieForUpload(movie);
+                         localFileInputRef.current?.click();
                       }} 
                       className="rounded-xl bg-blue-500/10 p-2.5 text-blue-500 transition-colors hover:bg-blue-500/20"
                     >
@@ -996,43 +1054,22 @@ export default function MoviesManagement() {
         )}
       </AnimatePresence>
 
-      {/* Upload Modal (Persistent in DOM) */}
-      <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 transition-opacity duration-300 ${isUploadModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={() => !isUploadMinimized && setIsUploadModalOpen(false)} />
-        <div className={`glass relative w-full max-w-lg overflow-hidden rounded-[2.5rem] shadow-2xl transition-transform duration-300 ${isUploadModalOpen ? 'scale-100 translate-y-0' : 'scale-90 translate-y-10'}`}>
-          <div className="p-8 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
-             <div>
-               <h3 className="text-lg font-black text-white">Upload Movie File</h3>
-               <p className="text-xs font-bold text-zinc-500 uppercase">{activeUpload.movieTitle}</p>
-             </div>
-             <div className="flex gap-2">
-               <button onClick={() => { setIsUploadModalOpen(false); setIsUploadMinimized(true); }} className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors" title="Minimize">
-                 <Minimize2 size={18} />
-               </button>
-               <button onClick={() => setIsUploadModalOpen(false)} className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors">
-                 <X size={18} />
-               </button>
-             </div>
-          </div>
-          <div className="p-8">
-            <GoogleDriveUploader
-              onProgress={(p) => setActiveUpload(prev => ({ ...prev, progress: p, status: 'uploading' }))}
-              onUploadComplete={async (link) => {
-                setActiveUpload(prev => ({ ...prev, status: 'complete', progress: 100 }));
-                // Update Database
-                if (activeUpload.movieId) {
-                  const { error } = await supabase.from("movies").update({ video_url: link }).eq("id", activeUpload.movieId);
-                  if (!error) {
-                     alert("Upload Complete & Link Saved!");
-                     setIsUploadModalOpen(false);
-                     fetchMovies(); // Refresh to see changes if needed
-                  }
-                }
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    </AdminLayout>
+      {/* Hidden File Input for Card Upload */}
+      <input 
+          type="file" 
+          ref={localFileInputRef}
+          className="hidden" 
+          accept="video/*"
+          onChange={(e) => {
+              const file = e.target.files[0];
+              if (file && selectedMovieForUpload) {
+                startUpload(file, selectedMovieForUpload.id, selectedMovieForUpload.title, "movies");
+              }
+              // Reset
+              e.target.value = "";
+              setSelectedMovieForUpload(null);
+          }}
+      />
+    </>
   );
 }

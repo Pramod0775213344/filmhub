@@ -133,6 +133,7 @@ export async function getTMDBDetails(id, type = "movie") {
       trailer: data.videos?.results?.find(v => v.type === "Trailer" && v.site === "YouTube") ? `https://www.youtube.com/watch?v=${data.videos.results.find(v => v.type === "Trailer" && v.site === "YouTube").key}` : "",
       backdrops: data.images?.backdrops?.slice(0, 10).map(img => `https://image.tmdb.org/t/p/original${img.file_path}`) || [],
       posters: data.images?.posters?.slice(0, 10).map(img => `https://image.tmdb.org/t/p/w500${img.file_path}`) || [],
+      language: data.original_language ? new Intl.DisplayNames(['en'], { type: 'language' }).of(data.original_language) : "English",
     };
   } catch (error) {
     console.error("Error getting TMDB details:", error);

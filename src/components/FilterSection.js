@@ -4,7 +4,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ChevronDown, Search } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
-export default function FilterSection({ categories, years, languages, currentFilters }) {
+export default function FilterSection({ categories, years, languages, currentFilters, hideCategoryFilter = false, hideLanguageFilter = false }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -47,12 +47,14 @@ export default function FilterSection({ categories, years, languages, currentFil
         />
 
         {/* Category Filter */}
-        <FilterDropdown 
-          label="Genre" 
-          options={categories} 
-          value={currentFilters.category || "All"} 
-          onChange={(val) => handleFilterChange("category", val)} 
-        />
+        {!hideCategoryFilter && (
+          <FilterDropdown 
+            label="Genre" 
+            options={categories} 
+            value={currentFilters.category || "All"} 
+            onChange={(val) => handleFilterChange("category", val)} 
+          />
+        )}
 
         {/* Year Filter */}
         <FilterDropdown 
@@ -63,12 +65,14 @@ export default function FilterSection({ categories, years, languages, currentFil
         />
 
         {/* Language Filter */}
-        <FilterDropdown 
-          label="Language" 
-          options={languages} 
-          value={currentFilters.language || "All"} 
-          onChange={(val) => handleFilterChange("language", val)} 
-        />
+        {!hideLanguageFilter && (
+          <FilterDropdown 
+            label="Language" 
+            options={languages} 
+            value={currentFilters.language || "All"} 
+            onChange={(val) => handleFilterChange("language", val)} 
+          />
+        )}
       </div>
     </div>
   );
