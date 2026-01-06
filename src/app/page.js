@@ -39,76 +39,62 @@ function HomeLoading() {
 async function HomeContent({ search, category }) {
   const supabase = await createClient();
 
-  // Get current user for watchlist
-  const { data: { user } } = await supabase.auth.getUser();
-  let watchlistIds = new Set();
-  
-  if (user) {
-    const { data: watchlistData } = await supabase
-      .from("watchlists")
-      .select("movie_id")
-      .eq("user_id", user.id);
-    
-    if (watchlistData) {
-      watchlistIds = new Set(watchlistData.map(item => item.movie_id));
-    }
-  }
-
-  // Helper to enrich with watchlist
-  let episodeMap = {};
-  // Helper to enrich with watchlist and episode info
-  const enrich = (list, type) => list?.map(m => ({ 
-    ...m, 
-    isInWatchlist: watchlistIds.has(m.id), 
-    type: type || m.type || "Movie",
-    latest_episode: episodeMap[m.id]
-  })) || [];
-
-  // 1. Featured (Latest Uploads)
+  // 1. Initialize queries (don't await them yet)
+  // Featured (Latest Uploads)
   const featuredQuery = supabase.from("movies")
     .select("id, title, year, category, type, rating, imdb_rating, image_url, backdrop_url, description")
     .order("created_at", { ascending: false })
     .limit(5);
 
-  // 2. Recently Added (New Request - Top 8 Latest)
+  // Recently Added (Top 8 Latest)
   const recentsQuery = supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url")
     .order("created_at", { ascending: false })
     .limit(8);
 
-  // 3. Trending Now (High Rated from TMDB)
+  // Trending Now (High Rated)
   const trendingQuery = supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url")
-    .order("rating", { ascending: false }) // Using TMDB rating
+    .order("rating", { ascending: false })
     .limit(16);
 
-  // 4. Korean Dramas (Latest)
+  // Korean Dramas (Latest)
   const kdramaQuery = supabase.from("korean_dramas")
     .select("id, title, year, category, rating, image_url, backdrop_url")
     .order("created_at", { ascending: false })
     .limit(18);
 
-  // 5. New Releases (By Year)
+  // New Releases (By Year)
   const newReleasesQuery = supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url")
-    .order("year", { ascending: false }) // Actual release year
+    .order("year", { ascending: false })
     .limit(16);
 
-  // 6. TV Shows
+  // TV Shows
   const tvShowsQuery = supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url")
     .eq("type", "TV Show")
     .order("created_at", { ascending: false })
     .limit(16);
     
-  // 7. Action Movies
+  // Action Movies
   const actionQuery = supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url")
     .ilike("category", "%Action%")
     .limit(16);
 
-  // Execute in parallel
-  const [featuredRes, recentsRes, trendingRes, kdramaRes, newReleaseRes, tvRes, actionRes] = await Promise.all([
+  // Fetch everything in parallel - MOVIES + USER
+  const [
+    userRes,
+    featuredRes, 
+    recentsRes, 
+    trendingRes, 
+    kdramaRes, 
+    newReleaseRes, 
+    tvRes, 
+    actionRes
+  ] = await Promise.all([
+    supabase.auth.getUser(),
     featuredQuery,
     recentsQuery,
     trendingQuery,
@@ -118,39 +104,39 @@ async function HomeContent({ search, category }) {
     actionQuery
   ]);
 
-  // Fetch Latest Episodes for all displayed TV Shows
-  const allMovies = [
-    ...(featuredRes.data || []),
-    ...(recentsRes.data || []),
-    ...(trendingRes.data || []),
-    ...(newReleaseRes.data || []),
-    ...(tvRes.data || []),
-    ...(actionRes.data || [])
-  ];
-
-  // Identify TV Show IDs
-  const tvShowIds = [...new Set(allMovies.filter(m => m.type === "TV Show").map(m => m.id))];
+  const user = userRes.data?.user;
   
-  // Populate episodeMap
-  if (tvShowIds.length > 0) {
-     const { data: allEpisodes } = await supabase
-       .from("tv_episodes")
-       .select("tv_show_id, season_number, episode_number")
-       .in("tv_show_id", tvShowIds);
-       
-     if (allEpisodes) {
-       allEpisodes.forEach(ep => {
-         const current = episodeMap[ep.tv_show_id];
-         if (!current || 
-            (ep.season_number > current.season) || 
-            (ep.season_number === current.season && ep.episode_number > current.episode)) {
-           episodeMap[ep.tv_show_id] = { season: ep.season_number, episode: ep.episode_number };
-         }
-       });
-     }
-  }
+  // 2. Secondary parallel fetch: Watchlist + Episodes
+  const tvShowIds = [
+    ...(tvRes.data || []),
+    ...(featuredRes.data || []),
+    ...(recentsRes.data || [])
+  ].filter(m => m.type === "TV Show").map(m => m.id);
 
-  // Handle Search/Category (Override sections if search is active)
+  const [watchlistRes, episodesRes] = await Promise.all([
+    user ? supabase.from("watchlists").select("movie_id").eq("user_id", user.id) : Promise.resolve({ data: [] }),
+    tvShowIds.length > 0 ? supabase.from("tv_episodes").select("tv_show_id, season_number, episode_number").in("tv_show_id", tvShowIds) : Promise.resolve({ data: [] })
+  ]);
+
+  const watchlistIds = new Set(watchlistRes.data?.map(item => item.movie_id) || []);
+  
+  const episodeMap = {};
+  episodesRes.data?.forEach(ep => {
+    const current = episodeMap[ep.tv_show_id];
+    if (!current || (ep.season_number > current.season) || (ep.season_number === current.season && ep.episode_number > current.episode)) {
+      episodeMap[ep.tv_show_id] = { season: ep.season_number, episode: ep.episode_number };
+    }
+  });
+
+  // Helper to enrich
+  const enrich = (list, type) => list?.map(m => ({ 
+    ...m, 
+    isInWatchlist: watchlistIds.has(m.id), 
+    type: type || m.type || "Movie",
+    latest_episode: episodeMap[m.id]
+  })) || [];
+
+  // Handle Search/Category (Optimized search path)
   if (search || (category && category !== "All")) {
     let query = supabase.from("movies").select("id, title, year, category, type, rating, image_url, backdrop_url, description");
     let kQuery = supabase.from("korean_dramas").select("id, title, year, category, rating, image_url, backdrop_url, description");
@@ -165,6 +151,7 @@ async function HomeContent({ search, category }) {
     
     const [mRes, kRes] = await Promise.all([query.limit(50), kQuery.limit(50)]);
     const results = [...(mRes.data || []), ...(kRes.data || [])];
+
 
     if (results.length === 0) {
       return (

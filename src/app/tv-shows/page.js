@@ -15,10 +15,38 @@ export default async function TVShowsPage({ searchParams }) {
 
   const supabase = await createClient();
 
-  // Get current user to fetch their watchlist once
-  const { data: { user } } = await supabase.auth.getUser();
+  // 1. Initial parallel fetch: User + Content + Filter Data
+  const [userRes, showsResponse, filterResponse] = await Promise.all([
+    supabase.auth.getUser(),
+    (() => {
+      let query = supabase
+        .from("movies")
+        .select("id, title, year, category, rating, type, image_url")
+        .eq("type", "TV Show");
+      
+      if (category && category !== "All") query = query.eq("category", category);
+      if (year && year !== "All") query = query.eq("year", year);
+      if (language && language !== "All") query = query.eq("language", language);
+      if (search) query = query.ilike("title", `%${search}%`);
+
+      switch (sort) {
+        case "old": query = query.order("created_at", { ascending: true }); break;
+        case "rating": query = query.order("rating", { ascending: false }); break;
+        case "year": query = query.order("year", { ascending: false }); break;
+        case "latest":
+        default: query = query.order("created_at", { ascending: false });
+      }
+      return query.limit(48); // Optimized multiple of grid columns
+    })(),
+    supabase.from("movies").select("category, year, language").eq("type", "TV Show").limit(500)
+  ]);
+
+  const user = userRes.data?.user;
+  const { data: shows, error } = showsResponse;
+  const filterData = filterResponse.data;
+
+  // 2. Secondary fetch: Watchlist (only if user logged in)
   let watchlistIds = new Set();
-  
   if (user) {
     const { data: watchlistData } = await supabase
       .from("watchlists")
@@ -29,50 +57,13 @@ export default async function TVShowsPage({ searchParams }) {
       watchlistIds = new Set(watchlistData.map(item => item.movie_id));
     }
   }
-
-  // Optimized parallel fetching
-  const [showsResponse, filterResponse] = await Promise.all([
-    (() => {
-      let query = supabase
-        .from("movies")
-        .select("id, title, year, category, rating, type, image_url")
-        .eq("type", "TV Show");
-      
-      // Filters
-      if (category && category !== "All") query = query.eq("category", category);
-      if (year && year !== "All") query = query.eq("year", year);
-      if (language && language !== "All") query = query.eq("language", language);
-      if (search) query = query.ilike("title", `%${search}%`);
-
-      // Sorting
-      switch (sort) {
-        case "old":
-          query = query.order("created_at", { ascending: true });
-          break;
-        case "rating":
-          query = query.order("rating", { ascending: false });
-          break;
-        case "year":
-          query = query.order("year", { ascending: false });
-          break;
-        case "latest":
-        default:
-          query = query.order("created_at", { ascending: false });
-      }
-
-      return query.limit(50); // Efficiency limit
-    })(),
-    supabase.from("movies").select("category, year, language").eq("type", "TV Show").limit(500)
-  ]);
-
-  const { data: shows, error } = showsResponse;
-  const filterData = filterResponse.data;
   
   // Enrich shows with watchlist status
   const enrichedShows = shows?.map(s => ({
     ...s,
     isInWatchlist: watchlistIds.has(s.id)
   })) || [];
+
 
   const uniqueCategories = ["All", ...new Set(filterData?.map(m => m.category).filter(Boolean))];
   const uniqueYears = ["All", ...new Set(filterData?.map(m => m.year).filter(Boolean))].sort((a, b) => b - a);

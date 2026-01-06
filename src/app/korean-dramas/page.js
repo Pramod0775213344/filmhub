@@ -14,39 +14,43 @@ export default async function KoreanDramasPage({ searchParams }) {
 
   const supabase = await createClient();
 
-  // Optimized parallel fetching
-  const [moviesResponse, filterResponse] = await Promise.all([
+  // 1. Initial parallel fetch: User + Content + Filter Data
+  const [userRes, moviesResponse, filterResponse] = await Promise.all([
+    supabase.auth.getUser(),
     (() => {
       let query = supabase.from("korean_dramas").select("*");
-      
-      // Filters
       if (category && category !== "All") query = query.eq("category", category);
       if (year && year !== "All") query = query.eq("year", year);
       if (search) query = query.ilike("title", `%${search}%`);
 
-      // Sorting
       switch (sort) {
-        case "old":
-          query = query.order("created_at", { ascending: true });
-          break;
-        case "rating":
-          query = query.order("imdb_rating", { ascending: false });
-          break;
-        case "year":
-          query = query.order("year", { ascending: false });
-          break;
+        case "old": query = query.order("created_at", { ascending: true }); break;
+        case "rating": query = query.order("imdb_rating", { ascending: false }); break;
+        case "year": query = query.order("year", { ascending: false }); break;
         case "latest":
-        default:
-          query = query.order("created_at", { ascending: false });
+        default: query = query.order("created_at", { ascending: false });
       }
-
-      return query.limit(50);
+      return query.limit(48);
     })(),
     supabase.from("korean_dramas").select("category, year").limit(500)
   ]);
 
+  const user = userRes.data?.user;
   const { data: movies, error } = moviesResponse;
   const filterData = filterResponse.data;
+
+  // 2. Secondary fetch: Watchlist
+  let watchlistIds = new Set();
+  if (user) {
+    const { data: watchlistData } = await supabase
+      .from("watchlists")
+      .select("movie_id")
+      .eq("user_id", user.id);
+    
+    if (watchlistData) {
+      watchlistIds = new Set(watchlistData.map(item => item.movie_id));
+    }
+  }
   
   const uniqueCategories = ["All", ...new Set(filterData?.map(m => m.category).filter(Boolean))];
   const uniqueYears = ["All", ...new Set(filterData?.map(m => m.year).filter(Boolean))].sort((a, b) => b - a);
@@ -56,8 +60,10 @@ export default async function KoreanDramasPage({ searchParams }) {
       ...m,
       type: "Korean Drama", 
       image: m.image_url || m.image,
-      backdrop: m.backdrop_url || m.backdrop
+      backdrop: m.backdrop_url || m.backdrop,
+      isInWatchlist: watchlistIds.has(m.id)
   })) || [];
+
 
   return (
     <main className="min-h-screen bg-background text-white">

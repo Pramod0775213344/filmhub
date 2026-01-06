@@ -5,18 +5,23 @@ import { sendExternalNotification } from "@/app/actions/sendEmail";
 
 const parser = new Parser();
 
-// Direct supabase client because this is a background task
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
 const MONITOR_SITES = [
   { name: "Baiscope.lk", url: "https://www.baiscope.lk/feed/" },
   { name: "Zoom.lk", url: "https://zoom.lk/feed/" },
 ];
 
 export async function GET(req) {
+  // Initialize supabaseAdmin inside the handler
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.error("Missing Supabase configuration in /api/cron/check-updates");
+    return new Response('Configuration Error', { status: 500 });
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
   // Optional: Check for a secret to prevent unauthorized access if not via Vercel Cron
   const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {

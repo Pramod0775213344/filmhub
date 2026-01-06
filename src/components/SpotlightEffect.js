@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function SpotlightEffect() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const spotlightRef = useRef(null);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      // Use requestAnimationFrame for smoother performance
-      requestAnimationFrame(() => {
-        setMousePosition({ x: e.clientX, y: e.clientY });
-      });
+      if (spotlightRef.current) {
+        spotlightRef.current.style.setProperty("--mouse-x", `${e.clientX}px`);
+        spotlightRef.current.style.setProperty("--mouse-y", `${e.clientY}px`);
+      }
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -19,10 +19,12 @@ export default function SpotlightEffect() {
 
   return (
     <div 
-      className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-500 hidden md:block"
+      ref={spotlightRef}
+      className="fixed inset-0 pointer-events-none z-0 hidden md:block"
       style={{
-        background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(229, 9, 20, 0.08), transparent 40%)`
+        background: `radial-gradient(600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(229, 9, 20, 0.08), transparent 40%)`
       }}
     />
   );
 }
+
