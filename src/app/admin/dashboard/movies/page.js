@@ -12,6 +12,10 @@ import {
 } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { sendMovieNotification } from "@/app/actions/sendEmail";
+import GoogleDriveUploader from "@/components/admin/GoogleDriveUploader";
+
+
 
 export default function MoviesManagement() {
   const [movies, setMovies] = useState([]);
@@ -210,8 +214,19 @@ export default function MoviesManagement() {
           }
         });
 
-        const { error } = await supabase.from("movies").insert([prunedData]);
+        const { data: insertedMovie, error } = await supabase.from("movies").insert([prunedData]).select().single();
         if (error) throw error;
+        
+        // Send notification
+        if (insertedMovie) {
+          await sendMovieNotification({
+            title: insertedMovie.title,
+            year: insertedMovie.year,
+            category: insertedMovie.category,
+            typeLabel: "Movie"
+          });
+        }
+
         
         setTmdbResults([]);
         setTmdbQuery("");
@@ -396,6 +411,15 @@ export default function MoviesManagement() {
               url: l.url
             })));
           }
+
+          // Send notification for new movie
+          await sendMovieNotification({
+            title: movie.title,
+            year: movie.year,
+            category: movie.category,
+            typeLabel: "Movie"
+          });
+
           setIsModalOpen(false);
           fetchMovies();
         }
@@ -727,7 +751,14 @@ export default function MoviesManagement() {
                     <input type="text" value={formData.image_url} onChange={(e) => setFormData({...formData, image_url: e.target.value})} className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10" />
                   </div>
                   <div className="space-y-2 md:col-span-2">
-                    <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Video URL (m3u8/mp4)</label>
+                    <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Upload to Google Drive</label>
+                    <GoogleDriveUploader 
+                      onUploadComplete={(link) => setFormData(prev => ({ ...prev, video_url: link }))} 
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-500 ml-1">Video URL (m3u8/mp4/GDrive)</label>
                     <input type="text" value={formData.video_url} onChange={(e) => setFormData({...formData, video_url: e.target.value})} className="w-full rounded-2xl bg-zinc-900/50 py-4 px-6 text-white outline-none ring-1 ring-white/10" />
                   </div>
                   <div className="space-y-2 md:col-span-2">

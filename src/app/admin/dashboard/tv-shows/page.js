@@ -12,6 +12,10 @@ import {
   Sparkles, Wand2
 } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { sendMovieNotification } from "@/app/actions/sendEmail";
+import GoogleDriveUploader from "@/components/admin/GoogleDriveUploader";
+
+
 
 export default function TVShowsManagement() {
   const [shows, setShows] = useState([]);
@@ -176,8 +180,19 @@ export default function TVShowsManagement() {
           }
         });
 
-        const { error } = await supabase.from("movies").insert([prunedData]);
+        const { data: insertedShow, error } = await supabase.from("movies").insert([prunedData]).select().single();
         if (error) throw error;
+        
+        // Send notification
+        if (insertedShow) {
+          await sendMovieNotification({
+            title: insertedShow.title,
+            year: insertedShow.year,
+            category: insertedShow.category,
+            typeLabel: "TV Show"
+          });
+        }
+
         
         setTmdbResults([]);
         setTmdbQuery("");
@@ -232,8 +247,18 @@ export default function TVShowsManagement() {
         const { error } = await supabase.from("movies").update(showData).eq("id", editingShow.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("movies").insert([showData]);
+        const { data: show, error } = await supabase.from("movies").insert([showData]).select().single();
         if (error) throw error;
+
+        // Send notification for new TV show
+        if (show) {
+          await sendMovieNotification({
+            title: show.title,
+            year: show.year,
+            category: show.category,
+            typeLabel: "TV Show"
+          });
+        }
       }
       setIsModalOpen(false);
       fetchShows();
@@ -511,6 +536,12 @@ export default function TVShowsManagement() {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-zinc-500">Episode Title</label>
                   <input value={episodeData.title} onChange={e => setEpisodeData({...episodeData, title: e.target.value})} className="w-full bg-zinc-900 rounded-xl py-3 px-4 text-white outline-none ring-1 ring-white/10" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-zinc-500">Upload to Google Drive</label>
+                  <GoogleDriveUploader 
+                    onUploadComplete={(link) => setEpisodeData(prev => ({ ...prev, video_url: link }))} 
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-zinc-500">Video URL</label>

@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useDebounce } from "use-debounce";
+import { sendMovieNotification } from "@/app/actions/sendEmail";
+
 
 export default function KoreanDramasManagement() {
   const [movies, setMovies] = useState([]);
@@ -128,8 +130,19 @@ export default function KoreanDramasManagement() {
         // Important: Excluding 'backdrops' and 'posters' arrays if column doesn't exist, but 'tmdb.js' returns them.
         // We'll keep it simple for now.
 
-        const { error } = await supabase.from("korean_dramas").insert([movieData]);
+        const { data: insertedDrama, error } = await supabase.from("korean_dramas").insert([movieData]).select().single();
         if (error) throw error;
+
+        // Send notification
+        if (insertedDrama) {
+          await sendMovieNotification({
+            title: insertedDrama.title,
+            year: insertedDrama.year,
+            category: insertedDrama.category,
+            typeLabel: "Korean Drama"
+          });
+        }
+
         
         setTmdbResults([]);
         setTmdbQuery("");
@@ -208,8 +221,18 @@ export default function KoreanDramasManagement() {
         const { error } = await supabase.from("korean_dramas").update(movieData).eq("id", editingMovie.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("korean_dramas").insert([movieData]);
+        const { data: drama, error } = await supabase.from("korean_dramas").insert([movieData]).select().single();
         if (error) throw error;
+
+        // Send notification
+        if (drama) {
+          await sendMovieNotification({
+            title: drama.title,
+            year: drama.year,
+            category: drama.category,
+            typeLabel: "Korean Drama"
+          });
+        }
       }
       setIsModalOpen(false);
       fetchMovies();

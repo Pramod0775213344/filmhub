@@ -10,17 +10,21 @@ export async function GET(request) {
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    
     if (!error) {
-      const forwardedHost = request.headers.get('x-forwarded-host') // i.e. localhost:3000
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-      if (isLocalEnv) {
-        // we can skip proximate checks in development
-        return NextResponse.redirect(`${origin}${next}`)
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
-      } else {
-        return NextResponse.redirect(`${origin}${next}`)
+      const getBaseURL = () => {
+        let url =
+          process?.env?.NEXT_PUBLIC_SITE_URL ?? 
+          process?.env?.NEXT_PUBLIC_VERCEL_URL ?? 
+          'http://localhost:3000/'
+        url = url.includes('http') ? url : `https://${url}`
+        url = url.charAt(url.length - 1) === '/' ? url : `${url}/`
+        return url
       }
+
+      const baseURL = getBaseURL()
+      const redirectPath = next.startsWith('/') ? next.slice(1) : next
+      return NextResponse.redirect(`${baseURL}${redirectPath}`)
     }
   }
 
