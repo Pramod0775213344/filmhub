@@ -175,7 +175,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 z-50 w-full transition-all duration-500 py-3 md:py-4 ${
+        className={`fixed top-0 z-50 w-full transition-all duration-500 py-2.5 md:py-4 ${
           isVisible ? "translate-y-0" : "-translate-y-full"
         } ${
           isScrolled 
@@ -187,10 +187,10 @@ export default function Navbar() {
           {/* Mobile Menu Button - Always visible */}
           <button 
             onClick={() => setIsMobileMenuOpen(true)}
-            className="mr-4 text-white md:hidden"
+            className="mr-2 md:mr-4 text-white md:hidden"
             aria-label="Open menu"
           >
-            <Menu size={24} />
+            <Menu size={22} className="md:w-6 md:h-6" />
           </button>
 
           {/* Left: Logo - Always visible */}
@@ -341,9 +341,9 @@ export default function Navbar() {
                 className="relative transition-transform hover:scale-110 hover:text-primary flex items-center justify-center p-1" 
                 aria-label="Notifications"
               >
-                <Bell size={22} />
+                <Bell size={20} className="md:w-[22px] md:h-[22px]" />
                 {notifications.some(n => !n.read) && (
-                  <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-black"></span>
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary ring-1 ring-black md:h-2.5 md:w-2.5"></span>
                 )}
               </button>
 
@@ -353,7 +353,7 @@ export default function Navbar() {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-20 md:top-full md:mt-4 w-auto md:w-80 origin-top-right overflow-hidden rounded-2xl bg-zinc-900/95 md:bg-zinc-900 backdrop-blur-xl shadow-2xl ring-1 ring-white/10 z-[60]"
+                    className="fixed md:absolute left-4 right-4 md:left-auto md:right-0 top-[60px] md:top-full md:mt-4 w-auto md:w-80 origin-top-right overflow-hidden rounded-2xl bg-zinc-900/95 md:bg-zinc-900 backdrop-blur-xl shadow-2xl ring-1 ring-white/10 z-[60]"
                   >
                     <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] p-4">
                       <h3 className="text-xs font-black uppercase tracking-widest text-white">Notifications</h3>
@@ -498,11 +498,28 @@ export default function Navbar() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="fixed left-4 right-4 md:left-auto md:right-12 top-20 md:top-20 z-[60] md:w-96"
+              className="fixed inset-0 md:inset-auto md:right-12 md:top-20 z-[60] md:w-96"
             >
-              <div className="bg-zinc-900/95 backdrop-blur-xl rounded-2xl shadow-2xl ring-1 ring-white/10 overflow-hidden">
-                {/* Search Input */}
-                <div className="p-4 border-b border-white/10">
+              <div className="h-full md:h-auto bg-black md:bg-zinc-900/95 md:backdrop-blur-xl md:rounded-2xl shadow-2xl md:ring-1 md:ring-white/10 overflow-hidden flex flex-col">
+                
+                {/* Mobile Search Header */}
+                <div className="flex md:hidden items-center justify-between px-6 py-4 border-b border-white/5">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                      <Play size={16} fill="white" className="text-white ml-0.5" />
+                    </div>
+                    <span className="font-display text-xl font-black tracking-tighter text-white">
+                      SEARCH
+                    </span>
+                  </div>
+                  <button 
+                    onClick={() => setIsSearchOpen(false)}
+                    className="p-2 text-zinc-400 hover:text-white"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+                <div className="p-4 md:p-4 border-b border-white/10">
                   <div className="relative flex items-center">
                     <Search size={20} className="absolute left-4 text-zinc-400" />
                     <input
@@ -523,18 +540,18 @@ export default function Navbar() {
                           setSearchQuery("");
                         }
                       }}
-                      className="w-full h-12 rounded-xl bg-white/10 pl-12 pr-12 text-sm font-medium text-white placeholder:text-zinc-400 outline-none ring-1 ring-white/20 transition-all focus:bg-white/15 focus:ring-primary/50"
+                      className="w-full h-12 rounded-xl bg-white/10 pl-12 pr-12 text-base md:text-sm font-medium text-white placeholder:text-zinc-500 outline-none ring-1 ring-white/20 transition-all focus:bg-white/15 focus:ring-primary/50"
                     />
                     <button
                       onClick={() => {
-                        setIsSearchOpen(false);
                         setSearchResults([]);
                         setSearchQuery("");
                       }}
-                      className="absolute right-4 text-zinc-400 hover:text-white transition-colors"
-                      aria-label="Close search"
+                      className={`absolute right-4 text-zinc-400 hover:text-white transition-colors ${!searchQuery && 'hidden md:block'}`}
+                      aria-label="Clear search"
                     >
-                      <X size={20} />
+                      <X size={20} className="hidden md:block" />
+                      {searchQuery && <span className="md:hidden text-xs font-bold text-primary">Clear</span>}
                     </button>
                   </div>
                 </div>

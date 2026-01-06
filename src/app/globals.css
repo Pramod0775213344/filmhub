@@ -53,7 +53,13 @@ body {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-  padding-inline: 1.5rem;
+  padding-inline: 1rem; /* Smaller padding on mobile */
+}
+
+@media (min-width: 640px) {
+  .container-custom {
+    padding-inline: 1.5rem;
+  }
 }
 
 @media (min-width: 768px) {
@@ -121,4 +127,38 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #444;
+}
+
+/* Responsive Font Refinements */
+@media (max-width: 768px) {
+  h1 {
+    font-size: clamp(2rem, 8vw, 3.5rem) !important;
+    line-height: 1 !important;
+  }
+  h2 {
+    font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+  }
+  h3 {
+    font-size: clamp(1.1rem, 4vw, 1.5rem) !important;
+  }
+  .text-base {
+    font-size: 0.875rem !important;
+  }
+  .text-lg {
+    font-size: 1rem !important;
+  }
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+}
+
+/* Utility to fix Navbar Overlap */
+.page-pt {
+  padding-top: 5rem; /* Default for mobile */
+}
+
+@media (min-width: 768px) {
+  .page-pt {
+    padding-top: 7rem;
+  }
 }

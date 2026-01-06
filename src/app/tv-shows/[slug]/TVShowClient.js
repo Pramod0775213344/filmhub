@@ -182,7 +182,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
     <main className="min-h-screen bg-[#020202] text-white selection:bg-primary selection:text-white">
       
       {/* Immersive Hero Section */}
-      <div className="relative h-[85vh] w-full overflow-hidden">
+      <div className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden">
         {/* Backdrop Image */}
         <div className="absolute inset-0 transform translate-z-0">
           <Image
@@ -201,8 +201,8 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
         </div>
 
         {/* Content Container */}
-        <div className="container-custom relative h-full flex items-center md:items-end pb-12 md:pb-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
+        <div className="container-custom relative h-full flex items-center md:items-end pb-8 md:pb-24 pt-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center w-full">
             
             {/* Left Content */}
             <motion.div 
@@ -231,48 +231,48 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
               </div>
 
               {/* Title */}
-              <h1 className="font-display text-5xl font-black leading-none tracking-tighter text-white drop-shadow-2xl md:text-7xl xl:text-8xl">
+              <h1 className="font-display text-4xl font-black leading-tight tracking-tighter text-white drop-shadow-2xl md:text-7xl xl:text-8xl">
                 {show.title}
               </h1>
 
               {/* Meta Info Line */}
-              <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-zinc-300">
+              <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs md:text-sm font-medium text-zinc-300">
                 <span className="flex items-center gap-2">
-                  <Calendar size={16} className="text-primary" />
+                  <Calendar size={14} className="text-primary md:w-4 md:h-4" />
                   {show.year}
                 </span>
-                <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
+                <span className="h-1 w-1 md:h-1.5 md:w-1.5 rounded-full bg-zinc-700" />
                 <span className="uppercase text-zinc-400">{show.language || "English"}</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
+                <span className="h-1 w-1 md:h-1.5 md:w-1.5 rounded-full bg-zinc-700" />
                  <span className="uppercase text-zinc-400">{show.country}</span>
               </div>
 
-              <p className="max-w-2xl text-lg leading-relaxed text-zinc-300 line-clamp-3 lg:line-clamp-4">
+              <p className="max-w-2xl text-base md:text-lg leading-relaxed text-zinc-300 line-clamp-2 md:line-clamp-4">
                 {show.description}
               </p>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4 pt-2 md:pt-4">
                 <button 
                   onClick={() => {
                      setActiveTab("episodes");
                      document.getElementById("tabs-nav")?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="group relative flex items-center gap-3 overflow-hidden rounded-full bg-white px-8 py-4 text-base font-black text-black transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] active:scale-95"
+                  className="group relative flex items-center justify-center gap-3 overflow-hidden rounded-full bg-white px-6 md:px-8 py-3.5 md:py-4 text-sm md:text-base font-black text-black transition-all hover:scale-105 active:scale-95"
                 >
-                  <div className="relative z-10 flex items-center gap-3">
-                     <Play size={20} fill="black" />
-                     <span className="uppercase tracking-widest">Watch Episodes</span>
+                  <div className="relative z-10 flex items-center gap-2 md:gap-3">
+                     <Play size={18} fill="black" className="md:w-5 md:h-5" />
+                     <span className="uppercase tracking-widest">Watch Now</span>
                   </div>
                   <div className="absolute inset-0 z-0 bg-gradient-to-r from-zinc-200 to-white opacity-0 transition-opacity group-hover:opacity-100" />
                 </button>
 
                 <button 
                   onClick={toggleList}
-                  className="group flex items-center gap-3 rounded-full border border-white/10 bg-black/50 px-8 py-4 text-base font-bold text-white transition-all hover:bg-white/10 hover:scale-105 active:scale-95"
+                  className="group flex items-center justify-center gap-2 md:gap-3 rounded-full border border-white/10 bg-black/50 px-6 md:px-8 py-3.5 md:py-4 text-sm md:text-base font-bold text-white transition-all hover:bg-white/10"
                 >
-                  {listLoading ? <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" /> : isInList ? <Check size={20} className="text-primary" /> : <Plus size={20} />}
-                  <span>{isInList ? "In My List" : "Add to List"}</span>
+                  {listLoading ? <div className="animate-spin h-4 w-4 md:h-5 md:w-5 border-2 border-white border-t-transparent rounded-full" /> : isInList ? <Check size={18} className="text-primary md:w-5 md:h-5" /> : <Plus size={18} className="md:w-5 md:h-5" />}
+                  <span>{isInList ? "My List" : "Add List"}</span>
                 </button>
               </div>
             </motion.div>
@@ -516,13 +516,13 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                      <button
                        key={season}
                        onClick={() => setActiveSeason(season)}
-                       className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+                       className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all ${
                          activeSeason === season 
-                           ? "bg-primary text-white shadow-lg scale-105" 
+                           ? "bg-primary text-white shadow-lg" 
                            : "bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-white"
                        }`}
                      >
-                       Season {season}
+                       S{season}
                      </button>
                    )) : (
                      <p className="text-zinc-500 italic">No seasons available.</p>
@@ -550,11 +550,11 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                     }`}
                   >
                     <div className="flex items-start gap-5">
-                       <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 text-white font-black text-lg group-hover:bg-primary group-hover:scale-110 transition-all">
+                       <div className="flex-shrink-0 flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-zinc-800 text-white font-black text-sm md:text-lg group-hover:bg-primary group-hover:scale-110 transition-all">
                           {ep.episode_number}
                        </div>
-                       <div className="flex-grow min-w-0 space-y-2">
-                          <h3 className={`font-bold text-lg truncate ${activeEpisode?.id === ep.id ? "text-primary" : "text-white group-hover:text-primary transition-colors"}`}>
+                       <div className="flex-grow min-w-0 space-y-1 md:space-y-2">
+                          <h3 className={`font-bold text-base md:text-lg truncate ${activeEpisode?.id === ep.id ? "text-primary" : "text-white group-hover:text-primary transition-colors"}`}>
                             {ep.title || `Episode ${ep.episode_number}`}
                           </h3>
                           <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">{ep.description || "Episode description not available."}</p>

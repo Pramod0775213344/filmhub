@@ -43,9 +43,9 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen bg-background text-white">
       
-      <div className="container-custom pt-48 pb-20">
+      <div className="container-custom page-pt pb-20">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-16 text-center">
+          <div className="mb-12 md:mb-16 text-center">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -57,7 +57,7 @@ export default function ContactPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="mt-6 text-xl font-medium text-zinc-500"
+              className="mt-4 md:mt-6 text-base md:text-xl font-medium text-zinc-500"
             >
               Have a question or feedback? We&apos;d love to hear from you.
             </motion.p>

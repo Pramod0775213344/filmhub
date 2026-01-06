@@ -7,14 +7,16 @@ export default async function UpcomingPage() {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom pt-24 pb-20 md:pt-40">
-        <div className="mb-12">
-          <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
-            Coming <span className="text-primary italic">Soon</span>
-          </h1>
-          <p className="mt-4 font-medium text-zinc-500">
-            Get a sneak peek at the most anticipated movies hitting theaters soon.
-          </p>
+      <div className="container-custom page-pt pb-20">
+        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div>
+            <h1 className="font-display text-3xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
+              Coming <span className="text-primary italic">Soon</span>
+            </h1>
+            <p className="mt-2 text-sm font-medium text-zinc-500 md:text-base">
+              Get a sneak peek at the most anticipated movies hitting theaters soon.
+            </p>
+          </div>
         </div>
 
         {upcomingMovies.length === 0 ? (
@@ -22,7 +24,7 @@ export default async function UpcomingPage() {
             No upcoming movies found at the moment.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {upcomingMovies.map((movie) => (
               <div key={movie.id} className="group relative w-full">
                 <div className="aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-900 shadow-2xl relative transition-all duration-300 group-hover:ring-2 group-hover:ring-primary/50 group-hover:shadow-[0_0_30px_rgba(229,9,20,0.3)]">

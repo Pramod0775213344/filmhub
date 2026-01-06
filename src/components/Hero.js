@@ -65,12 +65,12 @@ export default function Hero({ featuredMovies }) {
           </motion.div>
 
           {/* Content */}
-          <div className="container-custom relative flex h-full flex-col justify-center pt-20 pb-24 md:pb-0 md:pt-32">
+          <div className="container-custom relative flex h-full flex-col justify-center pt-24 pb-20 md:pb-0 md:pt-32">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="max-w-3xl space-y-6 md:space-y-8"
+              className="max-w-3xl space-y-4 md:space-y-8"
             >
              
               <motion.h1 
@@ -172,15 +172,15 @@ export default function Hero({ featuredMovies }) {
 }
 
 function getTitleSizeClass(title) {
-  if (!title) return "text-4xl sm:text-6xl md:text-8xl lg:text-9xl";
+  if (!title) return "text-3xl sm:text-6xl md:text-8xl lg:text-9xl";
   const length = title.length;
   
   if (length > 40) {
-    return "text-2xl sm:text-4xl md:text-5xl lg:text-6xl";
+    return "text-xl sm:text-4xl md:text-5xl lg:text-6xl";
   }
   if (length > 20) {
-    return "text-3xl sm:text-5xl md:text-6xl lg:text-7xl";
+    return "text-2xl sm:text-5xl md:text-6xl lg:text-7xl";
   }
-  return "text-4xl sm:text-6xl md:text-8xl lg:text-9xl";
+  return "text-3xl sm:text-6xl md:text-8xl lg:text-9xl";
 }
 

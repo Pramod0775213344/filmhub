@@ -30,7 +30,7 @@ export default async function Home({ searchParams }) {
         <HeroSection />
       </Suspense>
 
-      <div className="container-custom relative z-10 -mt-20 space-y-20 pb-28 md:-mt-10 md:space-y-32">
+      <div className="container-custom relative z-10 -mt-10 space-y-20 pb-28 md:-mt-10 md:space-y-32">
         {/* 2. Content Sections (Streamed) */}
         <Suspense fallback={<SectionSkeleton title="Recently Added" />}>
           <RecentSection />
@@ -187,7 +187,7 @@ async function SearchResults({ search, category }) {
 
   if (results.length === 0) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 pt-20">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 page-pt">
         <div className="rounded-full bg-zinc-900 p-6 ring-1 ring-white/10">
           <Play size={40} className="text-zinc-700" />
         </div>
@@ -198,7 +198,7 @@ async function SearchResults({ search, category }) {
   }
   
   return (
-    <div className="container-custom py-32">
+    <div className="container-custom page-pt pb-20">
       <h2 className="text-2xl font-bold text-white mb-8">Search Results</h2>
       <FilmSection title="" movies={enrich(results, watchlistIds)} />
     </div>
@@ -226,7 +226,7 @@ function SectionSkeleton({ title }) {
 
 function HomeLoading({ sectionCount = 3 }) {
   return (
-    <div className="container-custom space-y-20 pt-32 pb-28 md:space-y-32">
+    <div className="container-custom space-y-20 page-pt pb-28 md:space-y-32">
       {Array.from({ length: sectionCount }).map((_, i) => (
         <SectionSkeleton key={i} />
       ))}

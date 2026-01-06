@@ -71,13 +71,13 @@ export default async function TVShowsPage({ searchParams }) {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom pt-24 pb-20 md:pt-48">
+      <div className="container-custom page-pt pb-20">
         <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>
-            <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
+            <h1 className="font-display text-3xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
               All <span className="text-primary italic">Movies</span>
             </h1>
-            <p className="mt-4 font-medium text-zinc-500">Browse our extensive collection of cinematic masterpieces.</p>
+            <p className="mt-2 text-sm font-medium text-zinc-500 md:text-base">Browse our extensive collection of cinematic masterpieces.</p>
           </div>
           
           <FilterSection 

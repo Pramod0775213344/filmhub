@@ -34,14 +34,14 @@ export default function AboutPage() {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom pt-48 pb-32">
+      <div className="container-custom page-pt pb-20">
         <div className="mx-auto max-w-5xl">
           {/* Header */}
-          <div className="mb-20 text-center">
+          <div className="mb-12 md:mb-20 text-center">
             <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-6xl lg:text-7xl">
               About <span className="text-primary italic">FilmHub</span>
             </h1>
-            <p className="mt-8 text-xl font-medium text-zinc-500 max-w-3xl mx-auto leading-relaxed">
+            <p className="mt-6 md:mt-8 text-base md:text-xl font-medium text-zinc-500 max-w-3xl mx-auto leading-relaxed">
               We are a passionate team dedicated to bringing the magic of cinema directly to your screen with a premium, seamless experience.
             </p>
           </div>
