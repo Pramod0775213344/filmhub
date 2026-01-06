@@ -1,6 +1,9 @@
 import { createClient } from "@/utils/supabase/server";
 import MovieCard from "@/components/MovieCard";
 import FilterSection from "@/components/FilterSection";
+import NativeAd from "@/components/NativeAd";
+
+export const revalidate = 600;
 
 export default async function KoreanDramasPage({ searchParams }) {
   const params = await searchParams;
@@ -39,7 +42,7 @@ export default async function KoreanDramasPage({ searchParams }) {
 
       return query.limit(50);
     })(),
-    supabase.from("korean_dramas").select("category, year")
+    supabase.from("korean_dramas").select("category, year").limit(500)
   ]);
 
   const { data: movies, error } = moviesResponse;
@@ -74,6 +77,8 @@ export default async function KoreanDramasPage({ searchParams }) {
             currentFilters={{ category, year, language: "Korean", sort, q: search }}
           />
         </div>
+
+        <NativeAd />
 
         {error ? (
           <div className="flex h-60 items-center justify-center rounded-3xl border border-white/5 bg-white/5 text-zinc-500 font-bold uppercase tracking-widest">

@@ -15,6 +15,7 @@ import VideoPlayer from "@/components/VideoPlayer";
 import Footer from "@/components/Footer";
 import { searchTMDB, getTMDBDetails } from "@/utils/tmdb";
 import CommentSection from "@/components/CommentSection";
+import NativeAd from "@/components/NativeAd";
 
 export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
   const router = useRouter();
@@ -66,13 +67,21 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
 
     // 2. Handle Scroll (Throttled)
     let animationFrameId;
+    let lastNavVisible = true;
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      let isVisible = true;
+      
       if (currentScrollY > 100) {
-        setIsNavVisible(currentScrollY < scrollRef.current);
-      } else {
-        setIsNavVisible(true);
+        isVisible = currentScrollY < scrollRef.current;
       }
+
+      if (isVisible !== lastNavVisible) {
+        setIsNavVisible(isVisible);
+        lastNavVisible = isVisible;
+      }
+      
       scrollRef.current = currentScrollY;
     };
 
@@ -350,7 +359,12 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
         
         {/* Overview Tab Content */}
         {activeTab === "overview" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 gap-12 md:grid-cols-3">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12">
+             
+             {/* Native Ad Banner */}
+             <NativeAd />
+
+             <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
              <div className="md:col-span-2 rounded-3xl border border-white/5 bg-white/5 p-8 backdrop-blur-sm">
                 <h3 className="mb-6 text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
                   <Globe className="text-primary" /> Storyline
@@ -382,6 +396,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                    </div>
                 </div>
              </div>
+           </div>
           </motion.div>
         )}
 

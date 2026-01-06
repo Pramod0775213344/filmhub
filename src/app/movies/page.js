@@ -1,8 +1,11 @@
 import { createClient } from "@/utils/supabase/server";
 import MovieCard from "@/components/MovieCard";
 import FilterSection from "@/components/FilterSection";
+import NativeAd from "@/components/NativeAd";
 
-export default async function MoviesPage({ searchParams }) {
+export const revalidate = 600; 
+
+export default async function TVShowsPage({ searchParams }) {
   const params = await searchParams;
   const category = params?.category;
   const year = params?.year;
@@ -59,7 +62,7 @@ export default async function MoviesPage({ searchParams }) {
 
       return query.limit(50); // Efficiency limit
     })(),
-    supabase.from("movies").select("category, year, language").eq("type", "Movie")
+    supabase.from("movies").select("category, year, language").eq("type", "Movie").limit(500)
   ]);
 
   const { data: movies, error } = moviesResponse;
@@ -93,6 +96,8 @@ export default async function MoviesPage({ searchParams }) {
             currentFilters={{ category, year, language, sort, q: search }}
           />
         </div>
+
+        <NativeAd />
 
         {error ? (
           <div className="flex h-60 items-center justify-center rounded-3xl border border-white/5 bg-white/5 text-zinc-500 font-bold uppercase tracking-widest">

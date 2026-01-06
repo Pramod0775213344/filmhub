@@ -15,6 +15,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import CommentSection from "@/components/CommentSection";
+import NativeAd from "@/components/NativeAd";
 
 export default function MovieClient({ initialMovie, userId }) {
   const router = useRouter();
@@ -400,6 +401,9 @@ export default function MovieClient({ initialMovie, userId }) {
                  <VideoPlayer url={movie.video_url} title={movie.title} poster={movie.image_url || movie.image} />
                </div>
              )}
+
+             {/* Native Ad Banner */}
+             <NativeAd />
 
              {/* Info Grid */}
              <div className="grid grid-cols-1 gap-12 md:grid-cols-3">

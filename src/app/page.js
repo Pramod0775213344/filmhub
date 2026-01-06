@@ -4,6 +4,9 @@ import { createClient } from "@/utils/supabase/server";
 import { Suspense } from "react";
 import MovieSkeleton from "@/components/MovieSkeleton";
 import { Play } from "lucide-react";
+import NativeAd from "@/components/NativeAd";
+
+export const revalidate = 600; // Revalidate every 10 minutes
 
 export default async function Home({ searchParams }) {
   const params = await searchParams;
@@ -60,9 +63,6 @@ async function HomeContent({ search, category }) {
     type: type || m.type || "Movie",
     latest_episode: episodeMap[m.id]
   })) || [];
-
-  // if search or category is present, fall back to a single list view (implied by previous code logic, though not fully shown here)
-  // But strictly for the "Sections", we want specific queries.
 
   // 1. Featured (Latest Uploads)
   const featuredQuery = supabase.from("movies")
@@ -141,7 +141,6 @@ async function HomeContent({ search, category }) {
      if (allEpisodes) {
        allEpisodes.forEach(ep => {
          const current = episodeMap[ep.tv_show_id];
-         // Logic to find absolute latest episode
          if (!current || 
             (ep.season_number > current.season) || 
             (ep.season_number === current.season && ep.episode_number > current.episode)) {
@@ -179,23 +178,15 @@ async function HomeContent({ search, category }) {
       );
     }
     
-    // Simple grid for search results
     return (
       <div className="container-custom py-32">
         <h2 className="text-2xl font-bold text-white mb-8">Search Results</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {enrich(results).map((movie) => (
-             <FilmSection key={movie.id} title="" movies={[movie]} /> 
-          ))} 
+          <FilmSection title="" movies={enrich(results)} />
         </div>
-         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 -mt-8">
-             <FilmSection title="" movies={enrich(results)} />
-         </div>
       </div>
     );
   }
-
-
 
   // Normal View with Sections
   return (
@@ -205,11 +196,17 @@ async function HomeContent({ search, category }) {
       <div className="container-custom relative z-10 -mt-20 space-y-20 pb-28 md:-mt-10 md:space-y-32">
         <FilmSection title="Recently Added" movies={enrich(recentsRes.data)} href="/movies?sort=latest" />
         <FilmSection title="Trending Now" movies={enrich(trendingRes.data)} href="/movies?sort=rating" />
+        
+        {/* Native Ad Banner */}
+        <NativeAd />
+
         <FilmSection title="Korean Dramas" movies={enrich(kdramaRes.data, "Korean Drama")} href="/korean-dramas" />
         <FilmSection title="New Releases" movies={enrich(newReleaseRes.data)} href="/movies?sort=year" />
+        
         <FilmSection title="TV Shows" movies={enrich(tvRes.data)} href="/tv-shows" />
         <FilmSection title="Action & Sci-Fi" movies={enrich(actionRes.data)} href="/movies?category=Action" />
       </div>
     </>
   );
 }
+

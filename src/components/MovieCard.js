@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Play, Plus, Check, Star, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -9,7 +9,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/utils/slugify";
 
-export default function MovieCard({ movie }) {
+function MovieCard({ movie }) {
   const [isInList, setIsInList] = useState(movie.isInWatchlist || false);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
@@ -164,3 +164,4 @@ export default function MovieCard({ movie }) {
   );
 }
 
+export default memo(MovieCard);
