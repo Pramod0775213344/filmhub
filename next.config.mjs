@@ -27,6 +27,7 @@ const nextConfig = {
     buildActivity: false,
   },
   reactCompiler: true,
+  // Build trigger: v1.0.1
 };
 
 export default nextConfig;
