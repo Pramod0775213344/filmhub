@@ -9,6 +9,7 @@ export default function AdManager() {
   const pathname = usePathname();
   const [userEmail, setUserEmail] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAggressiveAds, setShowAggressiveAds] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -26,12 +27,20 @@ export default function AdManager() {
 
     checkUser();
 
+    // Delay aggressive ads (Social Bar, etc.) by 5 seconds for better UX
+    const adTimer = setTimeout(() => {
+      setShowAggressiveAds(true);
+    }, 5000);
+
     // Listen for auth changes to update ad status immediately
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user?.email);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(adTimer);
+    };
   }, []);
 
   // 1. Strictly block ads on specific technical pages
@@ -41,8 +50,6 @@ export default function AdManager() {
   }
 
   // 2. Wait for auth check to complete
-  // If we don't wait, ads might load for a split second before we know the user is an admin.
-  // Once loaded, external scripts are hard to remove.
   if (loading) {
     return null;
   }
@@ -56,11 +63,13 @@ export default function AdManager() {
   // 3. Render ads for everyone else (Normal users + Guests)
   return (
     <>
-      <Script
-        id="adsterra-social-bar"
-        strategy="afterInteractive"
-        src="https://pl28402819.effectivegatecpm.com/36/34/3c/36343c27af3a082c6657e27a6566cde1.js" 
-      />
+      {showAggressiveAds && (
+        <Script
+          id="adsterra-social-bar"
+          strategy="afterInteractive"
+          src="https://pl28402819.effectivegatecpm.com/36/34/3c/36343c27af3a082c6657e27a6566cde1.js" 
+        />
+      )}
       
       {/* PropellerAds Popunder Script */}
       {/* <Script id="propeller-ads-popunder" strategy="afterInteractive">
@@ -74,3 +83,4 @@ export default function AdManager() {
     </>
   );
 }
+
