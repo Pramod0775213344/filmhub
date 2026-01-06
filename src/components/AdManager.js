@@ -56,11 +56,11 @@ export default function AdManager() {
   // 3. Render ads for everyone else (Normal users + Guests)
   return (
     <>
-      {/* <Script
+      <Script
         id="adsterra-social-bar"
         strategy="afterInteractive"
         src="https://pl28402819.effectivegatecpm.com/36/34/3c/36343c27af3a082c6657e27a6566cde1.js" 
-      /> */}
+      />
       
       {/* PropellerAds Popunder Script */}
       {/* <Script id="propeller-ads-popunder" strategy="afterInteractive">
