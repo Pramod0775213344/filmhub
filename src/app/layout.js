@@ -113,6 +113,7 @@ export default function RootLayout({ children }) {
         <ClientLayout>
           {children}
         </ClientLayout>
+        <SpeedInsights />
       </body>
     </html>
   );
