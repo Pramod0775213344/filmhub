@@ -200,15 +200,15 @@ export default function MovieClient({ initialMovie, userId }) {
             src={movie.image_url || movie.image}
             alt={movie.title}
             fill
-            className="object-cover opacity-60 transition-opacity duration-1000"
+            className="object-cover opacity-80 md:opacity-60 transition-opacity duration-1000"
             priority
             sizes="100vw"
             quality={85}
           />
-          {/* Cinematic Gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/40 to-transparent" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020202_120%)]" />
+          {/* Cinematic Gradients - Optimized for Mobile visibility */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/40 md:via-[#020202]/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/20 md:via-[#020202]/40 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#020202_140%)]" />
         </div>
 
         {/* Content Container */}

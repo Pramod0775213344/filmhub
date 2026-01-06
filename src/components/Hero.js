@@ -56,12 +56,13 @@ export default function Hero({ featuredMovies }) {
               alt={featuredMovies[current].title}
               fill
               priority
-              className="object-cover"
+              className="object-cover object-center md:object-[center_20%]"
               sizes="100vw"
              />
-            <div className="absolute inset-0 bg-gradient-to-r from-background via-black/60 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.6)_100%)]" />
+            {/* Dynamic Gradients: Lightened for Mobile */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-background md:bg-gradient-to-r md:from-background md:via-black/40 md:to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+            <div className="absolute inset-0 hidden md:block bg-[radial-gradient(circle_at_20%_50%,rgba(0,0,0,0)_0%,rgba(0,0,0,0.6)_100%)]" />
           </motion.div>
 
           {/* Content */}
