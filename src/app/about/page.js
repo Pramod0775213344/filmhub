@@ -1,4 +1,6 @@
 import { Play, Film, Users, Shield, Globe, Heart } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export const metadata = {
   title: "About Us | FilmHub",
@@ -77,9 +79,10 @@ export default function AboutPage() {
             </div>
             <div className="relative aspect-video rounded-3xl overflow-hidden glass p-2">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent z-10" />
-              <img 
+              <Image 
                 src="https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=2059&auto=format&fit=crop" 
                 alt="Cinema Experience" 
+                fill
                 className="w-full h-full object-cover rounded-2xl grayscale hover:grayscale-0 transition-all duration-700"
               />
             </div>
@@ -93,12 +96,12 @@ export default function AboutPage() {
               <p className="text-zinc-400 mb-10 max-w-xl mx-auto font-medium">
                 Join thousands of movie enthusiasts and start building your ultimate watchlist today.
               </p>
-              <a 
+              <Link 
                 href="/register" 
                 className="cinematic-glow inline-flex items-center gap-3 rounded-2xl bg-primary px-10 py-5 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
               >
                 Join Now <Play size={18} fill="white" />
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -106,3 +109,4 @@ export default function AboutPage() {
     </main>
   );
 }
+
