@@ -51,7 +51,7 @@ export default function MyListPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="container-custom pt-48 pb-32">
+      <div className="container-custom page-pt pb-32">
         <div className="mb-12">
           <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
             My <span className="text-primary italic">List</span>

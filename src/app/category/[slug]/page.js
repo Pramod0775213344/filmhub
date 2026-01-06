@@ -87,7 +87,7 @@ export default async function CategoryPage({ params, searchParams }) {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom pt-32 pb-20">
+      <div className="container-custom page-pt pb-20">
         <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div>
             <span className="text-primary font-bold tracking-widest uppercase text-sm mb-2 block">Category</span>

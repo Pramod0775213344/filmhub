@@ -50,10 +50,10 @@ export default function Footer() {
           <div>
             <h4 className="mb-6 font-bold text-white">Support</h4>
             <ul className="space-y-4 text-sm font-medium">
-              <li><Link href="#" className="transition-colors hover:text-primary">Help Center</Link></li>
-              <li><Link href="#" className="transition-colors hover:text-primary">Account</Link></li>
-              <li><Link href="#" className="transition-colors hover:text-primary">Subscription</Link></li>
-              <li><Link href="#" className="transition-colors hover:text-primary">Contact Us</Link></li>
+              <li><Link href="/contact" className="transition-colors hover:text-primary">Help Center</Link></li>
+              <li><Link href="/profile" className="transition-colors hover:text-primary">Account</Link></li>
+              <li><Link href="#" className="transition-colors hover:text-primary opacity-40 cursor-not-allowed">Subscription</Link></li>
+              <li><Link href="/contact" className="transition-colors hover:text-primary">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -61,8 +61,8 @@ export default function Footer() {
           <div>
             <h4 className="mb-6 font-bold text-white">Legal</h4>
             <ul className="space-y-4 text-sm font-medium">
-              <li><Link href="#" className="transition-colors hover:text-primary">Privacy Policy</Link></li>
-              <li><Link href="#" className="transition-colors hover:text-primary">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="transition-colors hover:text-primary">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="transition-colors hover:text-primary">Terms of Service</Link></li>
               <li><Link href="#" className="transition-colors hover:text-primary">Cookie Preferences</Link></li>
               <li><Link href="#" className="transition-colors hover:text-primary">Corporate Info</Link></li>
             </ul>

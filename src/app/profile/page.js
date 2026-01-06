@@ -17,6 +17,10 @@ export default function ProfilePage() {
     full_name: "",
     avatar_url: "",
   });
+  const [stats, setStats] = useState({
+    watchlistCount: 0,
+    reviewsCount: 0
+  });
   
   const supabase = createClient();
   const router = useRouter();
@@ -34,20 +38,30 @@ export default function ProfilePage() {
 
         setUser(user);
 
-        const { data, error: profileError } = await supabase
+        // Fetch Profile
+        const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", user.id)
           .single();
 
-        if (data) {
+        if (profileData) {
           setProfile({
-            full_name: data.full_name || "",
-            avatar_url: data.avatar_url || "",
+            full_name: profileData.full_name || "",
+            avatar_url: profileData.avatar_url || "",
           });
-        } else if (profileError && profileError.code !== "PGRST116") {
-          console.error("Error fetching profile:", profileError);
         }
+
+        // Fetch Stats
+        const { count, error: countError } = await supabase
+          .from("watchlists")
+          .select("*", { count: 'exact', head: true })
+          .eq("user_id", user.id);
+
+        if (!countError) {
+          setStats(prev => ({ ...prev, watchlistCount: count || 0 }));
+        }
+
       } catch (err) {
         console.error("Unexpected error:", err);
       } finally {
@@ -100,7 +114,7 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom pt-48 pb-20">
+      <div className="container-custom page-pt pb-20">
         <div className="max-w-4xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -142,16 +156,18 @@ export default function ProfilePage() {
                   </label>
                 </div>
                 <h3 className="text-xl font-bold text-white uppercase tracking-wider">{profile.full_name || "Cinema Lover"}</h3>
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mt-2">Member since 2026</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mt-2">
+                  Member since {user ? new Date(user.created_at).getFullYear() : "2026"}
+                </p>
                 
                 <div className="mt-8 w-full space-y-3 pt-8 border-t border-white/5">
                   <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-zinc-500">
                     <span>Watchlist</span>
-                    <span className="text-white">12 Titles</span>
+                    <span className="text-white">{stats.watchlistCount} Titles</span>
                   </div>
-                  <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-zinc-500">
+                  <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-zinc-500 opacity-40">
                     <span>Reviews</span>
-                    <span className="text-white">4 Published</span>
+                    <span>Soon</span>
                   </div>
                 </div>
               </div>
