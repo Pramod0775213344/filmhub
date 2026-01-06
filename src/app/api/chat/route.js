@@ -188,18 +188,21 @@ function analyzeQuery(query) {
   return { intent, searchTerm };
 }
 
-// Format results for AI context
+// Format results for AI context and structured response
 function formatResultsForAI(results, contentType = "all") {
   let formatted = "";
+  const allFound = [];
   
   if (results.movies && results.movies.length > 0) {
     const contentLabel = contentType === "all" ? "Movies/TV Shows" : contentType;
     formatted += `\n🎬 ${contentLabel} found:\n`;
     results.movies.forEach((m, i) => {
       const rating = m.rating ? `⭐ ${m.rating}` : "";
-      const segment = m.type === "TV Show" ? "tv-shows" : "movies";
+      const type = m.type === "TV Show" ? "tv-shows" : "movies";
+      const path = `/${type}/${slugify(m.title)}`;
       formatted += `${i + 1}. "${m.title}" (${m.year || "N/A"}) - ${m.category || m.type || "Film"} ${rating}\n`;
-      formatted += `   👉 Link: /${segment}/${slugify(m.title)}\n`;
+      formatted += `   👉 Link: ${path}\n`;
+      allFound.push({ ...m, url: path, displayType: m.type || "Movie" });
     });
   }
 
@@ -207,14 +210,14 @@ function formatResultsForAI(results, contentType = "all") {
     formatted += `\n🇰🇷 Korean Dramas found:\n`;
     results.koreanDramas.forEach((m, i) => {
       const rating = m.rating ? `⭐ ${m.rating}` : "";
+      const path = `/korean-dramas/${slugify(m.title)}`;
       formatted += `${i + 1}. "${m.title}" (${m.year || "N/A"}) - ${m.category || "Drama"} ${rating}\n`;
-      formatted += `   👉 Link: /korean-dramas/${slugify(m.title)}\n`;
+      formatted += `   👉 Link: ${path}\n`;
+      allFound.push({ ...m, url: path, displayType: "Korean Drama" });
     });
   }
 
-
-
-  return formatted || "No results found in the database.";
+  return { text: formatted || "No results found in the database.", list: allFound };
 }
 
 // FilmHub AI System Prompt
@@ -266,43 +269,46 @@ export async function POST(req) {
     console.log(`[Chatbot] Intent: ${intent}, Search term: ${searchTerm}`);
 
     // Perform database operations based on intent
+    let formattedData = { text: "", list: [] };
     switch (intent) {
       case "search":
         if (searchTerm) {
           dbResults = await searchMovies(searchTerm);
-          dbContext = `\n\n[DATABASE SEARCH RESULTS for "${searchTerm}"]${formatResultsForAI(dbResults)}`;
+          formattedData = formatResultsForAI(dbResults);
+          dbContext = `\n\n[DATABASE SEARCH RESULTS for "${searchTerm}"]${formattedData.text}`;
         }
         break;
       case "trending":
         dbResults = await getTrending();
-        dbContext = `\n\n[TRENDING CONTENT ON FILMHUB]${formatResultsForAI(dbResults)}`;
+        formattedData = formatResultsForAI(dbResults);
+        dbContext = `\n\n[TRENDING CONTENT ON FILMHUB]${formattedData.text}`;
         break;
       case "recent":
         dbResults = await getRecent();
-        dbContext = `\n\n[RECENTLY ADDED CONTENT]${formatResultsForAI(dbResults)}`;
+        formattedData = formatResultsForAI(dbResults);
+        dbContext = `\n\n[RECENTLY ADDED CONTENT]${formattedData.text}`;
         break;
       case "korean":
         dbResults = await searchMovies(searchTerm || "");
-        // Filter to only Korean dramas
-        dbContext = `\n\n[KOREAN DRAMAS]${formatResultsForAI({ koreanDramas: dbResults.koreanDramas })}`;
+        formattedData = formatResultsForAI({ koreanDramas: dbResults.koreanDramas }, "Korean Drama");
+        dbContext = `\n\n[KOREAN DRAMAS]${formattedData.text}`;
         break;
 
       case "genre":
         if (searchTerm) {
           dbResults = await getByGenre(searchTerm);
-          dbContext = `\n\n[${searchTerm.toUpperCase()} GENRE CONTENT]${formatResultsForAI(dbResults)}`;
+          formattedData = formatResultsForAI(dbResults, searchTerm);
+          dbContext = `\n\n[${searchTerm.toUpperCase()} GENRE CONTENT]${formattedData.text}`;
         }
         break;
       default:
         // General query - do a quick search if there's meaningful content
         if (userMessage.length > 10) {
           dbResults = await searchMovies(userMessage);
-          const totalResults = 
-            (dbResults.movies?.length || 0) + 
-            (dbResults.koreanDramas?.length || 0);
+          formattedData = formatResultsForAI(dbResults);
           
-          if (totalResults > 0) {
-            dbContext = `\n\n[POTENTIAL MATCHES FOUND]${formatResultsForAI(dbResults)}`;
+          if (formattedData.list.length > 0) {
+            dbContext = `\n\n[POTENTIAL MATCHES FOUND]${formattedData.text}`;
           }
         }
     }
@@ -368,7 +374,10 @@ export async function POST(req) {
       return NextResponse.json({ error: "Empty response from AI" }, { status: 500 });
     }
 
-    return NextResponse.json({ text: aiText });
+    return NextResponse.json({ 
+      text: aiText,
+      suggestions: formattedData.list.slice(0, 3) // Return top 3 matched movies as structured suggestions
+    });
 
   } catch (error) {
     console.error("Chat API Error:", error);

@@ -89,11 +89,19 @@ export default function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
-  const notifications = [
+  const [notifications, setNotifications] = useState([
     { id: 1, title: "New Arrival", message: "Inception is now available in 4K!", time: "2m ago", read: false },
     { id: 2, title: "System Update", message: "We've updated our player for better performance.", time: "1h ago", read: false },
     { id: 3, title: "Trending", message: "Everyone is watching 'Dune: Part Two'.", time: "5h ago", read: true },
-  ];
+  ]);
+
+  const markAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  const toggleRead = (id) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -357,19 +365,34 @@ export default function Navbar() {
                   >
                     <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] p-4">
                       <h3 className="text-xs font-black uppercase tracking-widest text-white">Notifications</h3>
-                      <button className="text-[10px] font-bold text-primary hover:underline">Mark all read</button>
+                      <button 
+                        onClick={markAllRead}
+                        className="text-[10px] font-bold text-primary hover:underline"
+                      >
+                        Mark all read
+                      </button>
                     </div>
                     <div className="max-h-[60vh] md:max-h-[300px] overflow-y-auto custom-scrollbar">
-                      {notifications.map((notif) => (
-                        <div key={notif.id} className={`flex gap-3 border-b border-white/5 p-4 transition-colors hover:bg-white/5 ${!notif.read ? 'bg-primary/5' : ''}`}>
-                          <div className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${!notif.read ? 'bg-primary' : 'bg-zinc-600'}`} />
-                          <div className="min-w-0 flex-1">
-                            <h4 className="text-sm font-bold text-white">{notif.title}</h4>
-                            <p className="mt-1 text-xs font-medium text-zinc-400 break-words">{notif.message}</p>
-                            <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-zinc-600">{notif.time}</p>
+                      {notifications.length > 0 ? (
+                        notifications.map((notif) => (
+                          <div 
+                            key={notif.id} 
+                            onClick={() => toggleRead(notif.id)}
+                            className={`flex gap-3 border-b border-white/5 p-4 transition-colors cursor-pointer hover:bg-white/5 ${!notif.read ? 'bg-primary/5' : ''}`}
+                          >
+                            <div className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${!notif.read ? 'bg-primary' : 'bg-zinc-600'}`} />
+                            <div className="min-w-0 flex-1">
+                              <h4 className="text-sm font-bold text-white">{notif.title}</h4>
+                              <p className="mt-1 text-xs font-medium text-zinc-400 break-words">{notif.message}</p>
+                              <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-zinc-600">{notif.time}</p>
+                            </div>
                           </div>
+                        ))
+                      ) : (
+                        <div className="p-8 text-center text-zinc-500 font-medium text-sm">
+                          No new notifications
                         </div>
-                      ))}
+                      )}
                     </div>
                   </motion.div>
                 )}

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, Minus, RefreshCw, ExternalLink } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, Minus, RefreshCw, ExternalLink, Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 // Quick suggestion chips for users
 const QUICK_SUGGESTIONS = [
@@ -116,7 +117,11 @@ export default function Chatbot() {
         throw new Error(data.error || "Failed to get response from AI");
       }
 
-      setMessages((prev) => [...prev, { role: "assistant", content: data.text }]);
+      setMessages((prev) => [...prev, { 
+        role: "assistant", 
+        content: data.text,
+        suggestions: data.suggestions // Store structured suggestions
+      }]);
     } catch (error) {
       console.error("Chatbot error:", error);
       
@@ -324,29 +329,64 @@ export default function Chatbot() {
                               )}
                             </div>
                             {/* Message Bubble */}
-                            <div className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
-                              msg.role === "user" 
-                                ? "bg-primary/20 text-white ring-1 ring-primary/30" 
-                                : "bg-white/5 text-zinc-200 ring-1 ring-white/10"
-                            }`}>
-                              {msg.role === "assistant" ? (
-                                msg.content.split(/(\/(?:movies|tv-shows|korean-dramas)\/[a-z0-9-]+)/g).map((part, index) => {
-                                  if (part.startsWith('/') && (part.includes('/movies/') || part.includes('/tv-shows/') || part.includes('/korean-dramas/'))) {
-                                    return (
-                                      <Link 
-                                        key={index} 
-                                        href={part} 
-                                        onClick={handleClose}
-                                        className="inline-flex items-center gap-1 text-primary hover:underline font-bold"
-                                      >
-                                        {part} <ExternalLink size={10} />
-                                      </Link>
-                                    );
-                                  }
-                                  return part;
-                                })
-                              ) : (
-                                msg.content
+                            <div className="space-y-3 max-w-[85%]">
+                              <div className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                                msg.role === "user" 
+                                  ? "bg-primary/20 text-white ring-1 ring-primary/30" 
+                                  : "bg-white/5 text-zinc-200 ring-1 ring-white/10"
+                              }`}>
+                                {msg.role === "assistant" ? (
+                                  msg.content.split(/(\/(?:movies|tv-shows|korean-dramas)\/[a-z0-9-]+)/g).map((part, index) => {
+                                    if (part.startsWith('/') && (part.includes('/movies/') || part.includes('/tv-shows/') || part.includes('/korean-dramas/'))) {
+                                      return (
+                                        <Link 
+                                          key={index} 
+                                          href={part} 
+                                          onClick={handleClose}
+                                          className="inline-flex items-center gap-1 text-primary hover:underline font-bold"
+                                        >
+                                          {part} <ExternalLink size={10} />
+                                        </Link>
+                                      );
+                                    }
+                                    return part;
+                                  })
+                                ) : (
+                                  msg.content
+                                )}
+                              </div>
+
+                              {/* Actionable Movie Cards */}
+                              {msg.suggestions && msg.suggestions.length > 0 && (
+                                <div className="flex flex-col gap-2 mt-2">
+                                  {msg.suggestions.map((movie) => (
+                                    <Link 
+                                      key={movie.id}
+                                      href={movie.url}
+                                      onClick={handleClose}
+                                      className="group flex items-center gap-3 rounded-xl bg-white/5 p-2 ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-primary/50"
+                                    >
+                                      <div className="relative h-14 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-800">
+                                        <Image 
+                                          src={movie.image_url || movie.image} 
+                                          alt={movie.title}
+                                          fill 
+                                          className="object-cover"
+                                          sizes="40px"
+                                        />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <h4 className="text-xs font-bold text-white truncate">{movie.title}</h4>
+                                        <p className="text-[10px] text-zinc-500 font-medium">
+                                          {movie.year} • {movie.displayType} • ⭐ {movie.rating || "N/A"}
+                                        </p>
+                                      </div>
+                                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20 text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                                          <Play size={12} fill="currentColor" />
+                                      </div>
+                                    </Link>
+                                  ))}
+                                </div>
                               )}
                             </div>
                           </div>
