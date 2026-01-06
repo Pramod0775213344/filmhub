@@ -289,6 +289,9 @@ export default function Navbar() {
               <Link href="/contact" className="transition-all hover:text-primary hover:tracking-[0.25em]">
                 Contact
               </Link>
+              <Link href="/about" className="transition-all hover:text-primary hover:tracking-[0.25em]">
+                About
+              </Link>
               {user && (
                 <Link href="/my-list" className="transition-all hover:text-primary hover:tracking-[0.25em]">
                   My List
@@ -685,6 +688,7 @@ export default function Navbar() {
                       <Link href="/korean-dramas" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Korean Dramas</Link>
                       <Link href="/upcoming" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Upcoming</Link>
                       <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Contact</Link>
+                      <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">About</Link>
                       {user && (
                         <>
                           <Link
