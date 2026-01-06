@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Upload, Cloud, CheckCircle2, Loader2, X, AlertCircle, PlayCircle } from "lucide-react";
 
-export default function GoogleDriveUploader({ onUploadComplete, folderId = "" }) {
+export default function GoogleDriveUploader({ onUploadComplete, onProgress, folderId = "" }) {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState("idle"); // idle, authenticating, uploading, complete, error
@@ -106,7 +106,9 @@ export default function GoogleDriveUploader({ onUploadComplete, folderId = "" })
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
           const percentComplete = (event.loaded / event.total) * 100;
-          setProgress(Math.round(percentComplete));
+          const rounded = Math.round(percentComplete);
+          setProgress(rounded);
+          if (onProgress) onProgress(rounded);
         }
       };
 

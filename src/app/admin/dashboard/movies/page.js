@@ -8,7 +8,7 @@ import Image from "next/image";
 import { 
   Plus, Trash2, Edit2, Search, X, Loader2, Star, Calendar, 
   Tag, Users, User, Clock, FileText, ImageIcon, LayoutGrid, 
-  Globe, Video, Download, Sparkles, Wand2, Upload
+  Globe, Video, Download, Sparkles, Wand2, Upload, Cloud, Minimize2
 } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -53,6 +53,11 @@ export default function MoviesManagement() {
   const [tmdbQuery, setTmdbQuery] = useState("");
   const [tmdbResults, setTmdbResults] = useState([]);
   const [isFetchingTMDB, setIsFetchingTMDB] = useState(false);
+  
+  // Upload State
+  const [activeUpload, setActiveUpload] = useState({ movieId: null, progress: 0, status: 'idle', movieTitle: '' });
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isUploadMinimized, setIsUploadMinimized] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef(null);
@@ -610,6 +615,25 @@ export default function MoviesManagement() {
           </div>
         </div>
 
+        {/* Upload Status Bar (When Minimized) */}
+        <AnimatePresence>
+          {isUploadMinimized && activeUpload.status === 'uploading' && (
+            <motion.div 
+              initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
+              className="fixed bottom-6 right-6 z-[60] bg-zinc-900 border border-primary/30 p-4 rounded-xl shadow-2xl flex items-center gap-4 w-80 cursor-pointer hover:bg-zinc-800"
+              onClick={() => { setIsUploadMinimized(false); setIsUploadModalOpen(true); }}
+            >
+              <Loader2 className="animate-spin text-primary" size={24} />
+              <div className="flex-grow">
+                 <p className="text-xs font-bold text-white uppercase truncate">Uploading: {activeUpload.movieTitle}</p>
+                 <div className="h-1.5 w-full bg-zinc-800 rounded-full mt-2 overflow-hidden">
+                   <div className="h-full bg-primary transition-all duration-300" style={{ width: `${activeUpload.progress}%` }} />
+                 </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* TMDB Results Drawer */}
         <AnimatePresence>
           {tmdbResults.length > 0 && (
@@ -688,6 +712,26 @@ export default function MoviesManagement() {
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black p-4">
                     <h3 className="font-display text-lg font-black text-white">{movie.title}</h3>
                   </div>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black p-4">
+                    <h3 className="font-display text-lg font-black text-white">{movie.title}</h3>
+                  </div>
+
+                  {/* Upload Progress Overlay */}
+                  {activeUpload.movieId === movie.id && activeUpload.status === 'uploading' && (
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+                      <div className="relative h-16 w-16 mb-2">
+                        <svg className="h-full w-full -rotate-90 text-zinc-700" viewBox="0 0 36 36">
+                          <path className="fill-none stroke-current stroke-[3]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                          <path className="fill-none stroke-primary stroke-[3] transition-all duration-300 drop-shadow-[0_0_10px_rgba(229,9,20,0.8)]" 
+                            strokeDasharray={`${activeUpload.progress}, 100`}
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
+                          />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-black text-white">{activeUpload.progress}%</span>
+                      </div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-primary animate-pulse">Uploading...</p>
+                    </div>
+                  )}
                   {(!movie.trailer || movie.trailer.trim() === "") && (
                     <div className="absolute top-2 right-2 rounded-md bg-red-600/90 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-sm backdrop-blur-sm">
                       No Trailer
@@ -704,6 +748,16 @@ export default function MoviesManagement() {
                   <div className="flex items-center gap-2">
                     <button onClick={() => handleOpenModal(movie)} className="rounded-xl bg-white/5 p-2.5 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white">
                       <Edit2 size={16} />
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setActiveUpload({ movieId: movie.id, progress: 0, status: 'idle', movieTitle: movie.title });
+                        setIsUploadModalOpen(true);
+                        setIsUploadMinimized(false);
+                      }} 
+                      className="rounded-xl bg-blue-500/10 p-2.5 text-blue-500 transition-colors hover:bg-blue-500/20"
+                    >
+                      <Cloud size={16} />
                     </button>
                     <button onClick={() => handleDelete(movie.id)} className="rounded-xl bg-primary/10 p-2.5 text-primary transition-colors hover:bg-primary/20">
                       <Trash2 size={16} />
@@ -941,6 +995,44 @@ export default function MoviesManagement() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Upload Modal (Persistent in DOM) */}
+      <div className={`fixed inset-0 z-[100] flex items-center justify-center p-4 transition-opacity duration-300 ${isUploadModalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={() => !isUploadMinimized && setIsUploadModalOpen(false)} />
+        <div className={`glass relative w-full max-w-lg overflow-hidden rounded-[2.5rem] shadow-2xl transition-transform duration-300 ${isUploadModalOpen ? 'scale-100 translate-y-0' : 'scale-90 translate-y-10'}`}>
+          <div className="p-8 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+             <div>
+               <h3 className="text-lg font-black text-white">Upload Movie File</h3>
+               <p className="text-xs font-bold text-zinc-500 uppercase">{activeUpload.movieTitle}</p>
+             </div>
+             <div className="flex gap-2">
+               <button onClick={() => { setIsUploadModalOpen(false); setIsUploadMinimized(true); }} className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors" title="Minimize">
+                 <Minimize2 size={18} />
+               </button>
+               <button onClick={() => setIsUploadModalOpen(false)} className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors">
+                 <X size={18} />
+               </button>
+             </div>
+          </div>
+          <div className="p-8">
+            <GoogleDriveUploader
+              onProgress={(p) => setActiveUpload(prev => ({ ...prev, progress: p, status: 'uploading' }))}
+              onUploadComplete={async (link) => {
+                setActiveUpload(prev => ({ ...prev, status: 'complete', progress: 100 }));
+                // Update Database
+                if (activeUpload.movieId) {
+                  const { error } = await supabase.from("movies").update({ video_url: link }).eq("id", activeUpload.movieId);
+                  if (!error) {
+                     alert("Upload Complete & Link Saved!");
+                     setIsUploadModalOpen(false);
+                     fetchMovies(); // Refresh to see changes if needed
+                  }
+                }
+              }}
+            />
+          </div>
+        </div>
+      </div>
     </AdminLayout>
   );
 }
