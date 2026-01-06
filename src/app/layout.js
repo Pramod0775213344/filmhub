@@ -5,6 +5,7 @@ import ClientLayout from "@/components/ClientLayout";
 import Script from "next/script";
 import AdManager from "@/components/AdManager";
 import SpotlightEffect from "@/components/SpotlightEffect";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
