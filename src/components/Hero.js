@@ -60,7 +60,7 @@ export default function Hero({ featuredMovies }) {
                 src={movie.backdrop_url || movie.image_url} 
                 alt="" 
                 fill 
-                priority
+                priority={true}
                 className="object-cover blur-[100px] scale-150 opacity-40"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90" />
@@ -108,7 +108,7 @@ export default function Hero({ featuredMovies }) {
                                     src={movie.backdrop_url || movie.image_url} 
                                     alt={movie.title} 
                                     fill 
-                                    priority
+                                    priority={true}
                                     className="object-cover"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />

@@ -43,21 +43,25 @@ export default function AdsterraBanner() {
     </html>
   `;
 
-  if (loading || isAdmin) {
+  if (isAdmin) {
     return null;
   }
 
   return (
-    <div className="w-full flex justify-start my-6 overflow-hidden">
-      <iframe
-        srcDoc={adHtml}
-        width="468"
-        height="60"
-        frameBorder="0"
-        scrolling="no"
-        className="bg-transparent"
-        title="Adsterra Banner"
-      />
+    <div className="w-full flex justify-start my-6 overflow-hidden min-h-[60px]">
+      <div style={{ width: "468px", height: "60px" }}>
+        {!loading && (
+          <iframe
+            srcDoc={adHtml}
+            width="468"
+            height="60"
+            frameBorder="0"
+            scrolling="no"
+            className="bg-transparent"
+            title="Adsterra Banner"
+          />
+        )}
+      </div>
     </div>
   );
 }

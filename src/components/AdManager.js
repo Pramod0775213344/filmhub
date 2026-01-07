@@ -66,7 +66,7 @@ export default function AdManager() {
       {showAggressiveAds && (
         <Script
           id="adsterra-social-bar"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           src="https://pl28402819.effectivegatecpm.com/36/34/3c/36343c27af3a082c6657e27a6566cde1.js" 
         />
       )}

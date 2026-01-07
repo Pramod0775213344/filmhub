@@ -79,11 +79,11 @@ function MovieCard({ movie }) {
         <div className="aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-900 shadow-2xl relative transition-all duration-300 group-hover:ring-2 group-hover:ring-primary/50 group-hover:shadow-[0_0_30px_rgba(229,9,20,0.3)]">
           {/* Movie Image */}
           <Image
-            src={movie.image_url || movie.image}
+            src={(movie.image_url || movie.image)?.replace('/w500/', '/w342/')}
             alt={movie.title}
             fill
             className="object-cover transition-transform duration-700 md:group-hover:scale-110"
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
           />
 
           {/* Gradient Overlay (Desktop Only) */}
