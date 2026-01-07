@@ -91,19 +91,31 @@ function MovieCard({ movie }) {
 
           {/* Badges Container - Left */}
           <div className="absolute left-3 top-3 flex flex-col gap-2 z-20">
-             {/* TV Show Episode Badge (Green Style like user image) */}
+             {/* TV Show Episode Badge */}
              {movie.latest_episode && (
-                <span className="flex items-center justify-center rounded bg-green-600 px-2 py-1 text-[10px] font-black uppercase tracking-tighter text-white shadow-lg">
-                  S{movie.latest_episode.season.toString().padStart(2, '0')} EP{movie.latest_episode.episode.toString().padStart(2, '0')}
+                <span className="flex items-center justify-center rounded bg-green-600 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white shadow-md">
+                  S{movie.latest_episode.season.toString().padStart(2, '0')} | EP{movie.latest_episode.episode.toString().padStart(2, '0')}
                 </span>
+             )}
+             
+             {/* Language Badge */}
+             {(movie.language || "Sinhala") && (
+               <span className="self-start rounded bg-blue-600 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white shadow-md border border-white/10">
+                 {movie.language || "Sinhala"}
+               </span>
              )}
           </div>
 
           {/* Badges Container - Right */}
           <div className="absolute right-3 top-3 flex flex-col gap-2 z-20">
+             {/* Quality Badge */}
+             <span className="self-end rounded bg-purple-600 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white shadow-md border border-white/10">
+               {movie.quality || "FHD"}
+             </span>
+
              {/* Top Rated Badge (Yellow) */}
              {movie.rating > 8.5 && (
-               <span className="rounded bg-yellow-500 px-2 py-1 text-[10px] font-black uppercase tracking-tighter text-black shadow-lg">
+               <span className="self-end rounded bg-yellow-500 px-2.5 py-1 text-[11px] font-bold tracking-wide text-black shadow-md">
                 Top Rated
               </span>
              )}

@@ -63,6 +63,7 @@ export async function getUpcomingMovies() {
       year: (item.release_date || "").split("-")[0],
       release_date: item.release_date,
       rating: item.vote_average?.toFixed(1) || "NR",
+      language: item.original_language ? new Intl.DisplayNames(['en'], { type: 'language' }).of(item.original_language) : "English",
       overview: item.overview
     }));
   } catch (error) {

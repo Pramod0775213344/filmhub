@@ -99,7 +99,7 @@ function enrich(list, watchlistIds, episodeMap = {}, type = null) {
 async function HeroSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, imdb_rating, image_url, backdrop_url, description")
+    .select("id, title, year, category, type, rating, imdb_rating, image_url, backdrop_url, description, language")
     .order("created_at", { ascending: false })
     .limit(5);
 
@@ -109,7 +109,7 @@ async function HeroSection() {
 async function RecentSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .order("created_at", { ascending: false })
     .limit(8);
 
@@ -119,7 +119,7 @@ async function RecentSection() {
 async function TrendingSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .order("rating", { ascending: false })
     .limit(16);
 
@@ -129,7 +129,7 @@ async function TrendingSection() {
 async function KDramaSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data } = await supabase.from("korean_dramas")
-    .select("id, title, year, category, rating, image_url, backdrop_url")
+    .select("id, title, year, category, rating, image_url, backdrop_url, language")
     .order("created_at", { ascending: false })
     .limit(18);
 
@@ -139,7 +139,7 @@ async function KDramaSection() {
 async function NewReleasesSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .order("year", { ascending: false })
     .limit(16);
 
@@ -149,7 +149,7 @@ async function NewReleasesSection() {
 async function TVShowsSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data: shows } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url, language, quality")
     .eq("type", "TV Show")
     .order("created_at", { ascending: false })
     .limit(16);
@@ -173,7 +173,7 @@ async function TVShowsSection() {
 async function ActionSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, image_url, backdrop_url")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .ilike("category", "%Action%")
     .limit(16);
 
@@ -182,8 +182,8 @@ async function ActionSection() {
 
 async function SearchResults({ search, category }) {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
-  let query = supabase.from("movies").select("id, title, year, category, type, rating, image_url, backdrop_url, description");
-  let kQuery = supabase.from("korean_dramas").select("id, title, year, category, rating, image_url, backdrop_url, description");
+  let query = supabase.from("movies").select("id, title, year, category, type, rating, image_url, backdrop_url, description, language");
+  let kQuery = supabase.from("korean_dramas").select("id, title, year, category, rating, image_url, backdrop_url, description, language");
 
   if (search) {
     query = query.ilike("title", `%${search}%`);

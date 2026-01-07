@@ -22,7 +22,7 @@ export default async function TVShowsPage({ searchParams }) {
     (() => {
       let query = supabase
         .from("movies")
-        .select("id, title, year, category, rating, type, image_url")
+        .select("id, title, year, category, rating, type, image_url, language")
         .eq("type", "Movie");
       
       if (category && category !== "All") query = query.eq("category", category);

@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Inter, Outfit } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Outfit, Noto_Sans_Sinhala } from "next/font/google"; // Updated imports
 import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import ClientLayout from "@/components/ClientLayout";
@@ -27,10 +27,17 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
+// Added Noto Sans Sinhala configuration
+const notoSinhala = Noto_Sans_Sinhala({
+  variable: "--font-sinhala",
+  subsets: ["sinhala"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+});
+
 export const metadata = {
   metadataBase: new URL('https://filmhub-three.vercel.app'),
   title: {
-    default: "FilmHub | Discover Movies & Curate Your Watchlist",
+    default: "FilmHub | Watch Movies with Sinhala Subtitles",
     template: "%s | FilmHub",
   },
   description: "Discover the latest movies, trending releases, Korean dramas, and curate your personal watchlist with FilmHub. The premium platform for film enthusiasts.",
@@ -96,7 +103,7 @@ export default function RootLayout({ children }) {
         <link rel="dns-prefetch" href="https://image.tmdb.org" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${outfit.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${outfit.variable} ${notoSinhala.variable} antialiased`}
         suppressHydrationWarning
       >
         <AdManager />
