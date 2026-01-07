@@ -12,23 +12,21 @@ export default function NavigationLoading() {
   const [prevPath, setPrevPath] = useState(pathname);
 
   useEffect(() => {
-    if (pathname !== prevPath) {
-      let timer;
-      const frame = requestAnimationFrame(() => {
-        setLoading(true);
-        setPrevPath(pathname);
-        
-        timer = setTimeout(() => {
-          setLoading(false);
-        }, 600);
-      });
+    // Small delay to move setState out of synchronous execution
+    const startTimer = setTimeout(() => {
+      setLoading(true);
+    }, 0);
 
-      return () => {
-        cancelAnimationFrame(frame);
-        if (timer) clearTimeout(timer);
-      };
-    }
-  }, [pathname, searchParams, prevPath]);
+    // Auto-hide after a short delay
+    const endTimer = setTimeout(() => {
+      setLoading(false);
+    }, 800);
+
+    return () => {
+      clearTimeout(startTimer);
+      clearTimeout(endTimer);
+    };
+  }, [pathname, searchParams]);
 
   return (
     <AnimatePresence>
