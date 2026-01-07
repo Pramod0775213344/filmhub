@@ -11,6 +11,7 @@ import { slugify } from "@/utils/slugify";
 export default function DownloadClient({ movie, links }) {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [pendingLink, setPendingLink] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleLinkClick = (e, link) => {
     const providerLower = link.provider?.toLowerCase() || "";
@@ -26,15 +27,23 @@ export default function DownloadClient({ movie, links }) {
       e.preventDefault();
       setPendingLink(link.url);
       setShowGoogleModal(true);
+    } else {
+      // Show loading for regular mirrors too
+      e.preventDefault();
+      setIsDownloading(true);
+      setTimeout(() => {
+        setIsDownloading(false);
+        window.open(link.url, "_blank");
+      }, 1200);
     }
   };
 
   const confirmDownload = () => {
     if (pendingLink) {
+      setIsDownloading(true);
       let finalLink = pendingLink;
       
       // Robust detection of Google Drive File ID
-      // Matches: /file/d/ID/... OR ?id=ID OR /open?id=ID
       const fileIdMatch = pendingLink.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
                           pendingLink.match(/[?&]id=([a-zA-Z0-9_-]+)/);
 
@@ -45,9 +54,13 @@ export default function DownloadClient({ movie, links }) {
         finalLink = `https://drive.google.com/uc?export=download&id=${fileIdMatch[1]}`;
       }
 
-      window.open(finalLink, "_blank");
-      setShowGoogleModal(false);
-      setPendingLink(null);
+      // Small delay for cinematic feel
+      setTimeout(() => {
+        window.open(finalLink, "_blank");
+        setShowGoogleModal(false);
+        setPendingLink(null);
+        setIsDownloading(false);
+      }, 1500);
     }
   };
 
@@ -353,6 +366,45 @@ export default function DownloadClient({ movie, links }) {
                 </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Cinematic Download Overlay */}
+      <AnimatePresence>
+        {isDownloading && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-black/90 backdrop-blur-xl"
+          >
+            <div className="relative">
+               {/* Animated Rings */}
+               <motion.div 
+                 animate={{ rotate: 360 }}
+                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                 className="h-32 w-32 rounded-full border-t-2 border-b-2 border-primary"
+               />
+               <motion.div 
+                 animate={{ rotate: -360 }}
+                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                 className="absolute inset-2 rounded-full border-l-2 border-r-2 border-white/20"
+               />
+               <div className="absolute inset-0 flex items-center justify-center text-primary">
+                  <Download size={32} className="animate-bounce" />
+               </div>
+            </div>
+            
+            <motion.div 
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mt-8 text-center"
+            >
+               <h3 className="text-2xl font-black uppercase tracking-[0.3em] text-white italic">Initializing <span className="text-primary">Link</span></h3>
+               <p className="mt-2 text-zinc-500 font-bold uppercase tracking-widest text-xs">Securing your high-speed connection...</p>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
