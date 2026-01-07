@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AdsterraBanner() {
-  const containerRef = useRef(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -27,52 +26,38 @@ export default function AdsterraBanner() {
     checkUser();
   }, []);
 
-  useEffect(() => {
-    const currentContainer = containerRef.current;
-    if (loading || isAdmin || !currentContainer) return;
-
-    // Clear any existing content
-    currentContainer.innerHTML = "";
-
-    const atOptionsScript = document.createElement("script");
-    atOptionsScript.type = "text/javascript";
-    atOptionsScript.innerHTML = `
-      atOptions = {
-        'key' : 'd62819ea9606995cac6da328c4d8e460',
-        'format' : 'iframe',
-        'height' : 60,
-        'width' : 468,
-        'params' : {}
-      };
-    `;
-
-    const invokeScript = document.createElement("script");
-    invokeScript.type = "text/javascript";
-    invokeScript.src = "https://www.highperformanceformat.com/d62819ea9606995cac6da328c4d8e460/invoke.js";
-
-    currentContainer.appendChild(atOptionsScript);
-    currentContainer.appendChild(invokeScript);
-
-    return () => {
-      if (currentContainer) {
-        currentContainer.innerHTML = "";
-      }
-    };
-  }, [loading, isAdmin]);
+  const adHtml = `
+    <html>
+      <body style="margin:0;padding:0;">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : 'd62819ea9606995cac6da328c4d8e460',
+            'format' : 'iframe',
+            'height' : 60,
+            'width' : 468,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/d62819ea9606995cac6da328c4d8e460/invoke.js"></script>
+      </body>
+    </html>
+  `;
 
   if (loading || isAdmin) {
     return null;
   }
 
   return (
-    <div className="w-full flex justify-center my-6 overflow-hidden">
-      <div 
-        ref={containerRef} 
-        className="min-h-[60px] min-w-[468px] flex items-center justify-center bg-transparent"
-        id="adsterra-banner-468x60"
-      >
-        {/* Ad will be injected here */}
-      </div>
+    <div className="w-full flex justify-start my-6 overflow-hidden">
+      <iframe
+        srcDoc={adHtml}
+        width="468"
+        height="60"
+        frameBorder="0"
+        scrolling="no"
+        className="bg-transparent"
+        title="Adsterra Banner"
+      />
     </div>
   );
 }
