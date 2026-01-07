@@ -130,8 +130,18 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
         clean = clean.replace("voe.sx/", "voe.sx/e/");
       }
       // Google Drive
-      if (clean.includes("drive.google.com") && clean.includes("/view")) {
-        clean = clean.replace("/view", "/preview");
+      if (clean.includes("drive.google.com")) {
+        if (clean.includes("/view")) {
+          clean = clean.replace("/view", "/preview");
+        } else if (clean.includes("open?id=")) {
+          const id = new URL(clean).searchParams.get("id");
+          clean = `https://drive.google.com/file/d/${id}/preview`;
+        } else if (clean.includes("/file/d/") && !clean.includes("/preview")) {
+          // Ensure it ends in /preview if it's just a file link
+          const parts = clean.split('?')[0].split('/');
+          const id = parts[parts.indexOf('d') + 1];
+          clean = `https://drive.google.com/file/d/${id}/preview`;
+        }
       }
       return clean;
     } catch (err) {
