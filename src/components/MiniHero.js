@@ -23,7 +23,8 @@ export default function MiniHero() {
     pathname.startsWith("/movies/") || 
     pathname.startsWith("/tv-shows/") || 
     pathname.startsWith("/korean-dramas/") ||
-    pathname.startsWith("/upcoming/") 
+    pathname.startsWith("/upcoming/") ||
+    pathname.startsWith("/download/")
   ) {
     return null;
   }
@@ -35,6 +36,7 @@ export default function MiniHero() {
   let icon = <Sparkles className="text-primary" size={16} />;
 
   const cat = searchParams.get("category");
+  const lang = searchParams.get("language");
 
   if (s) {
     title = `Results for "${s}"`;
@@ -42,14 +44,20 @@ export default function MiniHero() {
     badge = "Searching FilmHub";
     icon = <Search className="text-primary" size={16} />;
   } else if (pathname.startsWith("/movies")) {
-    title = cat ? `${cat} Movies` : "Cinematic Movies";
+    if (cat) title = `${cat} Movies`;
+    else if (lang) title = `${lang} Movies`;
+    else title = "Cinematic Movies";
+    
     subtitle = "Experience stories that move the world and touch the soul.";
-    badge = "Masterpieces";
+    badge = cat || lang || "Masterpieces";
     icon = <Sparkles className="text-primary" size={16} />;
   } else if (pathname.startsWith("/tv-shows")) {
-    title = cat ? `${cat} Series` : "Premium TV Shows";
+    if (cat) title = `${cat} Series`;
+    else if (lang) title = `${lang} Series`;
+    else title = "Premium TV Shows";
+
     subtitle = "Binge-worthy series from world-class creators.";
-    badge = "Trending Series";
+    badge = cat || lang || "Trending Series";
     icon = <TrendingUp className="text-primary" size={16} />;
   } else if (pathname.startsWith("/korean-dramas")) {
     title = "Korean Dramas";
@@ -71,6 +79,21 @@ export default function MiniHero() {
     subtitle = "Our mission is to bring global cinema to your screen.";
     badge = "Our Story";
     icon = <Info className="text-primary" size={16} />;
+  } else if (pathname.startsWith("/category/")) {
+    const slug = pathname.split("/").pop();
+    const formattedSlug = decodeURIComponent(slug).replace(/-/g, " ");
+    // Capitalize first letter of each word
+    title = `${formattedSlug.replace(/\b\w/g, l => l.toUpperCase())} Movies`;
+    subtitle = `Browse our extensive collection of ${formattedSlug} content.`;
+    badge = "Category";
+    icon = <Sparkles className="text-primary" size={16} />;
+  } else if (pathname.startsWith("/language/")) {
+    const slug = pathname.split("/").pop();
+    const formattedSlug = decodeURIComponent(slug).replace(/-/g, " ");
+    title = `${formattedSlug.replace(/\b\w/g, l => l.toUpperCase())} Movies`;
+    subtitle = `Explore movies available in ${formattedSlug}.`;
+    badge = "Language";
+    icon = <Sparkles className="text-primary" size={16} />;
   }
 
   return (

@@ -77,18 +77,9 @@ export default async function LanguagePage({ params, searchParams }) {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom page-pt pb-20">
-        <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
-          <div>
-            <span className="text-primary font-bold tracking-widest uppercase text-sm mb-2 block">Language</span>
-            <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl capitalize">
-              {formattedLanguage} <span className="text-zinc-500">Movies</span>
-            </h1>
-            <p className="mt-4 font-medium text-zinc-500">
-              Explore our collection of movies in {formattedLanguage}.
-            </p>
-          </div>
-          
+      <div className="container-custom pb-20">
+        <div className="mb-8 flex flex-col justify-end gap-8 md:flex-row md:items-end">
+          {/* Header removed for MiniHero */}
           <FilterSection 
             categories={uniqueCategories}
             years={uniqueYears} 

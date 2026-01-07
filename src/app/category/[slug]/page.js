@@ -88,33 +88,9 @@ export default async function CategoryPage({ params, searchParams }) {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom page-pt pb-20">
-        <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
-          <div>
-            <span className="text-primary font-bold tracking-widest uppercase text-sm mb-2 block">Category</span>
-            <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl capitalize">
-              {formattedCategory}
-            </h1>
-            <p className="mt-4 font-medium text-zinc-500">
-              Explore our collection of {formattedCategory} movies and shows.
-            </p>
-          </div>
-          
-          {/* We reuse FilterSection but maybe force the category or hide it? 
-              Ref: src/components/FilterSection.js (not viewed but assumed standard)
-              If we pass 'categories' as just [formattedCategory], user can't switch easily? 
-              Let's pass all categories so they can switch if they want, but default to current.
-              Wait, switching category in FilterSection usually updates query param `?category=`.
-              Here, category is in URL path `/category/action`.
-              If FilterSection uses `router.push` with query params, it might break the path structure 
-              unless we customize FilterSection or creating standard links.
-              
-              For now, let's include FilterSection for Year/Language/Sort, but maybe 'Category' dropdown 
-              will navigate to `?category` on this page which is wrong.
-              
-              If the user wants functionality "filtering ekath hadanna", they probably mean Year/Language/Sort within this category.
-              We can pass `showCategoryFilter={false}` if FilterSection supports it, or just ignore it.
-          */}
+      <div className="container-custom pb-20">
+        <div className="mb-8 flex flex-col justify-end gap-8 md:flex-row md:items-end">
+          {/* Header removed for MiniHero */}
           <FilterSection 
             categories={[]} // Hide or empty categories to prevent confusion if component handles it gracefully
             years={uniqueYears} 
