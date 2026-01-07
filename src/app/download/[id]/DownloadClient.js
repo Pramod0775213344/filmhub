@@ -1,14 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, Shield, Zap, Globe, ArrowLeft, X, ExternalLink, Share2, Send, Cloud } from "lucide-react";
 import Footer from "@/components/Footer";
 import { slugify } from "@/utils/slugify";
+import CinematicButton from "@/components/CinematicButton";
 
 export default function DownloadClient({ movie, links }) {
+  const router = useRouter();
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [pendingLink, setPendingLink] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -89,13 +92,14 @@ export default function DownloadClient({ movie, links }) {
         
         {/* Navigation & Header */}
         <div className="flex items-center justify-between mb-8 md:mb-12">
-            <Link 
-                href={`/movies/${slugify(movie.title)}`} 
-                className="group flex items-center gap-3 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/10 transition-all text-zinc-400 hover:text-white"
+            <CinematicButton 
+                onClick={() => router.push(`/movies/${slugify(movie.title)}`)}
+                icon={ArrowLeft}
+                variant="secondary"
+                className="px-6 py-2 rounded-full h-12"
             >
-                <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
                 <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Back to Film</span>
-            </Link>
+            </CinematicButton>
 
             <div className="flex items-center gap-4">
                <button className="p-2.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white transition-all">
@@ -349,19 +353,21 @@ export default function DownloadClient({ movie, links }) {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 w-full">
-                        <button 
+                        <CinematicButton 
                             onClick={confirmDownload}
-                            className="flex-1 flex items-center justify-center gap-3 rounded-full bg-white py-5 text-sm font-black uppercase tracking-[0.2em] text-black transition-all hover:bg-primary hover:text-white hover:scale-105 active:scale-95 shadow-xl"
+                            icon={Download}
+                            variant="primary"
+                            className="flex-1"
                         >
-                            <Download size={20} />
                             Start Download
-                        </button>
-                        <button 
+                        </CinematicButton>
+                        <CinematicButton 
                             onClick={() => setShowGoogleModal(false)}
-                            className="px-8 flex items-center justify-center rounded-full bg-white/5 border border-white/10 py-5 text-sm font-black uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10 active:scale-95"
+                            variant="secondary"
+                            className="px-8"
                         >
                             Cancel
-                        </button>
+                        </CinematicButton>
                     </div>
                 </div>
             </motion.div>

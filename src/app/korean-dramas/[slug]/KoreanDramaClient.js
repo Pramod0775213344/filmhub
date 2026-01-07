@@ -15,6 +15,7 @@ import Image from "next/image";
 import CommentSection from "@/components/CommentSection";
 import AdsterraBanner from "@/components/AdsterraBanner";
 import NativeAd from "@/components/NativeAd";
+import CinematicButton from "@/components/CinematicButton";
 
 export default function KoreanDramaClient({ initialMovie, userId }) {
   const router = useRouter();
@@ -226,23 +227,24 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
 
                 {/* Hero Actions */}
                 <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 pt-6 md:pt-8">
-                    <button 
+                    <CinematicButton 
                       onClick={() => {
                           const player = document.getElementById("video-player-section");
                           if (player) player.scrollIntoView({ behavior: "smooth" });
                       }}
-                      className="group flex items-center gap-2 md:gap-3 bg-white text-black px-6 md:px-10 py-3 md:py-4 rounded-full font-black uppercase tracking-widest text-[11px] md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+                      icon={Play}
+                      variant="primary"
                     >
-                        <Play size={18} fill="black" />
                         Watch Now
-                    </button>
-                    <button 
+                    </CinematicButton>
+                    <CinematicButton 
                       onClick={toggleList}
-                      className="flex items-center gap-2 md:gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/10 text-white px-6 md:px-10 py-3 md:py-4 rounded-full font-black uppercase tracking-widest text-[11px] md:text-sm transition-all active:scale-95"
+                      icon={isInList ? Check : Plus}
+                      variant="secondary"
+                      isLoading={listLoading}
                     >
-                        {isInList ? <Check size={18} className="text-primary" /> : <Plus size={18} />}
                         {isInList ? "In Watchlist" : "Add to List"}
-                    </button>
+                    </CinematicButton>
                 </div>
             </motion.div>
         </div>
@@ -438,32 +440,24 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
             <div className="rounded-3xl border border-white/5 bg-white/5 p-8 space-y-6 backdrop-blur-md">
                 <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest border-b border-white/5 pb-4">Actions</h3>
                 <div className="flex flex-col gap-4">
-                    <button 
+                    <CinematicButton 
                         onClick={() => {
                             if (movie.download_link) {
                                 setIsDownloadLoading(true);
                                 window.open(movie.download_link, "_blank");
-                                // Reset after a small delay since window.open doesn't block
                                 setTimeout(() => setIsDownloadLoading(false), 2000);
                             } else {
                                 alert("Download link not available.");
                             }
                         }}
-                        disabled={isDownloadLoading}
-                        className="w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-70 disabled:cursor-not-allowed"
+                        icon={Download}
+                        variant="primary"
+                        className="w-full"
+                        isLoading={isDownloadLoading}
                     >
-                        {isDownloadLoading ? (
-                            <>
-                                <Loader2 size={20} className="animate-spin" />
-                                Processing...
-                            </>
-                        ) : (
-                            <>
-                                <Download size={20} /> Download Series
-                            </>
-                        )}
-                    </button>
-                    <button 
+                        Download Series
+                    </CinematicButton>
+                    <CinematicButton 
                          onClick={() => {
                             if (navigator.share) {
                                 navigator.share({ title: movie.title, url: window.location.href });
@@ -472,10 +466,12 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                                 alert("Link copied to clipboard!");
                             }
                         }}
-                        className="w-full bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-3"
+                        icon={Share2}
+                        variant="secondary"
+                        className="w-full"
                     >
-                        <Share2 size={20} /> Share
-                    </button>
+                        Share
+                    </CinematicButton>
                 </div>
             </div>
 

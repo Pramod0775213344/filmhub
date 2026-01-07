@@ -17,6 +17,7 @@ import Image from "next/image";
 import CommentSection from "@/components/CommentSection";
 import NativeAd from "@/components/NativeAd";
 import AdsterraBanner from "@/components/AdsterraBanner";
+import CinematicButton from "@/components/CinematicButton";
 
 export default function MovieClient({ initialMovie, userId }) {
   const router = useRouter();
@@ -258,20 +259,21 @@ export default function MovieClient({ initialMovie, userId }) {
 
                 {/* Hero Actions */}
                 <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 pt-6 md:pt-8">
-                    <button 
+                    <CinematicButton 
                       onClick={() => document.getElementById("movie-content")?.scrollIntoView({ behavior: "smooth" })}
-                      className="group flex items-center gap-2 md:gap-3 bg-white text-black px-6 md:px-10 py-3 md:py-4 rounded-full font-black uppercase tracking-widest text-[11px] md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+                      icon={Play}
+                      variant="primary"
                     >
-                        <Play size={18} fill="black" />
                         Watch Now
-                    </button>
-                    <button 
+                    </CinematicButton>
+                    <CinematicButton 
                       onClick={toggleList}
-                      className="flex items-center gap-2 md:gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/10 text-white px-6 md:px-10 py-3 md:py-4 rounded-full font-black uppercase tracking-widest text-[11px] md:text-sm transition-all active:scale-95"
+                      icon={isInList ? Check : Plus}
+                      variant="secondary"
+                      isLoading={listLoading}
                     >
-                        {isInList ? <Check size={18} className="text-primary" /> : <Plus size={18} />}
                         {isInList ? "In Watchlist" : "Add to List"}
-                    </button>
+                    </CinematicButton>
                 </div>
             </motion.div>
         </div>
@@ -449,26 +451,19 @@ export default function MovieClient({ initialMovie, userId }) {
                 <div className="rounded-[23px] bg-zinc-950 p-8 space-y-6">
                     <h3 className="text-xl font-black text-white uppercase tracking-tighter">Actions</h3>
                     <div className="space-y-3">
-                        <button 
+                        <CinematicButton 
                             onClick={() => {
                                 setIsDownloadLoading(true);
                                 router.push(`/download/${movie.id}`);
                             }}
-                            disabled={isDownloadLoading}
-                            className="w-full bg-primary hover:bg-primary-hover text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-3 shadow-[0_10px_20px_rgba(229,9,20,0.3)] disabled:opacity-70 disabled:cursor-not-allowed"
+                            icon={Download}
+                            variant="primary"
+                            className="w-full"
+                            isLoading={isDownloadLoading}
                         >
-                            {isDownloadLoading ? (
-                                <>
-                                    <Loader2 size={20} className="animate-spin" />
-                                    Processing...
-                                </>
-                            ) : (
-                                <>
-                                    <Download size={20} /> Download Now
-                                </>
-                            )}
-                        </button>
-                        <button 
+                            Download Now
+                        </CinematicButton>
+                        <CinematicButton 
                             onClick={() => {
                                 if (navigator.share) {
                                     navigator.share({ title: movie.title, url: window.location.href });
@@ -477,10 +472,12 @@ export default function MovieClient({ initialMovie, userId }) {
                                     alert("Link copied to clipboard!");
                                 }
                             }}
-                            className="w-full bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-3"
+                            icon={Share2}
+                            variant="secondary"
+                            className="w-full"
                         >
-                            <Share2 size={20} /> Share Movie
-                        </button>
+                            Share Movie
+                        </CinematicButton>
                     </div>
                 </div>
             </div>

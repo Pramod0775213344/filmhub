@@ -10,6 +10,7 @@ import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/utils/slugify";
+import CinematicButton from "@/components/CinematicButton";
 
 import { createPortal } from "react-dom";
 
@@ -486,12 +487,13 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
             ) : (
-              <Link 
+              <CinematicButton 
                 href="/login"
-                className="hidden md:block rounded-full bg-primary px-6 py-2.5 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95 cinematic-glow"
+                variant="primary"
+                className="hidden md:flex h-10 px-6 py-0 text-[10px]"
               >
                 Sign In
-              </Link>
+              </CinematicButton>
             )}
           </div>
         </div>
@@ -773,13 +775,14 @@ export default function Navbar() {
                       <span>Sign Out</span>
                     </button>
                   ) : (
-                    <Link 
+                    <CinematicButton 
                       href="/login"
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="flex w-full items-center justify-center rounded-xl bg-primary py-4 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
+                      variant="primary"
+                      className="w-full"
                     >
                       Sign In
-                    </Link>
+                    </CinematicButton>
                   )}
                 </div>
               </motion.div>

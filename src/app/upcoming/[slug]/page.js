@@ -2,6 +2,7 @@ import { getTMDBDetails } from "@/utils/tmdb";
 import Image from "next/image";
 import { Calendar, Star, Clock, Globe, User, Video, Info } from "lucide-react";
 import Link from "next/link";
+import CinematicButton from "@/components/CinematicButton";
 
 export default async function UpcomingDetailsPage({ params }) {
   const { slug } = await params;
@@ -24,7 +25,7 @@ export default async function UpcomingDetailsPage({ params }) {
   // Generate Sinhala description (Upcoming style)
   const sinhalaDescription = `ආයුබෝවන් කියලා පිළිගන්නවා අපේ වෙබ් අඩවියට එන ඔබ සැමදෙනාම! සිනමා ලෝකයේ ඉදිරියේදී දිගහැරෙන්නට නියමිත අතිශය උද්වේගකර සිනමා නිර්මාණයක් වන ''${movie.title}'' පිළිබඳ තොරතුරු තමයි අද අපි ඔබ වෙත අරගෙන ආවේ. තවමත් තිරගත වීමට සූදානම් වෙමින් පවතින මෙම නිර්මාණය, ලොව පුරා රසිකයන් දැඩි උනන්දුවකින් බලාපොරොත්තුවෙන් සිටින එකක් බව නිසැකයි.
 
-මෙහි කතාව සහ ලබා දී ඇති තොරතුරු අනුව, මෙය අපව කුතුහලයෙන් සහ ආවේගයෙන් පිනා යන අත්දැකීමකට අරගෙන යනවා පමණක් නොව, සිනමා ලෝකයේ අලුත් සන්ධිස්ථානයක් වනු ඇත. තවමත් මෙය තිරගත වී නොමැති අතර, නුදුරු අනාගතයේදී මෙය අපගේ වෙබ් අඩවිය හරහා ඔබට නැරඹීමට අවස්ථාව ලැබෙනු ඇත.
+මෙහිකතාව සහ ලබා දී ඇති තොරතුරු අනුව, මෙය අපව කුතුහලයෙන් සහ ආවේගයෙන් පිනා යන අත්දැකීමකට අරගෙන යනවා පමණක් නොව, සිනමා ලෝකයේ අලුත් සන්ධිස්ථානයක් වනු ඇත. තවමත් මෙය තිරගත වී නොමැති අතර, නුදුරු අනාගතයේදී මෙය අපගේ වෙබ් අඩවිය හරහා ඔබට නැරඹීමට අවස්ථාව ලැබෙනු ඇත.
 
 එහෙනම් යාලුවනේ, මේ මහා සිනමා නිර්මාණය පැමිණෙන තෙක් අපි හැමෝම නොඉවසිල්ලෙන් බලා සිටිමු. මෙය තිරගත වූ සැනින් සිංහල උපසිරැසි සමඟින් නරඹන්න ඔබත් අදම අප සමඟ එකතු වී රැඳී සිටින්න. ජය වේවා!`;
 
@@ -159,9 +160,13 @@ export default async function UpcomingDetailsPage({ params }) {
                 <p className="text-xl text-zinc-500 max-w-2xl mx-auto font-medium">
                     අලුත්ම සිනමා තොරතුරු සහ උපසිරැසි පිළිබඳ දැනුවත් වීමට අපේ වෙබ් අඩවිය සමඟ නිරන්තරයෙන් රැඳී සිටින්න.
                 </p>
-                <Link href="/" className="inline-block bg-white text-black px-12 py-5 rounded-full font-black uppercase tracking-widest text-sm transition-all hover:bg-primary hover:text-white active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                <CinematicButton 
+                    href="/"
+                    variant="secondary"
+                    className="bg-white text-black hover:bg-primary hover:text-white px-12"
+                >
                     Home Page එකට යන්න
-                </Link>
+                </CinematicButton>
             </div>
         </div>
       </div>
