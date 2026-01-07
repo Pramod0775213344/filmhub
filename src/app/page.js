@@ -36,6 +36,9 @@ export default async function Home({ searchParams }) {
         <Suspense fallback={<SectionSkeleton title="Recently Added" />}>
           <RecentSection />
         </Suspense>
+        
+        <AdsterraBanner />
+
         <Suspense fallback={<SectionSkeleton title="Trending Now" />}>
           <TrendingSection />
         </Suspense>
@@ -47,18 +50,26 @@ export default async function Home({ searchParams }) {
         <Suspense fallback={<SectionSkeleton title="Korean Dramas" />}>
           <KDramaSection />
         </Suspense>
+        
+        <AdsterraBanner />
 
         <Suspense fallback={<SectionSkeleton title="New Releases" />}>
           <NewReleasesSection />
         </Suspense>
         
+        <AdsterraBanner />
+        
         <Suspense fallback={<SectionSkeleton title="TV Shows" />}>
           <TVShowsSection />
         </Suspense>
+        
+        <AdsterraBanner />
 
         <Suspense fallback={<SectionSkeleton title="Action & Sci-Fi" />}>
           <ActionSection />
         </Suspense>
+        
+        <AdsterraBanner />
       </div>
     </main>
   );
