@@ -23,7 +23,9 @@ export default function ClientLayout({ children }) {
 
       {!pathname.startsWith("/admin") && <SmoothScroll />}
       {!hideLayout && <Navbar />}
-      <MiniHero />
+      <Suspense fallback={null}>
+        <MiniHero />
+      </Suspense>
       {children}
       {!hideLayout && <ScrollToTop />}
       {!hideLayout && <Chatbot />}
