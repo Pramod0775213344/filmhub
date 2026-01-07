@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import MovieSkeleton from "@/components/MovieSkeleton";
 import { Play } from "lucide-react";
 import NativeAd from "@/components/NativeAd";
+import AdsterraBanner from "@/components/AdsterraBanner";
 
 export const revalidate = 600;
 
@@ -35,10 +36,11 @@ export default async function Home({ searchParams }) {
         <Suspense fallback={<SectionSkeleton title="Recently Added" />}>
           <RecentSection />
         </Suspense>
-
         <Suspense fallback={<SectionSkeleton title="Trending Now" />}>
           <TrendingSection />
         </Suspense>
+        
+        <AdsterraBanner />
         
         <NativeAd />
 

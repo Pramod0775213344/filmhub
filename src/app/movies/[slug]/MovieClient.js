@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import CommentSection from "@/components/CommentSection";
 import NativeAd from "@/components/NativeAd";
+import AdsterraBanner from "@/components/AdsterraBanner";
 
 export default function MovieClient({ initialMovie, userId }) {
   const router = useRouter();
@@ -403,6 +404,7 @@ export default function MovieClient({ initialMovie, userId }) {
              )}
 
              {/* Native Ad Banner */}
+             <AdsterraBanner />
              <NativeAd />
 
              {/* Info Grid */}
@@ -464,6 +466,7 @@ export default function MovieClient({ initialMovie, userId }) {
                 <div className="overflow-hidden rounded-[2.5rem] ring-1 ring-white/10 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] bg-zinc-900 aspect-video relative group">
                   <VideoPlayer url={movie.trailer} title={`${movie.title} Trailer`} autoPlay={true} />
                 </div>
+                <AdsterraBanner />
                 <div className="p-8 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl">
                   <p className="text-zinc-400 font-medium leading-relaxed">
                     Watch the official teaser and trailer for <span className="text-white font-bold">{movie.title}</span>. Explore the world, the characters, and the story through this exclusive preview.

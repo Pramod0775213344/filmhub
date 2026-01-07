@@ -16,6 +16,7 @@ import Footer from "@/components/Footer";
 import { searchTMDB, getTMDBDetails } from "@/utils/tmdb";
 import CommentSection from "@/components/CommentSection";
 import NativeAd from "@/components/NativeAd";
+import AdsterraBanner from "@/components/AdsterraBanner";
 
 export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
   const router = useRouter();
@@ -362,6 +363,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12">
              
              {/* Native Ad Banner */}
+             <AdsterraBanner />
              <NativeAd />
 
              <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
@@ -420,6 +422,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                 <div className="overflow-hidden rounded-[2.5rem] ring-1 ring-white/10 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] bg-zinc-900 aspect-video relative group">
                   <VideoPlayer url={show.trailer} title={`${show.title} Trailer`} autoPlay={true} />
                 </div>
+                <AdsterraBanner />
                 <div className="p-8 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl">
                   <p className="text-zinc-400 font-medium leading-relaxed">
                     Watch the official teaser and trailer for <span className="text-white font-bold">{show.title}</span>. Explore the world, the characters, and the story through this exclusive preview.

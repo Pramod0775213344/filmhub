@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import MovieCard from "@/components/MovieCard";
 import FilterSection from "@/components/FilterSection";
 import NativeAd from "@/components/NativeAd";
+import AdsterraBanner from "@/components/AdsterraBanner";
 
 export const revalidate = 600;
 
@@ -85,6 +86,7 @@ export default async function KoreanDramasPage({ searchParams }) {
         </div>
 
         <NativeAd />
+        <AdsterraBanner />
 
         {error ? (
           <div className="flex h-60 items-center justify-center rounded-3xl border border-white/5 bg-white/5 text-zinc-500 font-bold uppercase tracking-widest">
