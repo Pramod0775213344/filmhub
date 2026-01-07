@@ -8,7 +8,7 @@ import VideoPlayer from "@/components/VideoPlayer";
 import { searchTMDB, getTMDBDetails } from "@/utils/tmdb";
 import { 
   Play, Star, Calendar, Clock, Video, Download, Plus, Check, PlayCircle, User,
-  MessageSquare, Globe, X, Share2, Heart, Image as ImageIcon, Maximize2
+  MessageSquare, Globe, X, Share2, Heart, Image as ImageIcon, Maximize2, Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -27,6 +27,7 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
   const [tmdbImages, setTmdbImages] = useState({ backdrops: [], posters: [] });
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isDownloadLoading, setIsDownloadLoading] = useState(false);
   const supabase = createClient();
 
   const [isNavVisible, setIsNavVisible] = useState(true);
@@ -439,12 +440,28 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                 <div className="flex flex-col gap-4">
                     <button 
                         onClick={() => {
-                            if (movie.download_link) window.open(movie.download_link, "_blank");
-                            else alert("Download link not available.");
+                            if (movie.download_link) {
+                                setIsDownloadLoading(true);
+                                window.open(movie.download_link, "_blank");
+                                // Reset after a small delay since window.open doesn't block
+                                setTimeout(() => setIsDownloadLoading(false), 2000);
+                            } else {
+                                alert("Download link not available.");
+                            }
                         }}
-                        className="w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                        disabled={isDownloadLoading}
+                        className="w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                        <Download size={20} /> Download Series
+                        {isDownloadLoading ? (
+                            <>
+                                <Loader2 size={20} className="animate-spin" />
+                                Processing...
+                            </>
+                        ) : (
+                            <>
+                                <Download size={20} /> Download Series
+                            </>
+                        )}
                     </button>
                     <button 
                          onClick={() => {

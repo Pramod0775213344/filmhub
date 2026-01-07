@@ -10,7 +10,7 @@ import { searchTMDB, getTMDBDetails } from "@/utils/tmdb";
 import { 
   Play, Star, Calendar, Clock, Video, Download, 
   User, Users, MessageSquare, Plus, Check, X, 
-  Share2, Globe, Heart, PlayCircle, Image as ImageIcon, Maximize2
+  Share2, Globe, Heart, PlayCircle, Image as ImageIcon, Maximize2, Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -30,6 +30,7 @@ export default function MovieClient({ initialMovie, userId }) {
   const [tmdbImages, setTmdbImages] = useState({ backdrops: [], posters: [] });
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isDownloadLoading, setIsDownloadLoading] = useState(false);
   const supabase = createClient();
 
   const [isNavVisible, setIsNavVisible] = useState(true);
@@ -449,10 +450,23 @@ export default function MovieClient({ initialMovie, userId }) {
                     <h3 className="text-xl font-black text-white uppercase tracking-tighter">Actions</h3>
                     <div className="space-y-3">
                         <button 
-                            onClick={() => router.push(`/download/${movie.id}`)}
-                            className="w-full bg-primary hover:bg-primary-hover text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-3 shadow-[0_10px_20px_rgba(229,9,20,0.3)]"
+                            onClick={() => {
+                                setIsDownloadLoading(true);
+                                router.push(`/download/${movie.id}`);
+                            }}
+                            disabled={isDownloadLoading}
+                            className="w-full bg-primary hover:bg-primary-hover text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-3 shadow-[0_10px_20px_rgba(229,9,20,0.3)] disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            <Download size={20} /> Download Now
+                            {isDownloadLoading ? (
+                                <>
+                                    <Loader2 size={20} className="animate-spin" />
+                                    Processing...
+                                </>
+                            ) : (
+                                <>
+                                    <Download size={20} /> Download Now
+                                </>
+                            )}
                         </button>
                         <button 
                             onClick={() => {
