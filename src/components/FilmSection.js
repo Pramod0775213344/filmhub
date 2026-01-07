@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function FilmSection({ title, movies, href }) {
   return (
-    <section className="mt-20">
+    <section className="mt-12 md:mt-20">
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-2xl font-black tracking-tight text-white md:text-3xl lg:text-4xl">

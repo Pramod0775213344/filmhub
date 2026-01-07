@@ -183,80 +183,90 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
     <main className="min-h-screen bg-background text-white selection:bg-primary selection:text-white">
       
       {/* Immersive Hero Section */}
-      <div className="relative h-[70vh] md:h-[90vh] w-full overflow-hidden">
-        {/* Backdrop Image */}
+      <div className="relative h-[80vh] md:h-[90vh] w-full overflow-hidden bg-black">
+        {/* Backdrop Image with Cross-fade Animation */}
         <div className="absolute inset-0">
-          <Image
-            src={tmdbImages.backdrops[currentImgIndex] || show.backdrop_url || show.image_url || show.image}
-            alt={show.title}
-            fill
-            className="object-cover transition-all duration-1000 scale-105"
-            priority
-            sizes="100vw"
-            quality={90}
-          />
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={currentImgIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={tmdbImages.backdrops[currentImgIndex] || show.backdrop_url || show.image_url || show.image}
+                alt={show.title}
+                fill
+                className="object-cover scale-105"
+                priority
+                sizes="100vw"
+                quality={90}
+              />
+            </motion.div>
+          </AnimatePresence>
           {/* Cinematic Overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/20 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-background to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/20 to-transparent" />
         </div>
 
         {/* Hero Content */}
-        <div className="container-custom relative h-full flex flex-col items-center justify-center pt-20 text-center">
+        <div className="container-custom relative h-full flex flex-col items-center justify-center pt-20 px-4 text-center">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="space-y-6"
+              className="space-y-4 md:space-y-6 max-w-5xl"
             >
-                <div className="inline-flex items-center gap-3 rounded-full bg-primary/20 px-6 py-2 backdrop-blur-xl border border-primary/30 text-primary mb-4">
-                    <Star size={18} className="fill-current" />
-                    <span className="text-sm font-black uppercase tracking-[0.2em]">IMDb {show.imdb_rating || show.rating || "N/A"}</span>
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 md:px-6 py-1.5 md:py-2 backdrop-blur-xl border border-primary/30 text-primary mb-2">
+                    <Star size={14} className="fill-current md:w-[18px] md:h-[18px]" />
+                    <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em]">IMDb {show.imdb_rating || show.rating || "N/A"}</span>
                 </div>
                 
-                <h1 className="text-4xl font-black tracking-tighter sm:text-7xl md:text-8xl lg:text-9xl drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[0.9]">
+                <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[0.9]">
                     {show.title}
-                    <span className="block text-xl md:text-3xl font-bold text-zinc-400 mt-4 tracking-normal">| සිංහල උපසිරැසි සමඟ</span>
+                    <span className="block text-sm sm:text-lg md:text-2xl lg:text-3xl font-bold text-zinc-400 mt-2 md:mt-4 tracking-normal opacity-80">| සිංහල උපසිරැසි සමඟ</span>
                 </h1>
 
-                <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-bold text-zinc-400 uppercase tracking-widest pt-4">
-                    <span className="flex items-center gap-2">
-                        <Calendar size={18} className="text-primary" /> {show.year}
+                <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 text-[10px] md:text-sm font-bold text-zinc-400 uppercase tracking-widest pt-2 md:pt-4">
+                    <span className="flex items-center gap-1.5 md:gap-2">
+                        <Calendar size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {show.year}
                     </span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
-                    <span className="flex items-center gap-2">
-                        <Users size={18} className="text-primary" /> {seasonNumbers.length} Seasons
+                    <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                    <span className="flex items-center gap-1.5 md:gap-2">
+                        <Users size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {seasonNumbers.length} Seasons
                     </span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
-                    <span className="flex items-center gap-2">
-                        <Globe size={18} className="text-primary" /> {show.language || "English"}
+                    <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                    <span className="flex items-center gap-1.5 md:gap-2">
+                        <Globe size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {show.language || "English"}
                     </span>
                 </div>
 
                 {/* Hero Actions */}
-                <div className="flex flex-wrap items-center justify-center gap-4 pt-8">
+                <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 pt-6 md:pt-8">
                     <button 
                       onClick={() => {
                           setActiveTab("episodes");
                           document.getElementById("tv-content")?.scrollIntoView({ behavior: "smooth" });
                       }}
-                      className="group flex items-center gap-3 bg-white text-black px-10 py-4 rounded-full font-black uppercase tracking-widest text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+                      className="group flex items-center gap-2 md:gap-3 bg-white text-black px-6 md:px-10 py-3 md:py-4 rounded-full font-black uppercase tracking-widest text-[11px] md:text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
                     >
-                        <Play size={20} fill="black" />
+                        <Play size={18} fill="black" />
                         Watch Episodes
                     </button>
                     <button 
                       onClick={toggleList}
-                      className="flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/10 text-white px-10 py-4 rounded-full font-black uppercase tracking-widest text-sm transition-all active:scale-95"
+                      className="flex items-center gap-2 md:gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/10 text-white px-6 md:px-10 py-3 md:py-4 rounded-full font-black uppercase tracking-widest text-[11px] md:text-sm transition-all active:scale-95"
                     >
-                        {isInList ? <Check size={20} className="text-primary" /> : <Plus size={20} />}
+                        {isInList ? <Check size={18} className="text-primary" /> : <Plus size={18} />}
                         {isInList ? "In Watchlist" : "Add to List"}
                     </button>
                 </div>
             </motion.div>
         </div>
       </div>
-
       <div id="tv-content" className="container-custom relative z-10 -mt-24 pb-20">
         
         {/* Main Tabs UI */}
