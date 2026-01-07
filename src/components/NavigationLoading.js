@@ -9,26 +9,26 @@ export default function NavigationLoading() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [prevPath, setPrevPath] = useState(pathname);
 
   useEffect(() => {
-    // Show loading when pathname or searchParams change
-    const startLoading = () => {
-      setLoading(true);
-    };
+    if (pathname !== prevPath) {
+      let timer;
+      const frame = requestAnimationFrame(() => {
+        setLoading(true);
+        setPrevPath(pathname);
+        
+        timer = setTimeout(() => {
+          setLoading(false);
+        }, 600);
+      });
 
-    // Use a small delay to avoid immediate re-render warning
-    const frame = requestAnimationFrame(startLoading);
-    
-    // Auto-hide after a short delay (snappy feel)
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 300); // reduced to 300ms for a even snappier feel
-
-    return () => {
-      cancelAnimationFrame(frame);
-      clearTimeout(timer);
-    };
-  }, [pathname, searchParams]);
+      return () => {
+        cancelAnimationFrame(frame);
+        if (timer) clearTimeout(timer);
+      };
+    }
+  }, [pathname, searchParams, prevPath]);
 
   return (
     <AnimatePresence>
