@@ -41,7 +41,11 @@ export default function AboutPage() {
             <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-6xl lg:text-7xl">
               About <span className="text-primary italic">FilmHub</span>
             </h1>
-            <p className="mt-6 md:mt-8 text-base md:text-xl font-medium text-zinc-500 max-w-3xl mx-auto leading-relaxed">
+            <p className="mt-6 md:mt-8 text-lg md:text-xl font-bold text-primary mb-4 leading-relaxed">
+              අපේ වෙබ් අඩවියට ඔබ සැම සාදරයෙන් පිළිගනිමු!
+            </p>
+            <p className="text-base md:text-xl font-medium text-zinc-500 max-w-3xl mx-auto leading-relaxed">
+              සිනමා ලෝකයේ අලුත්ම තොරතුරු සහ ඔබ ආදරය කරන නිර්මාණ ඉතාමත් පැහැදිලිව, සිංහල උපසිරැසි සමඟින් රසවිඳීමට අවශ්‍ය සියලුම පහසුකම් එකම වහලක් යටට ගෙන ඒම අපගේ අරමුණයි.
               We are a passionate team dedicated to bringing the magic of cinema directly to your screen with a premium, seamless experience.
             </p>
           </div>
@@ -64,17 +68,41 @@ export default function AboutPage() {
             <div>
               <h2 className="font-display text-3xl font-black mb-12 tracking-tight">Our Core <span className="text-primary">Values</span></h2>
               <div className="space-y-10">
-                {values.map((v, i) => (
-                  <div key={i} className="flex gap-6">
-                    <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-900 text-primary ring-1 ring-white/10">
-                      <v.icon size={28} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white mb-2">{v.title}</h3>
-                      <p className="text-zinc-500 leading-relaxed font-medium">{v.description}</p>
-                    </div>
+                <div className="flex gap-6">
+                  <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-900 text-primary ring-1 ring-white/10">
+                    <Globe size={28} />
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2">Our Mission | අපගේ අරමුණ</h3>
+                    <p className="text-zinc-500 leading-relaxed font-medium">
+                      ලොව පුරා විසිරී සිටින සිනමා ලෝලීන්ට ඉහළ ගුණාත්මකභාවයකින් යුත් නිර්මාණ පහසුවෙන් සහ ඉක්මනින් ලබාදීම අපගේ ප්‍රධාන අරමුණයි.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-6">
+                  <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-900 text-primary ring-1 ring-white/10">
+                    <Shield size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2">Content Quality | ඉහළ ප්‍රමිතිය</h3>
+                    <p className="text-zinc-500 leading-relaxed font-medium">
+                      අපි ඔබට ලබා දෙන සෑම චිත්‍රපටයක් සහ කතා මාලාවක්ම ඉහළම විභේදනයකින් (4K UHD) සහ නිවැරදි සිංහල උපසිරැසි සමඟින් ලබාදීමට නිරන්තරයෙන් කැපවී සිටිමු.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-6">
+                  <div className="flex-shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-900 text-primary ring-1 ring-white/10">
+                    <Heart size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2">Community | රසික ප්‍රජාව</h3>
+                    <p className="text-zinc-500 leading-relaxed font-medium">
+                      අපගේ පරිශීලකයින්ගේ අවශ්‍යතා හඳුනාගනිමින් ඔවුන්ට වඩාත් සමීප සහ පහසු වෙබ් අඩවි අත්දැකීමක් ලබාදීමට අපි නිරන්තරයෙන් නව අංග හඳුන්වා දෙන්නෙමු.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="relative aspect-video rounded-3xl overflow-hidden glass p-2">
@@ -92,15 +120,15 @@ export default function AboutPage() {
           <div className="glass rounded-3xl p-12 text-center relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-32 -mt-32" />
             <div className="relative z-10">
-              <h2 className="text-2xl md:text-3xl font-black mb-6">Ready to start your journey?</h2>
+              <h2 className="text-2xl md:text-3xl font-black mb-6">අදම අප සමඟ එකතු වන්න</h2>
               <p className="text-zinc-400 mb-10 max-w-xl mx-auto font-medium">
-                Join thousands of movie enthusiasts and start building your ultimate watchlist today.
+                සිනමා ලෝකයේ අලුත්ම අත්දැකීම ලබාගැනීම සඳහා අදම ලියාපදිංචි වී ඔබේම Watchlist එකක් නිර්මාණය කරගන්න.
               </p>
               <Link 
                 href="/register" 
                 className="cinematic-glow inline-flex items-center gap-3 rounded-2xl bg-primary px-10 py-5 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-primary-hover active:scale-95"
               >
-                Join Now <Play size={18} fill="white" />
+                Join Now | දැන්ම එකතු වන්න <Play size={18} fill="white" />
               </Link>
             </div>
           </div>
