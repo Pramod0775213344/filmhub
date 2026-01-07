@@ -371,7 +371,19 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                 <h3 className="mb-6 text-xl font-bold text-white uppercase tracking-wider flex items-center gap-3">
                   <Globe className="text-primary" /> Storyline
                 </h3>
-                <p className="text-zinc-300 leading-8 text-lg">{show.description}</p>
+                <div className="space-y-6 text-left">
+                  {show.description?.split(/\r?\n/).filter(p => p.trim() !== "").map((paragraph, idx) => (
+                    <p 
+                      key={idx} 
+                      className={`text-lg leading-relaxed ${idx === 0 ? "text-[#22c55e] font-bold drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]" : "text-zinc-200"}`}
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                  {(!show.description || show.description.length === 0) && (
+                    <p className="text-zinc-500 italic">Description not available.</p>
+                  )}
+                </div>
              </div>
              
              {/* Sidebar Info */}
