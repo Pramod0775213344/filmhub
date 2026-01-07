@@ -359,7 +359,7 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                         <Globe className="text-primary" /> Storyline
                       </h3>
                        <div className="space-y-6">
-                         {movie.description?.split(/\r?\n/).filter(p => p.trim() !== "").map((paragraph, idx) => (
+                         {movie.description?.split(/\r?\n|\\n/).filter(p => p.trim() !== "").map((paragraph, idx) => (
                             <p 
                               key={idx} 
                               className={`text-lg leading-relaxed ${idx === 0 ? "text-[#22c55e] font-bold drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]" : "text-zinc-300"}`}

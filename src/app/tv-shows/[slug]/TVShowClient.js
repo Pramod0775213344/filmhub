@@ -372,7 +372,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                   <Globe className="text-primary" /> Storyline
                 </h3>
                 <div className="space-y-6 text-left">
-                  {show.description?.split(/\r?\n/).filter(p => p.trim() !== "").map((paragraph, idx) => (
+                  {show.description?.split(/\r?\n|\\n/).filter(p => p.trim() !== "").map((paragraph, idx) => (
                     <p 
                       key={idx} 
                       className={`text-lg leading-relaxed ${idx === 0 ? "text-[#22c55e] font-bold drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]" : "text-zinc-200"}`}
