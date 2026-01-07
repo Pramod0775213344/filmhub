@@ -8,15 +8,10 @@ export default async function UpcomingPage() {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom page-pt pb-20">
+      <div className="container-custom pb-20">
         <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div>
-            <h1 className="font-display text-3xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
-              Coming <span className="text-primary italic">Soon</span>
-            </h1>
-            <p className="mt-2 text-sm font-medium text-zinc-500 md:text-base">
-              Get a sneak peek at the most anticipated movies hitting theaters soon.
-            </p>
+          <div className="hidden">
+             {/* Hidden header */}
           </div>
         </div>
 

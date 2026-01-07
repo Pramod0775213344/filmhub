@@ -68,13 +68,10 @@ export default async function KoreanDramasPage({ searchParams }) {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom page-pt pb-20">
+      <div className="container-custom pb-20">
         <div className="mb-12 flex flex-col justify-between gap-8 md:flex-row md:items-end">
-          <div>
-            <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
-              Korean <span className="text-primary italic">Dramas</span>
-            </h1>
-            <p className="mt-4 font-medium text-zinc-500">Best of K-Drama.</p>
+          <div className="hidden">
+            {/* Hidden for SEO */}
           </div>
           
           <FilterSection 

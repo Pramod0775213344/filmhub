@@ -34,20 +34,23 @@ export default function AboutPage() {
 
   return (
     <main className="min-h-screen bg-background text-white">
-      <div className="container-custom page-pt pb-20">
+      <div className="container-custom pb-20">
         <div className="mx-auto max-w-5xl">
-          {/* Header */}
-          <div className="mb-12 md:mb-20 text-center">
-            <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-6xl lg:text-7xl">
-              About <span className="text-primary italic">FilmHub</span>
-            </h1>
-            <p className="mt-6 md:mt-8 text-lg md:text-xl font-bold text-primary mb-4 leading-relaxed">
-              අපේ වෙබ් අඩවියට ඔබ සැම සාදරයෙන් පිළිගනිමු!
-            </p>
-            <p className="text-base md:text-xl font-medium text-zinc-500 max-w-3xl mx-auto leading-relaxed">
-              සිනමා ලෝකයේ අලුත්ම තොරතුරු සහ ඔබ ආදරය කරන නිර්මාණ ඉතාමත් පැහැදිලිව, සිංහල උපසිරැසි සමඟින් රසවිඳීමට අවශ්‍ය සියලුම පහසුකම් එකම වහලක් යටට ගෙන ඒම අපගේ අරමුණයි.
-              We are a passionate team dedicated to bringing the magic of cinema directly to your screen with a premium, seamless experience.
-            </p>
+          {/* Intro Section (moved from Header) */}
+          <div className="mb-20 text-center">
+            {/* H1 removed as it's in MiniHero now */}
+            
+            <div className="inline-block rounded-2xl bg-zinc-900/50 p-8 ring-1 ring-white/5 backdrop-blur-md">
+                <p className="text-xl md:text-2xl font-bold text-primary mb-4 leading-relaxed">
+                  අපේ වෙබ් අඩවියට ඔබ සැම සාදරයෙන් පිළිගනිමු!
+                </p>
+                <p className="text-base md:text-lg font-medium text-zinc-400 max-w-3xl mx-auto leading-relaxed">
+                  සිනමා ලෝකයේ අලුත්ම තොරතුරු සහ ඔබ ආදරය කරන නිර්මාණ ඉතාමත් පැහැදිලිව, සිංහල උපසිරැසි සමඟින් රසවිඳීමට අවශ්‍ය සියලුම පහසුකම් එකම වහලක් යටට ගෙන ඒම අපගේ අරමුණයි.
+                </p>
+                <p className="mt-4 text-sm font-medium text-zinc-500">
+                  We are a passionate team dedicated to bringing the magic of cinema directly to your screen.
+                </p>
+            </div>
           </div>
 
           {/* Stats Grid */}

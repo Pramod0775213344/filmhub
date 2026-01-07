@@ -209,8 +209,8 @@ async function SearchResults({ search, category }) {
   }
   
   return (
-    <div className="container-custom page-pt pb-20">
-      <h2 className="text-2xl font-bold text-white mb-8">Search Results</h2>
+    <div className="container-custom pb-20">
+      {/* Header removed for MiniHero */}
       <FilmSection title="" movies={enrich(results, watchlistIds)} />
     </div>
   );

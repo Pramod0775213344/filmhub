@@ -51,12 +51,9 @@ export default function MyListPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="container-custom page-pt pb-32">
-        <div className="mb-12">
-          <h1 className="font-display text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
-            My <span className="text-primary italic">List</span>
-          </h1>
-          <p className="mt-4 font-medium text-zinc-500">Your curated collection of must-watch titles.</p>
+      <div className="container-custom pb-32">
+        <div className="mb-12 hidden">
+          {/* Header removed for MiniHero */}
         </div>
 
         {loading ? (

@@ -5,7 +5,7 @@ import { Play } from "lucide-react";
 
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#020202]">
+    <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-[#020202] backdrop-blur-md">
       {/* Background Cinematic Texture */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       

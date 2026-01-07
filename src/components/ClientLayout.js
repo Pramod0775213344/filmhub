@@ -8,6 +8,8 @@ import SmoothScroll from "@/components/SmoothScroll";
 import Chatbot from "@/components/Chatbot";
 import ScrollToTop from "@/components/ScrollToTop";
 
+import MiniHero from "@/components/MiniHero";
+
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
   
@@ -18,8 +20,10 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
+
       {!pathname.startsWith("/admin") && <SmoothScroll />}
       {!hideLayout && <Navbar />}
+      <MiniHero />
       {children}
       {!hideLayout && <ScrollToTop />}
       {!hideLayout && <Chatbot />}
