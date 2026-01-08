@@ -54,5 +54,37 @@ export default async function sitemap() {
     priority: 0.6,
   }));
 
-  return [...routes, ...movieEntries, ...koreanEntries];
+  // 3. Fetch Unique Categories & Languages
+  const { data: movieMeta } = await supabase.from("movies").select("category, language");
+  const { data: kdramaMeta } = await supabase.from("korean_dramas").select("category, language");
+
+  const uniqueCategories = new Set();
+  const uniqueLanguages = new Set();
+
+  [...(movieMeta || []), ...(kdramaMeta || [])].forEach(item => {
+    if (item.category) item.category.split(',').forEach(c => {
+        if(c.trim()) uniqueCategories.add(c.trim());
+    });
+    if (item.language) item.language.split(',').forEach(l => {
+        if(l.trim()) uniqueLanguages.add(l.trim());
+    });
+  });
+
+  // Category Routes
+  const categoryEntries = Array.from(uniqueCategories).map(cat => ({
+    url: `${baseUrl}/category/${slugify(cat)}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'weekly',
+    priority: 0.7
+  }));
+
+  // Language Routes
+  const languageEntries = Array.from(uniqueLanguages).map(lang => ({
+    url: `${baseUrl}/language/${slugify(lang)}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'weekly',
+    priority: 0.7
+  }));
+
+  return [...routes, ...movieEntries, ...koreanEntries, ...categoryEntries, ...languageEntries];
 }
