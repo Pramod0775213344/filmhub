@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import MovieSkeleton from "@/components/MovieSkeleton";
 import { Play } from "lucide-react";
 import AdsterraBanner from "@/components/AdsterraBanner";
+import { getUpcomingMovies } from "@/utils/tmdb";
 
 export const revalidate = 600;
 
@@ -40,6 +41,12 @@ export default async function Home({ searchParams }) {
 
         <Suspense fallback={<SectionSkeleton title="Trending Now" />}>
           <TrendingSection />
+        </Suspense>
+        
+        <AdsterraBanner />
+
+        <Suspense fallback={<SectionSkeleton title="Coming Soon" />}>
+           <UpcomingSection />
         </Suspense>
         
         <AdsterraBanner />
@@ -126,6 +133,17 @@ async function TrendingSection() {
   return <FilmSection title="Trending Now" movies={enrich(data, watchlistIds)} href="/movies?sort=rating" />;
 }
 
+async function UpcomingSection() {
+  const { watchlistIds } = await getAuthAndWatchlist();
+  const movies = await getUpcomingMovies();
+
+  // Limit to 16 items for the section
+  const displayedMovies = movies.slice(0, 16);
+
+  return <FilmSection title="Coming Soon" movies={enrich(displayedMovies, watchlistIds)} href="/upcoming" />;
+}
+
+
 async function KDramaSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data } = await supabase.from("korean_dramas")
@@ -149,7 +167,7 @@ async function NewReleasesSection() {
 async function TVShowsSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data: shows } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, image_url, backdrop_url, language, quality")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .eq("type", "TV Show")
     .order("created_at", { ascending: false })
     .limit(16);

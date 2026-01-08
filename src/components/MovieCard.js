@@ -64,6 +64,7 @@ function MovieCard({ movie }) {
 
   return (
     <Link href={
+      movie.link ? movie.link :
       movie.type === "TV Show" ? `/tv-shows/${slugify(movie.title)}` : 
       movie.type === "Korean Drama" ? `/korean-dramas/${slugify(movie.title)}` : 
       `/movies/${slugify(movie.title)}`
@@ -108,10 +109,16 @@ function MovieCard({ movie }) {
 
           {/* Badges Container - Right */}
           <div className="absolute right-3 top-3 flex flex-col gap-2 z-20">
-             {/* Quality Badge */}
-             <span className="self-end rounded bg-purple-600 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white shadow-md border border-white/10">
-               {movie.quality || "FHD"}
-             </span>
+             {/* Quality or Coming Soon Badge */}
+             {movie.type === "Upcoming" ? (
+               <span className="self-end rounded bg-orange-600 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white shadow-md border border-white/10">
+                 Coming Soon
+               </span>
+             ) : (
+               <span className="self-end rounded bg-purple-600 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white shadow-md border border-white/10">
+                 {movie.quality || "FHD"}
+               </span>
+             )}
 
              {/* Top Rated Badge (Yellow) */}
              {movie.rating > 8.5 && (

@@ -45,23 +45,7 @@ export default function ContactPage() {
       
       <div className="container-custom page-pt pb-20">
         <div className="mx-auto max-w-5xl">
-          <div className="mb-12 md:mb-16 text-center">
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="font-display text-4xl font-black tracking-tight text-white md:text-6xl lg:text-7xl"
-            >
-              Get in <span className="text-primary italic">Touch</span>
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="mt-4 md:mt-6 text-base md:text-xl font-medium text-zinc-500"
-            >
-              Have a question or feedback? We&apos;d love to hear from you.
-            </motion.p>
-          </div>
+
 
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
             {/* Contact Info */}
@@ -72,7 +56,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-1">Email Us</h3>
-                  <p className="font-bold text-white">pramodravishanka3344@gmail.com</p>
+                  <p className="font-bold text-white">filmhub@gmail.com</p>
                 </div>
               </div>
 

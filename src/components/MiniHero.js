@@ -1,13 +1,55 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Sparkles, TrendingUp, Clock, ShieldCheck, Search, Info } from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, TrendingUp, Clock, ShieldCheck, Search, Info, Mail } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { createClient } from "@/utils/supabase/client";
 
 export default function MiniHero() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [backgrounds, setBackgrounds] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const supabase = createClient();
+
+  // Fetch Trending Backgrounds
+  useEffect(() => {
+    const fetchBackgrounds = async () => {
+      // Prioritize component-specific images first, then fill with trending
+      let staticBg = getStaticBackground(pathname);
+      
+      const { data } = await supabase
+        .from("movies")
+        .select("backdrop_url, image_url")
+        .order("rating", { ascending: false })
+        .limit(8);
+
+      const fetchedBgs = data?.map(m => m.backdrop_url || m.image_url).filter(Boolean) || [];
+      
+      // If we have a specific static BG for this page (e.g. About), put it first or use it.
+      // But user wanted "Trending movies poster" specifically.
+      // We'll Create a mix: [Static (if any) + Trending]
+      // Actually, creating a slideshow of trending is cooler.
+      
+      if (fetchedBgs.length > 0) {
+        setBackgrounds(fetchedBgs);
+      } else {
+        setBackgrounds([staticBg || "https://images.unsplash.com/photo-1440404653325-ab127d49abc1"]);
+      }
+    };
+    fetchBackgrounds();
+  }, [pathname]);
+
+  // Slideshow Timer
+  useEffect(() => {
+    if (backgrounds.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % backgrounds.length);
+    }, 6000); // Change every 6 seconds
+    return () => clearInterval(interval);
+  }, [backgrounds]);
 
   const s = searchParams.get("s") || searchParams.get("q");
 
@@ -31,6 +73,7 @@ export default function MiniHero() {
 
   // Handle Dynamic Title/Subtitle
   let title = "Explore Content";
+  // ... (rest of logic same, abbreviated for replace match if needed, but I'll include logic)
   let subtitle = "Discover the latest movies and series on FilmHub";
   let badge = "Premium Experience";
   let icon = <Sparkles className="text-primary" size={16} />;
@@ -79,6 +122,11 @@ export default function MiniHero() {
     subtitle = "Our mission is to bring global cinema to your screen.";
     badge = "Our Story";
     icon = <Info className="text-primary" size={16} />;
+  } else if (pathname.startsWith("/contact")) {
+      title = "Contact Us";
+      subtitle = "We're here to help with any questions or feedback.";
+      badge = "Support";
+      icon = <Mail className="text-primary" size={16} />;
   } else if (pathname.startsWith("/category/")) {
     const slug = pathname.split("/").pop();
     const formattedSlug = decodeURIComponent(slug).replace(/-/g, " ");
@@ -98,18 +146,35 @@ export default function MiniHero() {
 
   return (
     <section className="relative overflow-hidden pt-28 pb-12 md:pt-40 md:pb-20 bg-[#020202]">
-      {/* Background Image with Blur */}
-      <div className="absolute inset-0 pointer-events-none select-none">
-        <div className="absolute inset-0 bg-black/60 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-10" />
-        <Image 
-          src={getBackgroundImage(pathname, cat)} 
-          alt="Background"
-          fill
-          className="object-cover opacity-50 blur-sm scale-110"
-          priority
-        />
-        <div className="absolute inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-20" />
+      {/* Background Image Slideshow with Blur */}
+      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
+        {/* Premium Layered Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-[#020202] z-20" /> 
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020202]/60 via-transparent to-[#020202]/60 z-20" />
+        <div className="absolute inset-0 bg-[#020202]/30 z-10" />
+
+        <AnimatePresence mode="popLayout">
+          {backgrounds.length > 0 && (
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1.05 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              className="absolute inset-0"
+            >
+              <Image 
+                src={backgrounds[currentIndex]}
+                alt="Background"
+                fill
+                className="object-cover opacity-60 blur-sm" // blur-sm added as requested
+                priority
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        <div className="absolute inset-0 opacity-[0.07] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-30 mix-blend-overlay" />
       </div>
 
       <div className="container-custom relative z-30">
@@ -174,14 +239,10 @@ export default function MiniHero() {
   );
 }
 
-function getBackgroundImage(pathname, category) {
+function getStaticBackground(pathname) {
   if (pathname.includes("movies")) return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=2525&auto=format&fit=crop";
-  if (pathname.includes("tv-shows")) return "https://images.unsplash.com/photo-1593784991095-a205069470b6?q=80&w=3540&auto=format&fit=crop";
-  if (pathname.includes("korean-dramas")) return "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=2465&auto=format&fit=crop"; // Seoul vibe
-  if (pathname.includes("upcoming")) return "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=2670&auto=format&fit=crop"; // Cinema projector
-  if (pathname.includes("my-list") || pathname.includes("watchlist")) return "https://images.unsplash.com/photo-1512149177596-f817c7ef5d4c?q=80&w=2200&auto=format&fit=crop"; // Cozy
-  if (pathname.includes("about")) return "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=2059&auto=format&fit=crop"; // Team/Camera
-  return "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=2670&auto=format&fit=crop"; // Default cinematic
+  // ... other fallbacks if needed, but we mostly use fetched ones now
+  return null;
 }
 
 function QuickStat({ icon, label, value }) {

@@ -41,31 +41,78 @@ export async function searchTMDB(query, type = "movie") {
   }
 }
 
-export async function getUpcomingMovies() {
+// TMDB Genre Map helpers
+const genreMap = {
+  28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime",
+  99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History",
+  27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance", 878: "Sci-Fi",
+  10770: "TV Movie", 53: "Thriller", 10752: "War", 37: "Western"
+};
+
+export async function getUpcomingMovies(filters = {}) {
   if (!TMDB_API_KEY) return [];
 
-  const url = `${TMDB_BASE_URL}/movie/upcoming?api_key=${TMDB_API_KEY}&language=en-US&page=1`;
+  const today = new Date().toISOString().split('T')[0];
+  const currentYear = new Date().getFullYear();
+  const endOfYear = `${currentYear}-12-31`;
+  
+  // Default target languages: English, Hindi, Tamil, Telugu, Malayalam
+  const targetLangs = "en|hi|ta|te|ml";
+  
+  let queries = [];
+
+  // Build queries based on filters or defaults
+  if (filters.category === "Animation") {
+    // 1. Specific Category Filter: Animation
+    queries.push(`&with_genres=16`);
+  } else if (filters.language && filters.language !== "All") {
+    // 2. Specific Language Filter
+    // Map display name to ISO code
+    const langCodeMap = { "English": "en", "Hindi": "hi", "Tamil": "ta", "Telugu": "te", "Malayalam": "ml" };
+    const code = langCodeMap[filters.language] || "en";
+    queries.push(`&with_original_language=${code}`);
+  } else {
+    // 3. Default: All target languages OR Animation
+    // Since we can't do OR easily across params in one call for mixed types, we fetch both sets.
+    queries.push(`&with_original_language=${targetLangs}`);
+    queries.push(`&with_genres=16`);
+  }
 
   try {
-    const response = await fetch(url, { next: { revalidate: 3600 } }); // Cache for 1 hour
-    const data = await response.json();
-    
-    // STRICTLY FILTER: Only show movies where release_date > today
-    const today = new Date().toISOString().split('T')[0];
+    const fetchPromises = queries.map(queryParam => 
+      fetch(
+        `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&language=en-US&sort_by=popularity.desc&primary_release_date.gte=${today}&primary_release_date.lte=${endOfYear}${queryParam}&page=1`,
+        { next: { revalidate: 3600 } }
+      ).then(res => res.json())
+    );
 
-    return (data.results || [])
-      .filter(item => item.release_date && item.release_date >= today)
+    const results = await Promise.all(fetchPromises);
+    const allMovies = results.flatMap(data => data.results || []);
+
+    // Dedup and Map
+    const seen = new Set();
+    return allMovies
+      .filter(item => {
+        if (!item.release_date) return false;
+        if (seen.has(item.id)) return false;
+        seen.add(item.id);
+        return true;
+      })
+      .sort((a, b) => new Date(a.release_date) - new Date(b.release_date)) // Sort by release date ascending
       .map(item => ({
-      id: item.id,
-      title: item.title,
-      image_url: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
-      backdrop_url: item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : null,
-      year: (item.release_date || "").split("-")[0],
-      release_date: item.release_date,
-      rating: item.vote_average?.toFixed(1) || "NR",
-      language: item.original_language ? new Intl.DisplayNames(['en'], { type: 'language' }).of(item.original_language) : "English",
-      overview: item.overview
-    }));
+        id: item.id,
+        title: item.title,
+        image_url: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
+        backdrop_url: item.backdrop_path ? `https://image.tmdb.org/t/p/original${item.backdrop_path}` : null,
+        year: (item.release_date || "").split("-")[0],
+        release_date: item.release_date,
+        rating: item.vote_average?.toFixed(1) || "NR",
+        category: genreMap[item.genre_ids?.[0]] || "Movie",
+        language: item.original_language ? new Intl.DisplayNames(['en'], { type: 'language' }).of(item.original_language) : "English",
+        overview: item.overview,
+        link: `/upcoming/${item.id}`,
+        type: "Upcoming"
+      }));
   } catch (error) {
     console.error("Error fetching upcoming movies:", error);
     return [];

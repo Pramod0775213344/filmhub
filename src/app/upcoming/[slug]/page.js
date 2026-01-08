@@ -44,10 +44,10 @@ export default async function UpcomingDetailsPage({ params }) {
         <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-background to-transparent" />
         
         {/* Release Date Focus */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-            <div className="inline-flex items-center gap-3 rounded-full bg-primary/20 px-6 py-2 backdrop-blur-xl border border-primary/30 text-primary mb-6 animate-bounce">
-                <Calendar size={20} className="fill-current" />
-                <span className="text-sm font-black uppercase tracking-[0.2em]">ළඟදීම බලාපොරොත්තු වන්න</span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10">
+            <div className="inline-flex items-center gap-3 rounded-full bg-black/90 px-6 py-3 backdrop-blur-xl border border-primary/50 text-white mb-8 animate-bounce shadow-[0_0_30px_rgba(229,9,20,0.5)]">
+                <Calendar size={20} className="text-primary" />
+                <span className="text-base font-black uppercase tracking-[0.2em] text-white">ළඟදීම බලාපොරොත්තු වන්න</span>
             </div>
             <h1 className="text-4xl font-black tracking-tighter sm:text-6xl md:text-8xl lg:text-9xl drop-shadow-2xl mb-4">
                 {movie.title}
