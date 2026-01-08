@@ -12,19 +12,9 @@ export async function GET(request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error) {
-      const getBaseURL = () => {
-        let url =
-          process?.env?.NEXT_PUBLIC_SITE_URL ?? 
-          process?.env?.NEXT_PUBLIC_VERCEL_URL ?? 
-          'http://localhost:3000/'
-        url = url.includes('http') ? url : `https://${url}`
-        url = url.charAt(url.length - 1) === '/' ? url : `${url}/`
-        return url
-      }
-
-      const baseURL = getBaseURL()
-      const redirectPath = next.startsWith('/') ? next.slice(1) : next
-      return NextResponse.redirect(`${baseURL}${redirectPath}`)
+      // Simplified Redirection using Request Origin
+      // This ensures it stays on Vercel (or Localhost) correctly without config
+      return NextResponse.redirect(`${origin}${next}`)
     }
   }
 
