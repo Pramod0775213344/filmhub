@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, Minus, RefreshCw, ExternalLink, Play } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, Minus, RefreshCw, ExternalLink, Play, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -467,36 +467,174 @@ export default function Chatbot() {
           )}
         </AnimatePresence>
 
-        {/* Floating Action Button - Snappy transitions */}
-        <AnimatePresence>
-          {!isOpen && (
-            <motion.button
-              key="chat-fab"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ 
-                duration: 0.15,
-                ease: "easeOut"
-              }}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.92 }}
-              onClick={handleOpen}
-              className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-[0_0_25px_rgba(229,9,20,0.5)] transition-shadow hover:shadow-[0_0_35px_rgba(229,9,20,0.7)] pointer-events-auto"
-            >
-            <MessageCircle size={26} className="text-white" />
-            {/* Sparkle decoration */}
-            <motion.div 
-              animate={{ scale: [1, 1.3, 1], rotate: [0, 15, 0] }} 
-              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-              className="absolute -right-1 -top-1"
-            >
-              <Sparkles size={14} className="text-yellow-400 fill-yellow-400" />
-            </motion.div>
-          </motion.button>
-          )}
-        </AnimatePresence>
+        {/* Floating Action Buttons - Vertical Stack */}
+        <div className="flex flex-col items-end gap-4 pointer-events-none">
+          <AnimatePresence>
+            {!isOpen && (
+              <>
+                {/* WhatsApp Request Button with Hover Card */}
+                <HoverableWhatsAppButton />
+
+                {/* Chatbot Toggle Button */}
+                <motion.button
+                  key="chat-fab"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.15 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleOpen}
+                  className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-[0_0_25px_rgba(229,9,20,0.5)] transition-shadow hover:shadow-[0_0_35px_rgba(229,9,20,0.7)] pointer-events-auto"
+                >
+                  <MessageCircle size={26} className="text-white" />
+                  {/* Sparkle decoration */}
+                  <motion.div 
+                    animate={{ scale: [1, 1.3, 1], rotate: [0, 15, 0] }} 
+                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                    className="absolute -right-1 -top-1"
+                  >
+                    <Sparkles size={14} className="text-yellow-400 fill-yellow-400" />
+                  </motion.div>
+                </motion.button>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </>
+  );
+}
+
+function HoverableWhatsAppButton() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [formData, setFormData] = useState({ name: "", language: "" });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return;
+    
+    const text = `*📩 MOVIE REQUEST*%0A%0AHello Admin! 👋%0AI want to request a movie.%0A%0A🎬 *Title:* ${encodeURIComponent(formData.name.trim())}%0A🗣 *Language:* ${encodeURIComponent(formData.language.trim() || 'Any')}%0A%0APlease add this. Thanks!`;
+    
+    window.open(`https://wa.me/94775213344?text=${text}`, '_blank');
+    setIsOpen(false);
+    setFormData({ name: "", language: "" });
+  };
+
+  return (
+    <div className="pointer-events-auto relative z-50 flex flex-col items-end gap-3">
+      {/* Request Form */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="mb-2 w-72 rounded-2xl bg-zinc-900/95 p-5 shadow-2xl ring-1 ring-white/10 backdrop-blur-xl origin-bottom-right"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <span className="text-lg">🎬</span> Request Movie
+              </h3>
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="rounded-full p-1 text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
+                type="button"
+              >
+                <X size={14} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Movie Name</label>
+                <input 
+                  type="text"
+                  placeholder="e.g. Deadpool 3"
+                  className="w-full rounded-lg bg-black/40 px-3 py-2.5 text-sm text-white placeholder-zinc-600 ring-1 ring-white/10 focus:outline-none focus:ring-[#25D366]/50 transition-all"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  autoFocus
+                />
+              </div>
+              
+              <div>
+                <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-zinc-500">Language (Optional)</label>
+                <input 
+                  type="text"
+                  placeholder="e.g. English, Sinhala"
+                  className="w-full rounded-lg bg-black/40 px-3 py-2.5 text-sm text-white placeholder-zinc-600 ring-1 ring-white/10 focus:outline-none focus:ring-[#25D366]/50 transition-all"
+                  value={formData.language}
+                  onChange={(e) => setFormData({...formData, language: e.target.value})}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={!formData.name.trim()}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] py-2.5 text-sm font-bold text-white shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#20bd5a]"
+              >
+                <span>Send via WhatsApp</span>
+                <Send size={14} className="fill-white/20" />
+              </button>
+            </form>
+            
+            {/* Decoration */}
+            <div className="absolute top-0 right-0 -mt-8 -mr-8 h-24 w-24 rounded-full bg-[#25D366] blur-[60px] opacity-20 pointer-events-none"></div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toggle Button (The Pill) */}
+      <motion.button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex h-14 items-center rounded-full shadow-[0_4px_15px_rgba(37,211,102,0.4)] ring-1 ring-white/20 backdrop-blur-md transition-shadow hover:shadow-[0_8px_25px_rgba(37,211,102,0.6)] ${isOpen ? 'bg-zinc-800 ring-white/30' : 'bg-[#25D366]'}`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        title="Request a Movie"
+      >
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center">
+           {isOpen ? (
+             <X size={24} className="text-white" />
+           ) : (
+             <img 
+                src="https://cdn.simpleicons.org/whatsapp/white" 
+                alt="WhatsApp" 
+                className="w-7 h-7 object-contain drop-shadow-sm"
+             />
+           )}
+        </div>
+
+        <motion.div
+           initial={{ width: 0, opacity: 0 }}
+           animate={{ 
+             width: isHovered || isOpen ? "auto" : 0,
+             opacity: isHovered || isOpen ? 1 : 0
+           }}
+           transition={{ type: "spring", stiffness: 500, damping: 30 }}
+           className="overflow-hidden whitespace-nowrap"
+        >
+             <div className="flex items-center gap-3 pr-5 pl-1">
+              <div className={`h-4 w-px ${isOpen ? 'bg-white/10' : 'bg-white/30'}`}></div>
+              <div className="flex flex-col leading-none text-left">
+                 <span className={`text-[9px] font-bold uppercase tracking-wider mb-0.5 ${isOpen ? 'text-zinc-500' : 'text-green-900/80'}`}>
+                   {isOpen ? 'Close Form' : 'Need a Movie?'}
+                 </span>
+                 <span className="text-sm font-black text-white">
+                   {isOpen ? 'Cancel' : 'Request Now'}
+                 </span>
+              </div>
+              
+              {!isOpen && (
+                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full ring-2 ring-white/30 shadow-sm ml-1">
+                    <img src="https://image.tmdb.org/t/p/w200/1E5baAaEse26fej7uHcjOgEE2t2.jpg" className="h-full w-full object-cover" alt="Poster" />
+                </div>
+              )}
+            </div>
+        </motion.div>
+      </motion.button>
+    </div>
   );
 }

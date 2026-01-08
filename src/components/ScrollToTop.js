@@ -56,7 +56,7 @@ export default function ScrollToTop() {
             // Dynamic position: When chatbot is minimized (88px total height) or FAB is shown (80px total height),
             // we stay at 112px to give a comfortable gap. 
             // 88px (max minimized height) + 24px (gap-6) = 112px.
-            bottom: chatbotState === 'closed' || chatbotState === 'minimized' ? "108px" : "24px"
+            bottom: chatbotState === 'minimized' ? "108px" : "168px"
           }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ 
