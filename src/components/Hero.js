@@ -78,10 +78,10 @@ export default function Hero({ featuredMovies }) {
                     initial={{ opacity: 0, y: 30, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                    className="relative group mx-auto max-w-[320px] sm:max-w-[500px] lg:max-w-none"
+                    className="relative group mx-auto max-w-[320px] sm:max-w-[500px] lg:max-w-[600px] xl:max-w-[700px]"
                 >
                     {/* HUD Active Frame */}
-                    <div className="relative aspect-[16/10] sm:aspect-video w-full overflow-hidden rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-zinc-900/20 backdrop-blur-3xl">
+                    <div className="relative aspect-[16/10] sm:aspect-video w-full overflow-hidden rounded-[2rem] border border-white/20 shadow-[0_0_100px_rgba(229,9,20,0.4)] bg-zinc-900/20 backdrop-blur-3xl transition-shadow duration-500 group-hover:shadow-[0_0_150px_rgba(229,9,20,0.6)]">
                         
                         {/* Dynamic Scanning Elements */}
                         <div className="absolute inset-0 z-20 pointer-events-none">
@@ -137,7 +137,9 @@ export default function Hero({ featuredMovies }) {
             </div>
 
             {/* Content Column */}
-            <div className="lg:col-span-7 space-y-6 sm:space-y-10 order-2 lg:order-1 text-center lg:text-left">
+            <div className="lg:col-span-7 space-y-6 sm:space-y-10 order-2 lg:order-1 text-center lg:text-left relative">
+                {/* Ambient Text Glow */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 blur-[150px] rounded-full pointer-events-none -z-10" />
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={movie.id}
@@ -193,7 +195,7 @@ export default function Hero({ featuredMovies }) {
         </div>
       </div>
 
-      {/* Modern Navigation Controls (Mobile Friendly) */}
+      {/* Modern Navigation Controls (Desktop + Mobile) */}
       <div className="absolute bottom-8 left-0 right-0 lg:left-auto lg:right-12 z-20 flex justify-center lg:flex-col gap-6">
         {featuredMovies.map((_, i) => (
           <button
@@ -203,7 +205,7 @@ export default function Hero({ featuredMovies }) {
           >
             <div className={`transition-all duration-500 rounded-full ${current === i ? "w-12 h-1.5 lg:w-20 lg:h-1 bg-primary" : "w-1.5 h-1.5 lg:w-4 lg:h-1 bg-white/20 group-hover:bg-white/40"}`} />
             <span className={`hidden lg:block text-[10px] font-black tracking-[0.2em] transition-opacity duration-300 ${current === i ? "opacity-100 text-primary" : "opacity-0"}`}>
-              STEP_0{i + 1}
+               {(i + 1).toString().padStart(2, '0')}
             </span>
           </button>
         ))}

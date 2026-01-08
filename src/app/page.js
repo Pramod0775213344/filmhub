@@ -106,7 +106,7 @@ function enrich(list, watchlistIds, episodeMap = {}, type = null) {
 async function HeroSection() {
   const { watchlistIds, supabase } = await getAuthAndWatchlist();
   const { data } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, imdb_rating, image_url, backdrop_url, description, language")
+    .select("id, title, year, category, type, rating, imdb_rating, image_url, backdrop_url, description, language, actors")
     .order("created_at", { ascending: false })
     .limit(5);
 
