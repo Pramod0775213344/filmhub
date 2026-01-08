@@ -387,7 +387,12 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                                     <Video className="text-primary w-8 h-8" /> Official Trailer
                                 </h3>
                                 <div className="overflow-hidden rounded-[2.5rem] ring-1 ring-white/10 shadow-2xl bg-zinc-900 aspect-video">
-                                    <VideoPlayer url={show.trailer} title={`${show.title} Trailer`} autoPlay={true} />
+                                    <VideoPlayer 
+                                        url={show.trailer} 
+                                        title={`${show.title} Trailer`} 
+                                        autoPlay={true} 
+                                        poster={show.backdrop_url || show.image_url || show.image}
+                                    />
                                 </div>
                                 <AdsterraBanner />
                             </div>

@@ -6,7 +6,7 @@ import AdsterraBanner from "@/components/AdsterraBanner";
 
 export const revalidate = 600; 
 
-export default async function TVShowsPage({ searchParams }) {
+export default async function MoviesPage({ searchParams }) {
   const params = await searchParams;
   const category = params?.category;
   const year = params?.year;
@@ -16,9 +16,8 @@ export default async function TVShowsPage({ searchParams }) {
 
   const supabase = await createClient();
 
-  // 1. Initial parallel fetch: User + Content + Filter Data
-  const [userRes, moviesResponse, filterResponse] = await Promise.all([
-    supabase.auth.getUser(),
+  // 1. Initial parallel fetch: Content + Filter Data (User check moved to client for better performance)
+  const [moviesResponse, filterResponse] = await Promise.all([
     (() => {
       let query = supabase
         .from("movies")
@@ -42,29 +41,8 @@ export default async function TVShowsPage({ searchParams }) {
     supabase.from("movies").select("category, year, language").eq("type", "Movie").limit(500)
   ]);
 
-  const user = userRes.data?.user;
   const { data: movies, error } = moviesResponse;
   const filterData = filterResponse.data;
-
-  // 2. Secondary fetch: Watchlist (only if user logged in)
-  let watchlistIds = new Set();
-  if (user) {
-    const { data: watchlistData } = await supabase
-      .from("watchlists")
-      .select("movie_id")
-      .eq("user_id", user.id);
-    
-    if (watchlistData) {
-      watchlistIds = new Set(watchlistData.map(item => item.movie_id));
-    }
-  }
-  
-  // Enrich movies with watchlist status
-  const enrichedMovies = movies?.map(m => ({
-    ...m,
-    isInWatchlist: watchlistIds.has(m.id)
-  })) || [];
-
 
   const uniqueCategories = ["All", ...new Set(filterData?.map(m => m.category).filter(Boolean))];
   const uniqueYears = ["All", ...new Set(filterData?.map(m => m.year).filter(Boolean))].sort((a, b) => b - a);
@@ -99,7 +77,7 @@ export default async function TVShowsPage({ searchParams }) {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 lg:gap-6">
-            {enrichedMovies.map((movie) => (
+            {movies?.map((movie) => (
               <MovieCard key={movie.id} movie={movie} />
             ))}
           </div>

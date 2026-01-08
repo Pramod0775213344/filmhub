@@ -599,10 +599,12 @@ function HoverableWhatsAppButton() {
            {isOpen ? (
              <X size={24} className="text-white" />
            ) : (
-             <img 
+             <Image 
                 src="https://cdn.simpleicons.org/whatsapp/white" 
                 alt="WhatsApp" 
-                className="w-7 h-7 object-contain drop-shadow-sm"
+                width={28}
+                height={28}
+                className="object-contain drop-shadow-sm"
              />
            )}
         </div>
@@ -629,7 +631,13 @@ function HoverableWhatsAppButton() {
               
               {!isOpen && (
                 <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full ring-2 ring-white/30 shadow-sm ml-1">
-                    <img src="https://image.tmdb.org/t/p/w200/1E5baAaEse26fej7uHcjOgEE2t2.jpg" className="h-full w-full object-cover" alt="Poster" />
+                    <Image 
+                      src="https://image.tmdb.org/t/p/w200/1E5baAaEse26fej7uHcjOgEE2t2.jpg" 
+                      className="h-full w-full object-cover" 
+                      alt="Poster" 
+                      fill
+                      sizes="32px"
+                    />
                 </div>
               )}
             </div>

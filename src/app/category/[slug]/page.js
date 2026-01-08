@@ -26,21 +26,6 @@ export default async function CategoryPage({ params, searchParams }) {
 
   const supabase = await createClient();
 
-  // Get current user to fetch their watchlist once
-  const { data: { user } } = await supabase.auth.getUser();
-  let watchlistIds = new Set();
-  
-  if (user) {
-    const { data: watchlistData } = await supabase
-      .from("watchlists")
-      .select("movie_id")
-      .eq("user_id", user.id);
-    
-    if (watchlistData) {
-      watchlistIds = new Set(watchlistData.map(item => item.movie_id));
-    }
-  }
-
   // Fetch movies matching the category
   // We use ilike for category to match "Action" with "action"
   let query = supabase
@@ -81,10 +66,7 @@ export default async function CategoryPage({ params, searchParams }) {
   // 'Categories' filter is redundant here since we are ON a category page, so we might hide it or just show "All" as a way to go back?
   // Actually, FilterSection might expect categories. We can pass the current one as selected.
 
-  const enrichedMovies = movies?.map(m => ({
-    ...m,
-    isInWatchlist: watchlistIds.has(m.id)
-  })) || [];
+  const enrichedMovies = movies || [];
 
   return (
     <main className="min-h-screen bg-background text-white">

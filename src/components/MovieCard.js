@@ -1,67 +1,14 @@
 "use client";
 
-import { useState, useEffect, memo } from "react";
-import { Play, Plus, Check, Star, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { memo } from "react";
+import { Play, Star } from "lucide-react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
 import { slugify } from "@/utils/slugify";
+import WatchlistStatus from "./WatchlistStatus";
 
 function MovieCard({ movie }) {
-  const [isInList, setIsInList] = useState(movie.isInWatchlist || false);
-  const [loading, setLoading] = useState(false);
-  const supabase = createClient();
-  const router = useRouter();
-
-  // If isInWatchlist wasn't provided (e.g. on other pages), check it locally
-  useEffect(() => {
-    if (movie.isInWatchlist !== undefined || !supabase) return;
-    
-    const checkStatus = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data } = await supabase
-            .from("watchlists")
-            .select("id")
-            .eq("user_id", user.id)
-            .eq("movie_id", movie.id)
-            .single();
-          if (data) setIsInList(true);
-        }
-      } catch (err) {
-        console.error("Error checking watchlist status:", err);
-      }
-    };
-    checkStatus();
-  }, [movie.id, movie.isInWatchlist, supabase]);
-
-  const toggleList = async (e) => {
-    e.stopPropagation();
-    if (!supabase) return;
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return router.push("/login");
-
-    setLoading(true);
-    if (isInList) {
-      const { error } = await supabase
-        .from("watchlists")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("movie_id", movie.id);
-      if (!error) setIsInList(false);
-    } else {
-      const { error } = await supabase
-        .from("watchlists")
-        .insert([{ user_id: user.id, movie_id: movie.id }]);
-      if (!error) setIsInList(true);
-    }
-    setLoading(false);
-  };
-
   return (
     <Link href={
       movie.link ? movie.link :
@@ -77,7 +24,7 @@ function MovieCard({ movie }) {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="group relative w-full cursor-pointer"
       >
-        <div className="aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-900 shadow-2xl relative transition-all duration-300 group-hover:ring-2 group-hover:ring-primary/50 group-hover:shadow-[0_0_30px_rgba(229,9,20,0.3)]">
+        <div className="aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-900 shadow-2xl relative transition-all duration-300 group-hover:ring-2 group-hover:ring-primary/50 group-hover:shadow-[0_0_30px_rgba(229,9,20,0.3)]" style={{ aspectRatio: '2/3' }}>
           {/* Movie Image */}
           <Image
             src={(movie.image_url || movie.image)?.replace('/w500/', '/w342/')}
@@ -95,7 +42,7 @@ function MovieCard({ movie }) {
              {/* TV Show Episode Badge */}
              {movie.latest_episode && (
                 <span className="flex items-center justify-center rounded bg-green-600 px-2.5 py-1 text-[11px] font-bold tracking-wide text-white shadow-md">
-                  S{movie.latest_episode.season.toString().padStart(2, '0')} | EP{movie.latest_episode.episode.toString().padStart(2, '0')}
+                   S{movie.latest_episode.season.toString().padStart(2, '0')} | EP{movie.latest_episode.episode.toString().padStart(2, '0')}
                 </span>
              )}
              
@@ -144,22 +91,13 @@ function MovieCard({ movie }) {
             </div>
 
             <div className="mt-4 flex items-center gap-3 scale-90 origin-left">
-              <button 
+              <div 
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black transition-transform hover:scale-110 active:scale-95 shadow-xl"
-                aria-label={`Play ${movie.title}`}
               >
                 <Play size={20} fill="currentColor" />
-              </button>
-              <button 
-                onClick={toggleList}
-                disabled={loading}
-                aria-label={isInList ? "Remove from watchlist" : "Add to watchlist"}
-                className={`flex h-10 w-10 items-center justify-center rounded-full backdrop-blur-md border border-white/10 transition-all hover:scale-110 active:scale-95 ${
-                  isInList ? "bg-primary text-white" : "bg-white/10 text-white hover:bg-white/20"
-                }`}
-              >
-                {loading ? <Loader2 className="animate-spin" size={20} /> : isInList ? <Check size={20} /> : <Plus size={20} />}
-              </button>
+              </div>
+              
+              <WatchlistStatus movieId={movie.id} initialStatus={movie.isInWatchlist} />
             </div>
           </div>
         </div>

@@ -341,7 +341,12 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                                     <Video className="text-primary w-8 h-8" /> Official Trailer
                                 </h3>
                                 <div className="overflow-hidden rounded-[2.5rem] ring-1 ring-white/10 shadow-2xl bg-zinc-900 aspect-video">
-                                    <VideoPlayer url={movie.trailer} title={`${movie.title} Trailer`} autoPlay={true} />
+                                    <VideoPlayer 
+                                        url={movie.trailer} 
+                                        title={`${movie.title} Trailer`} 
+                                        autoPlay={true} 
+                                        poster={movie.backdrop_url || movie.image_url || movie.image}
+                                    />
                                 </div>
                             </div>
                         ) : (

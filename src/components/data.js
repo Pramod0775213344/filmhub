@@ -3,14 +3,14 @@ export const featuredMovies = [
     id: 1,
     title: "AVATAR: FIRE AND ASH",
     description: "Return to Pandora in James Cameron's breathtaking continuation of the Avatar saga. Discover new biomes, new tribes, and a fire that threatens the soul of the planet.",
-    image: "https://image.tmdb.org/t/p/original/g96wHxU7EnoIFwemb2RgohIXrgW.jpg",
+    image: "https://image.tmdb.org/t/p/w1280/g96wHxU7EnoIFwemb2RgohIXrgW.jpg",
     tag: "DECEMBER 2025"
   },
   {
     id: 2,
     title: "SUPERMAN",
     description: "The Man of Steel returns in a modern reimagining of the world's first superhero. Experience the origin of a legend as he balances his alien heritage with his human upbringing.",
-    image: "https://image.tmdb.org/t/p/original/qIg5Yvu70U7Jrtmd0zEsOWEYHLV.jpg",
+    image: "https://image.tmdb.org/t/p/w1280/qIg5Yvu70U7Jrtmd0zEsOWEYHLV.jpg",
     tag: "JULY 2025"
   },
  
@@ -18,7 +18,7 @@ export const featuredMovies = [
     id: 3,
     title: "TRON: ARES",
     description: "The Grid has evolved. As the lines between the digital and physical worlds blur, a new program named Ares must navigate a reality trapped in a system of its own making.",
-    image: "https://image.tmdb.org/t/p/original/5dz3siQs9dScKUjFLkEbYhyj1gi.jpg",
+    image: "https://image.tmdb.org/t/p/w1280/5dz3siQs9dScKUjFLkEbYhyj1gi.jpg",
     tag: "OCTOBER 2025"
   }
 ];

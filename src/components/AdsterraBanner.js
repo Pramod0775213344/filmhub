@@ -43,14 +43,14 @@ export default function AdsterraBanner() {
     </html>
   `;
 
-  if (isAdmin) {
+  if (!loading && isAdmin) {
     return null;
   }
 
   return (
-    <div className="w-full flex justify-start my-6 overflow-hidden min-h-[60px]">
+    <div className={`w-full flex justify-start my-6 overflow-hidden min-h-[60px] ${loading ? 'animate-pulse bg-zinc-900/10 rounded' : ''}`}>
       <div style={{ width: "468px", height: "60px" }}>
-        {!loading && (
+        {!loading && !isAdmin && (
           <iframe
             srcDoc={adHtml}
             width="468"

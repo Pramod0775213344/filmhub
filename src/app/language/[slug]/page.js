@@ -21,21 +21,6 @@ export default async function LanguagePage({ params, searchParams }) {
 
   const supabase = await createClient();
 
-  // Watchlist check
-  const { data: { user } } = await supabase.auth.getUser();
-  let watchlistIds = new Set();
-  
-  if (user) {
-    const { data: watchlistData } = await supabase
-      .from("watchlists")
-      .select("movie_id")
-      .eq("user_id", user.id);
-    
-    if (watchlistData) {
-      watchlistIds = new Set(watchlistData.map(item => item.movie_id));
-    }
-  }
-
   // Fetch movies matching the language
   let query = supabase
     .from("movies")
@@ -70,10 +55,7 @@ export default async function LanguagePage({ params, searchParams }) {
   const uniqueCategories = ["All", ...new Set(filterData?.map(m => m.category).filter(Boolean))];
   const uniqueYears = ["All", ...new Set(filterData?.map(m => m.year).filter(Boolean))].sort((a, b) => b - a);
 
-  const enrichedMovies = movies?.map(m => ({
-    ...m,
-    isInWatchlist: watchlistIds.has(m.id)
-  })) || [];
+  const enrichedMovies = movies || [];
 
   return (
     <main className="min-h-screen bg-background text-white">

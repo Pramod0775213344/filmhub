@@ -27,12 +27,12 @@ export default function NativeAd() {
     checkUser();
   }, []);
 
-  if (loading || isAdmin) {
+  if (!loading && isAdmin) {
     return null;
   }
 
   return (
-    <div className="w-full flex justify-start my-8">
+    <div className="w-full flex justify-start my-8 min-h-[250px]">
       <div className="w-full max-w-[1200px]">
         {/* Adsterra Native Banner Script */}
         <Script 
@@ -42,7 +42,7 @@ export default function NativeAd() {
           src="https://pl28411527.effectivegatecpm.com/ed748cb852d8ea797434391a6baa58cd/invoke.js"
           strategy="afterInteractive"
         />
-        <div id="container-ed748cb852d8ea797434391a6baa58cd" className="w-full">
+        <div id="container-ed748cb852d8ea797434391a6baa58cd" className={`w-full min-h-[250px] bg-zinc-900/10 rounded-3xl ${loading ? 'animate-pulse' : ''}`}>
         </div>
       </div>
     </div>

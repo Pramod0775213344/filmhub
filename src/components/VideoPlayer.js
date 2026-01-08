@@ -16,28 +16,6 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
 
   // Safely detect if we are on the client (replaces isMounted state)
   const isMounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-       setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile(); // Check on mount
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  if (isMobile) {
-    return (
-      <div className="relative w-full aspect-video max-h-[450px] bg-zinc-900 rounded-2xl flex flex-col items-center justify-center p-6 text-center border border-white/5 space-y-4">
-        <AlertCircle size={48} className="text-yellow-500 mb-2" />
-        <h3 className="text-lg font-black text-white">Temporary Maintenance</h3>
-        <p className="text-sm text-zinc-400 font-medium">
-          සංවර්ධන කටයුතු හේතුවෙන් ජංගම දුරකථන සඳහා ඔන්ලයින් ප්ලේයරය තාවකාලිකව අක්‍රීය කර ඇත. කරුණාකර PC හෝ Laptop එකක් භාවිතා කරන්න. නැතහොත් පසුව නැවත උත්සාහ කරන්න.
-        </p>
-      </div>
-    );
-  }
 
   // Reset state synchronously when the URL prop changes
   if (url !== prevUrl) {

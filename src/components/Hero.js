@@ -47,27 +47,30 @@ export default function Hero({ featuredMovies }) {
       <div className="absolute inset-0 z-20 pointer-events-none opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       
       {/* Ambient Background Glow (Synchronized with Movie) */}
-      <AnimatePresence mode="wait">
-        <motion.div
-           key={`bg-glow-${movie.id}`}
-           initial={{ opacity: 0 }}
-           animate={{ opacity: 1 }}
-           exit={{ opacity: 0 }}
-           transition={{ duration: 1.5 }}
-           className="absolute inset-0 z-0"
-        >
-            <Image 
-                src={movie.backdrop_url || movie.image_url} 
-                alt="" 
-                fill 
-                priority={true}
-                className="object-cover blur-[100px] scale-150 opacity-40"
-                quality={10}
-                sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90" />
-        </motion.div>
-      </AnimatePresence>
+      <div className="absolute inset-0 z-0 overflow-hidden bg-zinc-950">
+        <AnimatePresence mode="wait">
+          <motion.div
+             key={`bg-glow-${movie.id}`}
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             transition={{ duration: 1.5 }}
+             className="absolute inset-0"
+          >
+              <Image 
+                  src={movie.backdrop_url || movie.image_url} 
+                  alt="" 
+                  fill 
+                  priority={true}
+                  loading="eager"
+                  className="object-cover blur-[100px] scale-150 opacity-40"
+                  quality={10}
+                  sizes="100vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90" />
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       <div className="container-custom relative z-10 h-full pt-20 lg:pt-0">
         <div className="flex h-full flex-col justify-center lg:grid lg:grid-cols-12 items-center gap-4 lg:gap-12">
@@ -97,26 +100,29 @@ export default function Hero({ featuredMovies }) {
                             />
                         </div>
 
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={movie.id}
-                                initial={{ opacity: 0, filter: "grayscale(100%)" }}
-                                animate={{ opacity: 1, filter: "grayscale(0%)" }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.8 }}
-                                className="absolute inset-0"
-                            >
-                                <Image 
-                                    src={movie.backdrop_url || movie.image_url} 
-                                    alt={movie.title} 
-                                    fill 
-                                    priority={true}
-                                    className="object-cover"
-                                    sizes="(max-width: 768px) 100vw, 50vw"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-                            </motion.div>
-                        </AnimatePresence>
+                        <div className="absolute inset-0 bg-zinc-900">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={movie.id}
+                                    initial={{ opacity: 0, filter: "grayscale(100%)" }}
+                                    animate={{ opacity: 1, filter: "grayscale(0%)" }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.8 }}
+                                    className="absolute inset-0"
+                                >
+                                    <Image 
+                                        src={movie.backdrop_url || movie.image_url} 
+                                        alt={movie.title} 
+                                        fill 
+                                        priority={true}
+                                        loading="eager"
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 800px"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
 
                         {/* Mobile Info Overlay (Floating Badges) */}
                         <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end z-30">

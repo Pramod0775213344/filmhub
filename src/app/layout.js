@@ -10,21 +10,25 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: 'swap',
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: 'swap',
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: 'swap',
 });
 
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
+  display: 'swap',
 });
 
 // Added Noto Sans Sinhala configuration
@@ -32,6 +36,7 @@ const notoSinhala = Noto_Sans_Sinhala({
   variable: "--font-sinhala",
   subsets: ["sinhala"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  display: 'swap',
 });
 
 export const metadata = {

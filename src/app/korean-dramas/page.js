@@ -11,13 +11,10 @@ export default async function KoreanDramasPage({ searchParams }) {
   const category = params?.category;
   const year = params?.year;
   const sort = params?.sort || "latest"; 
-  const search = params?.q;
-
   const supabase = await createClient();
 
-  // 1. Initial parallel fetch: User + Content + Filter Data
-  const [userRes, moviesResponse, filterResponse] = await Promise.all([
-    supabase.auth.getUser(),
+  // 1. Initial parallel fetch: Content + Filter Data (User check moved to client)
+  const [moviesResponse, filterResponse] = await Promise.all([
     (() => {
       let query = supabase.from("korean_dramas").select("*");
       if (category && category !== "All") query = query.eq("category", category);
@@ -36,23 +33,9 @@ export default async function KoreanDramasPage({ searchParams }) {
     supabase.from("korean_dramas").select("category, year").limit(500)
   ]);
 
-  const user = userRes.data?.user;
   const { data: movies, error } = moviesResponse;
   const filterData = filterResponse.data;
 
-  // 2. Secondary fetch: Watchlist
-  let watchlistIds = new Set();
-  if (user) {
-    const { data: watchlistData } = await supabase
-      .from("watchlists")
-      .select("movie_id")
-      .eq("user_id", user.id);
-    
-    if (watchlistData) {
-      watchlistIds = new Set(watchlistData.map(item => item.movie_id));
-    }
-  }
-  
   const uniqueCategories = ["All", ...new Set(filterData?.map(m => m.category).filter(Boolean))];
   const uniqueYears = ["All", ...new Set(filterData?.map(m => m.year).filter(Boolean))].sort((a, b) => b - a);
   const uniqueLanguages = ["All", "Korean"]; 
@@ -62,7 +45,6 @@ export default async function KoreanDramasPage({ searchParams }) {
       type: "Korean Drama", 
       image: m.image_url || m.image,
       backdrop: m.backdrop_url || m.backdrop,
-      isInWatchlist: watchlistIds.has(m.id)
   })) || [];
 
 

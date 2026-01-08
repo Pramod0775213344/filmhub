@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function UsersManagement() {
   const [users, setUsers] = useState([]);
@@ -82,8 +83,18 @@ export default function UsersManagement() {
                 <tr key={u.id} className="group hover:bg-white/[0.01] transition-colors">
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-xl bg-zinc-800 flex items-center justify-center overflow-hidden ring-1 ring-white/10">
-                        {u.avatar_url ? <img src={u.avatar_url} alt="" className="h-full w-full object-cover" /> : <UserIcon size={20} className="text-zinc-600" />}
+                      <div className="h-10 w-10 rounded-xl bg-zinc-800 flex items-center justify-center overflow-hidden ring-1 ring-white/10 relative">
+                        {u.avatar_url ? (
+                          <Image 
+                            src={u.avatar_url} 
+                            alt={u.full_name || "User"} 
+                            fill 
+                            className="object-cover" 
+                            sizes="40px"
+                          />
+                        ) : (
+                          <UserIcon size={20} className="text-zinc-600" />
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-black text-white uppercase tracking-tight">{u.full_name || "Anonymous"}</p>

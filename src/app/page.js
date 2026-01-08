@@ -43,21 +43,16 @@ export default async function Home({ searchParams }) {
           <TrendingSection />
         </Suspense>
         
-        <AdsterraBanner />
-
         <Suspense fallback={<SectionSkeleton title="Coming Soon" />}>
            <UpcomingSection />
         </Suspense>
         
         <AdsterraBanner />
         
-
         <Suspense fallback={<SectionSkeleton title="Korean Dramas" />}>
           <KDramaSection />
         </Suspense>
         
-        <AdsterraBanner />
-
         <Suspense fallback={<SectionSkeleton title="New Releases" />}>
           <NewReleasesSection />
         </Suspense>
@@ -68,13 +63,9 @@ export default async function Home({ searchParams }) {
           <TVShowsSection />
         </Suspense>
         
-        <AdsterraBanner />
-
         <Suspense fallback={<SectionSkeleton title="Action & Sci-Fi" />}>
           <ActionSection />
         </Suspense>
-        
-        <AdsterraBanner />
       </div>
     </main>
   );
@@ -128,7 +119,7 @@ async function TrendingSection() {
   const { data } = await supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .order("rating", { ascending: false })
-    .limit(16);
+    .limit(8);
 
   return <FilmSection title="Trending Now" movies={enrich(data, watchlistIds)} href="/movies?sort=rating" />;
 }
@@ -138,7 +129,7 @@ async function UpcomingSection() {
   const movies = await getUpcomingMovies();
 
   // Limit to 16 items for the section
-  const displayedMovies = movies.slice(0, 16);
+  const displayedMovies = movies.slice(0, 8);
 
   return <FilmSection title="Coming Soon" movies={enrich(displayedMovies, watchlistIds)} href="/upcoming" />;
 }
@@ -149,7 +140,7 @@ async function KDramaSection() {
   const { data } = await supabase.from("korean_dramas")
     .select("id, title, year, category, rating, image_url, backdrop_url, language")
     .order("created_at", { ascending: false })
-    .limit(18);
+    .limit(8);
 
   return <FilmSection title="Korean Dramas" movies={enrich(data, watchlistIds, {}, "Korean Drama")} href="/korean-dramas" />;
 }
@@ -159,7 +150,7 @@ async function NewReleasesSection() {
   const { data } = await supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .order("year", { ascending: false })
-    .limit(16);
+    .limit(8);
 
   return <FilmSection title="New Releases" movies={enrich(data, watchlistIds)} href="/movies?sort=year" />;
 }
@@ -170,9 +161,9 @@ async function TVShowsSection() {
     .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .eq("type", "TV Show")
     .order("created_at", { ascending: false })
-    .limit(16);
+    .limit(8);
     
-  // Fetch episodes for these shows
+  // Fetch episodes for these shows (using a single batch query)
   const showIds = shows?.map(m => m.id) || [];
   const episodeMap = {};
   if (showIds.length > 0) {
@@ -193,7 +184,7 @@ async function ActionSection() {
   const { data } = await supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .ilike("category", "%Action%")
-    .limit(16);
+    .limit(8);
 
   return <FilmSection title="Action & Sci-Fi" movies={enrich(data, watchlistIds)} href="/movies?category=Action" />;
 }
@@ -216,7 +207,7 @@ async function SearchResults({ search, category }) {
 
   if (results.length === 0) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 page-pt">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center space-y-4 pt-40 px-4">
         <div className="rounded-full bg-zinc-900 p-6 ring-1 ring-white/10">
           <Play size={40} className="text-zinc-700" />
         </div>
@@ -227,25 +218,26 @@ async function SearchResults({ search, category }) {
   }
   
   return (
-    <div className="container-custom pb-20">
-      {/* Header removed for MiniHero */}
-      <FilmSection title="" movies={enrich(results, watchlistIds)} />
+    <div className="container-custom pb-20 pt-32">
+       <FilmSection title={search ? `Results for "${search}"` : "Filtered Movies"} movies={enrich(results, watchlistIds)} />
     </div>
   );
 }
 
-// --- Skeleton Placeholders ---
+// --- Skeleton Placeholders (Optimized for CLS) ---
 
 function HeroSkeleton() {
-  return <div className="h-[100dvh] w-full animate-pulse bg-zinc-950" />;
+  return <div className="h-[100dvh] w-full bg-zinc-950" />;
 }
 
 function SectionSkeleton({ title }) {
   return (
-    <div className="space-y-8">
-      <div className="h-10 w-48 animate-pulse rounded-lg bg-zinc-900" />
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {[1, 2, 3, 4, 5, 6].map((j) => (
+    <div className="space-y-8 mt-12 md:mt-20">
+      <div className="flex items-center justify-between">
+        <div className="h-10 w-48 animate-pulse rounded-lg bg-zinc-900" />
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((j) => (
           <MovieSkeleton key={j} />
         ))}
       </div>
@@ -255,7 +247,7 @@ function SectionSkeleton({ title }) {
 
 function HomeLoading({ sectionCount = 3 }) {
   return (
-    <div className="container-custom space-y-20 page-pt pb-28 md:space-y-32">
+    <div className="container-custom space-y-20 pb-28 md:space-y-32">
       {Array.from({ length: sectionCount }).map((_, i) => (
         <SectionSkeleton key={i} />
       ))}
