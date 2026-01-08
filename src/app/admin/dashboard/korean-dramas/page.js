@@ -9,7 +9,7 @@ import {
   Plus, Trash2, Edit2, Search, X, Loader2, Star, Calendar, 
   LayoutGrid, Globe, Sparkles, Wand2, Upload, Download
 } from "lucide-react";
-import AdminLayout from "@/components/admin/AdminLayout";
+
 import { useDebounce } from "use-debounce";
 import { sendMovieNotification } from "@/app/actions/sendEmail";
 
@@ -252,7 +252,7 @@ export default function KoreanDramasManagement() {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-12">
         {/* Header */}
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -475,6 +475,6 @@ export default function KoreanDramasManagement() {
           </div>
         )}
       </AnimatePresence>
-    </AdminLayout>
+    </>
   );
 }

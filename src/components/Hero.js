@@ -62,6 +62,8 @@ export default function Hero({ featuredMovies }) {
                 fill 
                 priority={true}
                 className="object-cover blur-[100px] scale-150 opacity-40"
+                quality={10}
+                sizes="100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90" />
         </motion.div>
@@ -110,6 +112,7 @@ export default function Hero({ featuredMovies }) {
                                     fill 
                                     priority={true}
                                     className="object-cover"
+                                    sizes="(max-width: 768px) 100vw, 50vw"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
                             </motion.div>

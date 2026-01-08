@@ -13,7 +13,7 @@ import {
   ArrowDownRight,
   Activity
 } from "lucide-react";
-import AdminLayout from "@/components/admin/AdminLayout";
+
 import { 
   AreaChart, 
   Area, 
@@ -133,7 +133,6 @@ export default function AnalyticsDashboard() {
   const COLORS = ['#3b82f6', '#a855f7'];
 
   return (
-    <AdminLayout>
       <div className="space-y-12">
         {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -311,6 +310,5 @@ export default function AnalyticsDashboard() {
           </div>
         </div>
       </div>
-    </AdminLayout>
   );
 }

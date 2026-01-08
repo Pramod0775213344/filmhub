@@ -11,14 +11,14 @@ import {
   Globe, Video, Download, ListOrdered, PlusCircle, ChevronRight, ChevronDown,
   Sparkles, Wand2
 } from "lucide-react";
-import AdminLayout from "@/components/admin/AdminLayout";
 import { sendMovieNotification } from "@/app/actions/sendEmail";
 import GoogleDriveUploader from "@/components/admin/GoogleDriveUploader";
-
+import { useUpload } from "@/context/UploadContext";
 
 
 export default function TVShowsManagement() {
   const [shows, setShows] = useState([]);
+  const { startUpload, accessToken, setAccessToken } = useUpload();
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEpisodeModalOpen, setIsEpisodeModalOpen] = useState(false);
@@ -301,7 +301,7 @@ export default function TVShowsManagement() {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-12">
         {/* Header */}
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -540,7 +540,13 @@ export default function TVShowsManagement() {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-zinc-500">Upload to Google Drive</label>
                   <GoogleDriveUploader 
-                    onUploadComplete={(link) => setEpisodeData(prev => ({ ...prev, video_url: link }))} 
+                    onFileSelect={(file) => {
+                        const baseFolder = selectedShow.year ? `${selectedShow.title} (${selectedShow.year})` : selectedShow.title;
+                        const folder = episodeData.title ? `${baseFolder} - ${episodeData.title}` : baseFolder;
+                        startUpload(file, folder);
+                    }}
+                    externalToken={accessToken}
+                    onTokenReceived={setAccessToken}
                   />
                 </div>
                 <div className="space-y-2">
@@ -553,6 +559,6 @@ export default function TVShowsManagement() {
           </div>
         )}
       </AnimatePresence>
-    </AdminLayout>
+    </>
   );
 }

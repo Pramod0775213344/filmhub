@@ -11,7 +11,7 @@ import {
   MoreVertical,
   User as UserIcon,Loader2
 } from "lucide-react";
-import AdminLayout from "@/components/admin/AdminLayout";
+
 import { motion } from "framer-motion";
 
 export default function UsersManagement() {
@@ -34,7 +34,7 @@ export default function UsersManagement() {
   }, [supabase]);
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-12">
         {/* Header */}
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -126,6 +126,6 @@ export default function UsersManagement() {
           )}
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }
