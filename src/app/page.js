@@ -1,7 +1,7 @@
 import Hero from "@/components/Hero";
 import FilmSection from "@/components/FilmSection";
 import { createClient } from "@/utils/supabase/server";
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import MovieSkeleton from "@/components/MovieSkeleton";
 import { Play } from "lucide-react";
 import AdsterraBanner from "@/components/AdsterraBanner";
@@ -73,7 +73,7 @@ export default async function Home({ searchParams }) {
 
 // --- Helper Components for Streaming ---
 
-async function getAuthAndWatchlist() {
+const getAuthAndWatchlist = cache(async () => {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   let watchlistIds = new Set();
@@ -83,80 +83,78 @@ async function getAuthAndWatchlist() {
     if (data) watchlistIds = new Set(data.map(item => item.movie_id));
   }
   return { user, watchlistIds, supabase };
-}
+});
 
-function enrich(list, watchlistIds, episodeMap = {}, type = null) {
+function enrich(list, episodeMap = {}, type = null) {
   return list?.map(m => ({ 
     ...m, 
-    isInWatchlist: watchlistIds.has(m.id), 
     type: type || m.type || "Movie",
     latest_episode: episodeMap[m.id]
   })) || [];
 }
 
 async function HeroSection() {
-  const { watchlistIds, supabase } = await getAuthAndWatchlist();
+  const supabase = await createClient();
   const { data } = await supabase.from("movies")
     .select("id, title, year, category, type, rating, imdb_rating, image_url, backdrop_url, description, language, actors")
     .order("created_at", { ascending: false })
     .limit(5);
 
-  return <Hero featuredMovies={enrich(data, watchlistIds)} />;
+  return <Hero featuredMovies={data || []} />;
 }
 
 async function RecentSection() {
-  const { watchlistIds, supabase } = await getAuthAndWatchlist();
+  const supabase = await createClient();
   const { data } = await supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .order("created_at", { ascending: false })
     .limit(8);
 
-  return <FilmSection title="Recently Added" movies={enrich(data, watchlistIds)} href="/movies?sort=latest" />;
+  return <FilmSection title="Recently Added" movies={enrich(data)} href="/movies?sort=latest" />;
 }
 
 async function TrendingSection() {
-  const { watchlistIds, supabase } = await getAuthAndWatchlist();
+  const supabase = await createClient();
   const { data } = await supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .order("rating", { ascending: false })
     .limit(8);
 
-  return <FilmSection title="Trending Now" movies={enrich(data, watchlistIds)} href="/movies?sort=rating" />;
+  return <FilmSection title="Trending Now" movies={enrich(data)} href="/movies?sort=rating" />;
 }
 
 async function UpcomingSection() {
-  const { watchlistIds } = await getAuthAndWatchlist();
   const movies = await getUpcomingMovies();
 
-  // Limit to 16 items for the section
+  // Limit to 8 items for the section
   const displayedMovies = movies.slice(0, 8);
 
-  return <FilmSection title="Coming Soon" movies={enrich(displayedMovies, watchlistIds)} href="/upcoming" />;
+  return <FilmSection title="Coming Soon" movies={enrich(displayedMovies)} href="/upcoming" />;
 }
 
 
 async function KDramaSection() {
-  const { watchlistIds, supabase } = await getAuthAndWatchlist();
+  const supabase = await createClient();
   const { data } = await supabase.from("korean_dramas")
     .select("id, title, year, category, rating, image_url, backdrop_url, language")
     .order("created_at", { ascending: false })
     .limit(8);
 
-  return <FilmSection title="Korean Dramas" movies={enrich(data, watchlistIds, {}, "Korean Drama")} href="/korean-dramas" />;
+  return <FilmSection title="Korean Dramas" movies={enrich(data, {}, "Korean Drama")} href="/korean-dramas" />;
 }
 
 async function NewReleasesSection() {
-  const { watchlistIds, supabase } = await getAuthAndWatchlist();
+  const supabase = await createClient();
   const { data } = await supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .order("year", { ascending: false })
     .limit(8);
 
-  return <FilmSection title="New Releases" movies={enrich(data, watchlistIds)} href="/movies?sort=year" />;
+  return <FilmSection title="New Releases" movies={enrich(data)} href="/movies?sort=year" />;
 }
 
 async function TVShowsSection() {
-  const { watchlistIds, supabase } = await getAuthAndWatchlist();
+  const supabase = await createClient();
   const { data: shows } = await supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .eq("type", "TV Show")
@@ -176,21 +174,21 @@ async function TVShowsSection() {
     });
   }
 
-  return <FilmSection title="TV Shows" movies={enrich(shows, watchlistIds, episodeMap)} href="/tv-shows" />;
+  return <FilmSection title="TV Shows" movies={enrich(shows, episodeMap)} href="/tv-shows" />;
 }
 
 async function ActionSection() {
-  const { watchlistIds, supabase } = await getAuthAndWatchlist();
+  const supabase = await createClient();
   const { data } = await supabase.from("movies")
     .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
     .ilike("category", "%Action%")
     .limit(8);
 
-  return <FilmSection title="Action & Sci-Fi" movies={enrich(data, watchlistIds)} href="/movies?category=Action" />;
+  return <FilmSection title="Action & Sci-Fi" movies={enrich(data)} href="/movies?category=Action" />;
 }
 
 async function SearchResults({ search, category }) {
-  const { watchlistIds, supabase } = await getAuthAndWatchlist();
+  const supabase = await createClient();
   let query = supabase.from("movies").select("id, title, year, category, type, rating, image_url, backdrop_url, description, language");
   let kQuery = supabase.from("korean_dramas").select("id, title, year, category, rating, image_url, backdrop_url, description, language");
 
@@ -219,7 +217,7 @@ async function SearchResults({ search, category }) {
   
   return (
     <div className="container-custom pb-20 pt-32">
-       <FilmSection title={search ? `Results for "${search}"` : "Filtered Movies"} movies={enrich(results, watchlistIds)} />
+       <FilmSection title={search ? `Results for "${search}"` : "Filtered Movies"} movies={enrich(results)} />
     </div>
   );
 }

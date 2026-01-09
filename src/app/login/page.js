@@ -2,25 +2,30 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader2, Github, Home } from "lucide-react";
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [internalError, setInternalError] = useState(null);
   const router = useRouter();
   const supabase = createClient();
+
+  const error = internalError || (searchParams.get("error") === "auth-code-error" 
+    ? "Trouble signing in. Your login link may have expired. Please try again." 
+    : null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!supabase) return;
     setLoading(true);
-    setError(null);
+    setInternalError(null);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -29,9 +34,9 @@ export default function LoginPage() {
 
     if (error) {
       if (error.message.includes("Email not confirmed")) {
-        setError("Please check your email and confirm your account before signing in.");
+        setInternalError("Please check your email and confirm your account before signing in.");
       } else {
-        setError(error.message);
+        setInternalError(error.message);
       }
       setLoading(false);
     } else {
@@ -54,9 +59,10 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setError(error.message);
+      setInternalError(error.message);
     }
   };
+
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

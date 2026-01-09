@@ -24,7 +24,7 @@ const nextConfig = {
         hostname: "cdn.simpleicons.org",
       },
     ],
-    formats: ['image/avif', 'image/webp'],
+    formats: ['image/webp','image/avif'],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
