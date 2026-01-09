@@ -11,6 +11,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/utils/slugify";
 import CinematicButton from "@/components/CinematicButton";
+import { isAdmin } from "@/utils/security";
 
 import { createPortal } from "react-dom";
 
@@ -174,8 +175,14 @@ export default function Navbar() {
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
+      setUser(null); // Clear local state immediately
       router.push("/");
-      router.refresh();
+      router.refresh(); // Force server components to re-render
+      
+      // Secondary check to ensure session is cleared
+      if (typeof window !== 'undefined') {
+        window.location.href = '/'; // Hard redirect if push doesn't clear state
+      }
     } catch (error) {
       console.error("Error signing out:", error);
     }
@@ -463,7 +470,7 @@ export default function Navbar() {
                       >
                         My List
                       </Link>
-                      {user?.email === "admin@gmail.com" && (
+                      {isAdmin(user) && (
                         <Link 
                           href="/admin/dashboard" 
                           onClick={() => setIsProfileOpen(false)}
@@ -747,7 +754,7 @@ export default function Navbar() {
                           >
                             Profile
                           </Link>
-                          {user?.email === "admin@gmail.com" && (
+                          {isAdmin(user) && (
                             <Link
                               href="/admin/dashboard"
                               onClick={() => setIsMobileMenuOpen(false)}
