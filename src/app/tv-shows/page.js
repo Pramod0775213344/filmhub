@@ -64,8 +64,6 @@ export default async function TVShowsPage({ searchParams }) {
           />
         </div>
 
-        <NativeAd />
-        <AdsterraBanner />
 
         {error ? (
           <div className="flex h-60 items-center justify-center rounded-3xl border border-white/5 bg-white/5 text-zinc-500 font-bold uppercase tracking-widest">
@@ -82,6 +80,11 @@ export default async function TVShowsPage({ searchParams }) {
             ))}
           </div>
         )}
+
+        <div className="mt-12 space-y-8">
+           <NativeAd />
+           <AdsterraBanner />
+        </div>
       </div>
     </main>
   );

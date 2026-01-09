@@ -11,6 +11,7 @@ export default async function KoreanDramasPage({ searchParams }) {
   const category = params?.category;
   const year = params?.year;
   const sort = params?.sort || "latest"; 
+  const search = params?.q;
   const supabase = await createClient();
 
   // 1. Initial parallel fetch: Content + Filter Data (User check moved to client)
@@ -64,8 +65,6 @@ export default async function KoreanDramasPage({ searchParams }) {
           />
         </div>
 
-        <NativeAd />
-        <AdsterraBanner />
 
         {error ? (
           <div className="flex h-60 items-center justify-center rounded-3xl border border-white/5 bg-white/5 text-zinc-500 font-bold uppercase tracking-widest">
@@ -82,6 +81,11 @@ export default async function KoreanDramasPage({ searchParams }) {
             ))}
           </div>
         )}
+
+        <div className="mt-12 space-y-8">
+           <NativeAd />
+           <AdsterraBanner />
+        </div>
       </div>
     </main>
   );
