@@ -11,7 +11,13 @@ import {
   Plus,
   ArrowUpRight,
   ArrowDownRight,
-  Activity
+  Activity,
+  Globe,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Clock,
+  MousePointerClick
 } from "lucide-react";
 
 import { 
@@ -25,7 +31,9 @@ import {
   PieChart, 
   Pie, 
   Cell,
-  Legend
+  Legend,
+  BarChart,
+  Bar
 } from "recharts";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -39,9 +47,36 @@ export default function AnalyticsDashboard() {
   });
   const [topContent, setTopContent] = useState([]);
   const [userGrowth, setUserGrowth] = useState([]);
-  const [chartData, setChartData] = useState([]); // For Pie Chart
+  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Google Analytics Data
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  
   const supabase = createClient();
+
+  // Fetch Google Analytics Data
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const response = await fetch('/api/analytics');
+        if (response.ok) {
+          const data = await response.json();
+          setAnalyticsData(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch analytics:', error);
+      } finally {
+        setAnalyticsLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchAnalytics, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -56,11 +91,10 @@ export default function AnalyticsDashboard() {
           const growthMap = {};
           profiles.forEach(p => {
             const date = new Date(p.created_at);
-            const key = date.toLocaleDateString('default', { month: 'short', year: '2-digit' }); // e.g., "Jan 24"
+            const key = date.toLocaleDateString('default', { month: 'short', year: '2-digit' });
             growthMap[key] = (growthMap[key] || 0) + 1;
           });
 
-          // Convert to cumulative array
           let cumulative = 0;
           const growthArray = Object.entries(growthMap).map(([name, count]) => {
             cumulative += count;
@@ -130,7 +164,40 @@ export default function AnalyticsDashboard() {
     { name: "Total Views", value: stats.totalViews.toLocaleString(), icon: Eye, color: "text-primary", trend: "+15%", up: true },
   ];
 
+  // Google Analytics Cards
+  const analyticsCards = analyticsData ? [
+    { 
+      name: "Active Users (Now)", 
+      value: analyticsData.realtime?.activeUsers || 0, 
+      icon: Activity, 
+      color: "text-green-500",
+      description: "Currently browsing"
+    },
+    { 
+      name: "Today's Sessions", 
+      value: analyticsData.today?.sessions || 0, 
+      icon: MousePointerClick, 
+      color: "text-blue-500",
+      description: "Total sessions today"
+    },
+    { 
+      name: "Page Views (Today)", 
+      value: analyticsData.today?.pageViews || 0, 
+      icon: Eye, 
+      color: "text-purple-500",
+      description: "Pages viewed today"
+    },
+    { 
+      name: "Bounce Rate", 
+      value: `${analyticsData.today?.bounceRate || 0}%`, 
+      icon: TrendingUp, 
+      color: "text-orange-500",
+      description: "Single page visits"
+    },
+  ] : [];
+
   const COLORS = ['#3b82f6', '#a855f7'];
+  const DEVICE_COLORS = ['#22c55e', '#3b82f6', '#f59e0b'];
 
   return (
       <div className="space-y-12">
@@ -144,39 +211,78 @@ export default function AnalyticsDashboard() {
           </div>
           <div className="flex items-center gap-3">
             <button className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10 ring-1 ring-white/10">
-              <Activity size={14} className="text-primary" />
+              <Activity size={14} className="text-primary animate-pulse" />
               Live Stats
             </button>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((stat, index) => (
-            <motion.div
-              key={stat.name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="glass group relative overflow-hidden rounded-3xl p-8 ring-1 ring-white/5 transition-all hover:ring-white/10"
-            >
-              <div className="absolute -right-4 -top-4 opacity-5 bg-gradient-to-br from-primary to-transparent h-24 w-24 rounded-full blur-3xl group-hover:opacity-10 transition-opacity" />
-              
-              <div className="flex items-center justify-between mb-4">
-                <div className={`rounded-2xl bg-white/5 p-3 ${stat.color} group-hover:scale-110 transition-transform`}>
-                  <stat.icon size={24} />
+        {/* Database Stats Grid */}
+        <div>
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2">
+            <Film size={14} className="text-primary" />
+            Database Statistics
+          </h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {statCards.map((stat, index) => (
+              <motion.div
+                key={stat.name}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="glass group relative overflow-hidden rounded-3xl p-8 ring-1 ring-white/5 transition-all hover:ring-white/10"
+              >
+                <div className="absolute -right-4 -top-4 opacity-5 bg-gradient-to-br from-primary to-transparent h-24 w-24 rounded-full blur-3xl group-hover:opacity-10 transition-opacity" />
+                
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`rounded-2xl bg-white/5 p-3 ${stat.color} group-hover:scale-110 transition-transform`}>
+                    <stat.icon size={24} />
+                  </div>
+                  <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-tighter ${stat.up ? 'text-green-500' : 'text-red-500'}`}>
+                    {stat.up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                    {stat.trend}
+                  </div>
                 </div>
-                <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-tighter ${stat.up ? 'text-green-500' : 'text-red-500'}`}>
-                  {stat.up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                  {stat.trend}
-                </div>
-              </div>
-              
-              <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">{stat.name}</h3>
-              <p className="text-3xl font-black text-white tracking-tighter">{loading ? "..." : stat.value}</p>
-            </motion.div>
-          ))}
+                
+                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">{stat.name}</h3>
+                <p className="text-3xl font-black text-white tracking-tighter">{loading ? "..." : stat.value}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
+
+        {/* Google Analytics Stats */}
+        {!analyticsLoading && analyticsData && (
+          <div>
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2">
+              <Globe size={14} className="text-primary" />
+              Google Analytics - Real-time Traffic
+            </h2>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {analyticsCards.map((stat, index) => (
+                <motion.div
+                  key={stat.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="glass group relative overflow-hidden rounded-3xl p-8 ring-1 ring-white/5 transition-all hover:ring-white/10"
+                >
+                  <div className="absolute -right-4 -top-4 opacity-5 bg-gradient-to-br from-green-500 to-transparent h-24 w-24 rounded-full blur-3xl group-hover:opacity-10 transition-opacity" />
+                  
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`rounded-2xl bg-white/5 p-3 ${stat.color} group-hover:scale-110 transition-transform`}>
+                      <stat.icon size={24} />
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-1">{stat.name}</h3>
+                  <p className="text-3xl font-black text-white tracking-tighter">{stat.value}</p>
+                  <p className="text-[10px] text-zinc-600 mt-2">{stat.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -246,6 +352,96 @@ export default function AnalyticsDashboard() {
           </div>
         </div>
 
+        {/* Google Analytics Additional Charts */}
+        {!analyticsLoading && analyticsData && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Device Distribution */}
+            <div className="space-y-6">
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+                <Monitor size={14} className="text-primary" />
+                Device Distribution
+              </h2>
+              <div className="glass rounded-3xl p-6 ring-1 ring-white/5 h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={analyticsData.deviceCategory}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ device, percent }) => `${device} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="sessions"
+                    >
+                      {analyticsData.deviceCategory.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={DEVICE_COLORS[index % DEVICE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px' }}
+                      itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Top Countries */}
+            <div className="space-y-6">
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+                <Globe size={14} className="text-primary" />
+                Top Countries
+              </h2>
+              <div className="glass rounded-3xl p-6 ring-1 ring-white/5 h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={analyticsData.topCountries} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" horizontal={false} />
+                    <XAxis type="number" stroke="#52525b" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis dataKey="country" type="category" stroke="#52525b" fontSize={12} tickLine={false} axisLine={false} width={100} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '12px' }}
+                      itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                    />
+                    <Bar dataKey="sessions" fill="#22c55e" radius={[0, 8, 8, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Top Pages from Analytics */}
+        {!analyticsLoading && analyticsData && (
+          <div className="space-y-6">
+            <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+              <Eye size={14} className="text-primary" />
+              Most Viewed Pages (Google Analytics)
+            </h2>
+            <div className="glass rounded-3xl p-6 ring-1 ring-white/5">
+              <div className="space-y-4">
+                {analyticsData.topPages.map((page, i) => (
+                  <div key={i} className="flex items-center justify-between rounded-2xl bg-white/5 p-4 transition-colors hover:bg-white/10">
+                    <div className="flex items-center gap-4">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl font-black text-white ${i===0 ? 'bg-yellow-500' : i===1 ? 'bg-zinc-400' : i===2 ? 'bg-amber-700' : 'bg-zinc-800'}`}>
+                        {i + 1}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">{page.title}</h3>
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{page.path}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-lg bg-black/20 px-3 py-1.5 text-xs font-black text-primary">
+                      <Eye size={12} />
+                      {page.views.toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Action Center & Popular Lists */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Quick Actions */}
@@ -281,7 +477,7 @@ export default function AnalyticsDashboard() {
           <div className="lg:col-span-2 space-y-6">
             <h2 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
               <TrendingUp size={14} className="text-primary" />
-              Most Popular Content
+              Most Popular Content (Database)
             </h2>
             <div className="glass rounded-3xl p-6 ring-1 ring-white/5">
               <div className="space-y-4">

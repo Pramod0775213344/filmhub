@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
+import { isAdmin } from '../security'
 
 export async function updateSession(request) {
   let supabaseResponse = NextResponse.next({
@@ -49,7 +50,7 @@ export async function updateSession(request) {
   }
 
   // 2. Strict Admin Email Protection
-  if (isAdminProtected && user?.email !== 'admin@gmail.com') {
+  if (isAdminProtected && !isAdmin(user)) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
     const redirectResponse = NextResponse.redirect(url)

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { slugify } from "@/utils/slugify";
+import { sanitizeInput, validateOrigin, securityError, validateEnv } from "@/utils/security";
 
 // Initialize Supabase client for API route
 const supabase = createClient(
@@ -247,8 +248,20 @@ SITE NAVIGATION HELP:
 - My List: /my-list (requires login)`;
 
 export async function POST(req) {
+  // Validate origin
+  if (!validateOrigin(req)) {
+    return securityError('Invalid request origin');
+  }
+
   try {
-    const { messages } = await req.json();
+    const body = await req.json();
+    const { messages } = body;
+    
+    // Validate environment
+    if (!validateEnv(['GEMINI_API_KEY', 'NEXT_PUBLIC_SUPABASE_URL'])) {
+      return securityError('Server configuration error', 500);
+    }
+
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -258,8 +271,12 @@ export async function POST(req) {
       );
     }
 
-    // Get the latest user message
-    const userMessage = messages[messages.length - 1].content;
+    // Get the latest user message and sanitize it
+    const lastMessage = messages[messages.length - 1];
+    const userMessage = sanitizeInput(lastMessage.content);
+    
+    // Replace it back in the messages array for processing
+    lastMessage.content = userMessage;
     
     // Analyze intent and search database
     const { intent, searchTerm } = analyzeQuery(userMessage);

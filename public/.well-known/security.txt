@@ -1,0 +1,7 @@
+Contact: mailto:security@filmhub.com
+Expires: 2027-01-01T00:00:00.000Z
+Acknowledgements: /thanks
+Hiring: /careers
+Policy: /privacy
+Preferred-Languages: en, si
+Canonical: https://filmhub.lk/.well-known/security.txt
