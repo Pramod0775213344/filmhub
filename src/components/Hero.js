@@ -150,8 +150,10 @@ export default function Hero({ featuredMovies }) {
                             </div>
                         </div>
 
-                        <p className="hidden sm:block text-xs lg:text-xl text-zinc-400 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0 line-clamp-2 px-4 italic lg:not-italic lg:px-0">
-                            {movie.description}
+                        <p className="block text-[10px] sm:text-lg lg:text-xl text-zinc-400 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0 line-clamp-2 sm:line-clamp-3 px-4 italic lg:not-italic lg:px-0">
+                            {movie.description?.length > 160 
+                                ? movie.description.substring(0, 160) + "..." 
+                                : movie.description}
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 lg:gap-4 pt-2 lg:pt-6 w-full max-w-[280px] sm:max-w-none mx-auto lg:mx-0">
