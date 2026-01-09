@@ -485,16 +485,18 @@ export default function Chatbot() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleOpen}
-                  className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-primary shadow-[0_0_25px_rgba(229,9,20,0.5)] transition-shadow hover:shadow-[0_0_35px_rgba(229,9,20,0.7)] pointer-events-auto"
+                  className="group relative flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full bg-primary shadow-[0_0_20px_rgba(229,9,20,0.4)] md:shadow-[0_0_25px_rgba(229,9,20,0.5)] transition-shadow hover:shadow-[0_0_35px_rgba(229,9,20,0.7)] pointer-events-auto"
                 >
-                  <MessageCircle size={26} className="text-white" />
+                  <MessageCircle size={22} className="text-white md:hidden" />
+                  <MessageCircle size={26} className="text-white hidden md:block" />
                   {/* Sparkle decoration */}
                   <motion.div 
                     animate={{ scale: [1, 1.3, 1], rotate: [0, 15, 0] }} 
                     transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                     className="absolute -right-1 -top-1"
                   >
-                    <Sparkles size={14} className="text-yellow-400 fill-yellow-400" />
+                    <Sparkles size={12} className="text-yellow-400 fill-yellow-400 md:hidden" />
+                    <Sparkles size={14} className="text-yellow-400 fill-yellow-400 hidden md:block" />
                   </motion.div>
                 </motion.button>
               </>
@@ -523,7 +525,7 @@ function HoverableWhatsAppButton() {
   };
 
   return (
-    <div className="pointer-events-auto relative z-50 flex flex-col items-end gap-3">
+    <div className="pointer-events-auto relative z-50 flex flex-col items-end gap-3 md:gap-4">
       {/* Request Form */}
       <AnimatePresence>
         {isOpen && (
@@ -590,21 +592,32 @@ function HoverableWhatsAppButton() {
       {/* Toggle Button (The Pill) */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex h-14 items-center rounded-full shadow-[0_4px_15px_rgba(37,211,102,0.4)] ring-1 ring-white/20 backdrop-blur-md transition-shadow hover:shadow-[0_8px_25px_rgba(37,211,102,0.6)] ${isOpen ? 'bg-zinc-800 ring-white/30' : 'bg-[#25D366]'}`}
+        className={`flex h-12 md:h-14 items-center rounded-full shadow-[0_4px_15px_rgba(37,211,102,0.3)] md:shadow-[0_4px_15px_rgba(37,211,102,0.4)] ring-1 ring-white/20 backdrop-blur-md transition-shadow hover:shadow-[0_8px_25px_rgba(37,211,102,0.6)] ${isOpen ? 'bg-zinc-800 ring-white/30' : 'bg-[#25D366]'}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         title="Request a Movie"
       >
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center">
+        <div className="flex h-12 w-12 md:h-14 md:w-14 shrink-0 items-center justify-center">
            {isOpen ? (
-             <X size={24} className="text-white" />
+             <X size={20} className="text-white md:hidden" />
+           ) : (
+             <Image 
+                src="https://cdn.simpleicons.org/whatsapp/white" 
+                alt="WhatsApp" 
+                width={24}
+                height={24}
+                className="object-contain drop-shadow-sm md:hidden"
+             />
+           )}
+           {isOpen ? (
+             <X size={24} className="text-white hidden md:block" />
            ) : (
              <Image 
                 src="https://cdn.simpleicons.org/whatsapp/white" 
                 alt="WhatsApp" 
                 width={28}
                 height={28}
-                className="object-contain drop-shadow-sm"
+                className="object-contain drop-shadow-sm hidden md:block"
              />
            )}
         </div>
@@ -618,19 +631,19 @@ function HoverableWhatsAppButton() {
            transition={{ type: "spring", stiffness: 500, damping: 30 }}
            className="overflow-hidden whitespace-nowrap"
         >
-             <div className="flex items-center gap-3 pr-5 pl-1">
+             <div className="flex items-center gap-2 md:gap-3 pr-4 md:pr-5 pl-1">
               <div className={`h-4 w-px ${isOpen ? 'bg-white/10' : 'bg-white/30'}`}></div>
               <div className="flex flex-col leading-none text-left">
-                 <span className={`text-[9px] font-bold uppercase tracking-wider mb-0.5 ${isOpen ? 'text-zinc-500' : 'text-green-900/80'}`}>
+                 <span className={`text-[8px] md:text-[9px] font-bold uppercase tracking-wider mb-0.5 ${isOpen ? 'text-zinc-500' : 'text-green-900/80'}`}>
                    {isOpen ? 'Close Form' : 'Need a Movie?'}
                  </span>
-                 <span className="text-sm font-black text-white">
+                 <span className="text-xs md:text-sm font-black text-white">
                    {isOpen ? 'Cancel' : 'Request Now'}
                  </span>
               </div>
               
               {!isOpen && (
-                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full ring-2 ring-white/30 shadow-sm ml-1">
+                <div className="relative h-6 w-6 md:h-8 md:w-8 shrink-0 overflow-hidden rounded-full ring-1 md:ring-2 ring-white/30 shadow-sm ml-1">
                     <Image 
                       src="https://image.tmdb.org/t/p/w200/1E5baAaEse26fej7uHcjOgEE2t2.jpg" 
                       className="h-full w-full object-cover" 

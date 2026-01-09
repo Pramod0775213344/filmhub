@@ -234,27 +234,29 @@ export default function MovieClient({ initialMovie, userId }) {
               transition={{ duration: 0.8 }}
               className="space-y-4 md:space-y-6 max-w-5xl"
             >
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 md:px-6 py-1.5 md:py-2 backdrop-blur-xl border border-primary/30 text-primary mb-2">
-                    <Star size={14} className="fill-current md:w-[18px] md:h-[18px]" />
-                    <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em]">IMDb {movie.imdb_rating || movie.rating || "N/A"}</span>
+                <div className="flex flex-col items-center gap-3">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 md:px-6 py-1.5 md:py-2 backdrop-blur-xl border border-primary/30 text-primary mb-1">
+                        <Star size={12} className="fill-current md:w-[18px] md:h-[18px]" />
+                        <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em]">IMDb {movie.imdb_rating || movie.rating || "N/A"}</span>
+                    </div>
+                    
+                    <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[1.1] md:leading-[0.9]">
+                        {movie.title}
+                        <span className="block text-xs sm:text-lg md:text-2xl lg:text-3xl font-bold text-zinc-400 mt-2 md:mt-4 tracking-normal opacity-80 uppercase tracking-[0.1em]">| With Sinhala Subtitles</span>
+                    </h1>
                 </div>
-                
-                <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[0.9]">
-                    {movie.title}
-                    <span className="block text-sm sm:text-lg md:text-2xl lg:text-3xl font-bold text-zinc-400 mt-2 md:mt-4 tracking-normal opacity-80">| සිංහල උපසිරැසි සමඟ</span>
-                </h1>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 text-[10px] md:text-sm font-bold text-zinc-400 uppercase tracking-widest pt-2 md:pt-4">
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[9px] md:text-sm font-bold text-zinc-400 uppercase tracking-widest pt-2 md:pt-4">
                     <span className="flex items-center gap-1.5 md:gap-2">
-                        <Calendar size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.year}
+                        <Calendar size={12} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.year}
                     </span>
-                    <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                    <span className="hidden sm:block h-1 w-1 rounded-full bg-zinc-700" />
                     <span className="flex items-center gap-1.5 md:gap-2">
-                        <Clock size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.duration || "120 min"}
+                        <Clock size={12} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.duration || "120 min"}
                     </span>
-                    <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                    <span className="hidden sm:block h-1 w-1 rounded-full bg-zinc-700" />
                     <span className="flex items-center gap-1.5 md:gap-2">
-                        <Globe size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.language || "English"}
+                        <Globe size={12} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.language || "English"}
                     </span>
                 </div>
 
@@ -279,7 +281,7 @@ export default function MovieClient({ initialMovie, userId }) {
             </motion.div>
         </div>
       </div>
-      <div id="movie-content" className="container-custom relative z-10 -mt-24 pb-20">
+      <div id="movie-content" className="container-custom relative z-10 -mt-24 pb-20 px-4">
         
         {/* Main Tabs UI */}
         <div className="flex gap-4 p-2 bg-zinc-900/50 backdrop-blur-2xl border border-white/5 rounded-full w-fit mx-auto mb-16 overflow-x-auto no-scrollbar max-w-full">

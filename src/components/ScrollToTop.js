@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { ArrowUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAdaptive } from "@/context/AdaptiveContext";
 
 export default function ScrollToTop() {
+  const { isMobile } = useAdaptive();
   const [isVisible, setIsVisible] = useState(false);
   const [chatbotState, setChatbotState] = useState('closed'); // 'closed', 'minimized', 'full'
 
@@ -53,10 +55,8 @@ export default function ScrollToTop() {
           animate={{ 
             opacity: 1, 
             scale: 1,
-            // Dynamic position: When chatbot is minimized (88px total height) or FAB is shown (80px total height),
-            // we stay at 112px to give a comfortable gap. 
-            // 88px (max minimized height) + 24px (gap-6) = 112px.
-            bottom: chatbotState === 'minimized' ? "108px" : "168px"
+            // Adjusting position to avoid overlap with Chatbot/WhatsApp
+            bottom: chatbotState === 'minimized' ? "108px" : (isMobile ? "152px" : "168px")
           }}
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ 
@@ -67,10 +67,10 @@ export default function ScrollToTop() {
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.92 }}
           onClick={scrollToTop}
-          className="fixed right-6 z-[50] flex h-14 w-14 items-center justify-center rounded-full bg-zinc-800/90 text-white shadow-[0_8px_30px_rgb(0,0,0,0.5)] ring-1 ring-white/10 backdrop-blur-md transition-all hover:bg-zinc-700 hover:ring-white/20"
+          className="fixed right-6 z-[50] flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full bg-zinc-800/90 text-white shadow-[0_8px_30px_rgb(0,0,0,0.5)] ring-1 ring-white/10 backdrop-blur-md transition-all hover:bg-zinc-700 hover:ring-white/20"
           aria-label="Scroll to top"
         >
-          <ArrowUp size={24} strokeWidth={2.5} />
+          <ArrowUp size={20} className="md:w-6 md:h-6" strokeWidth={2.5} />
         </motion.button>
       )}
     </AnimatePresence>

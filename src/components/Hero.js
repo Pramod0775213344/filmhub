@@ -13,7 +13,8 @@ import { useAdaptive } from "@/context/AdaptiveContext";
 export default function Hero({ featuredMovies }) {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
-  const { isMobile } = useAdaptive();
+  const { isMobile, isHydrated } = useAdaptive();
+  const mobileView = isMobile && isHydrated;
 
   const nextSlide = useCallback(() => {
     if (featuredMovies && featuredMovies.length > 0) {
@@ -42,22 +43,23 @@ export default function Hero({ featuredMovies }) {
   return (
     <section className="relative h-[100dvh] w-full overflow-hidden bg-[#020202] text-white">
       {/* Cinematic Texture Overlay - Desktop Only */}
-      {!isMobile && (
+      {!mobileView && (
         <div className="absolute inset-0 z-20 pointer-events-none opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       )}
       
       {/* Ambient Background Glow - Optimized for Mobile */}
       <div className="absolute inset-0 z-0 overflow-hidden bg-zinc-950">
         <AnimatePresence mode="wait">
-          {!isMobile ? (
-            <motion.div
-               key={`bg-glow-${movie.id}`}
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               exit={{ opacity: 0 }}
-               transition={{ duration: 1.5 }}
-               className="absolute inset-0"
-            >
+          <motion.div
+             key={`bg-glow-${movie.id}`}
+             initial={!mobileView ? { opacity: 0 } : false}
+             animate={!mobileView ? { opacity: 1 } : { opacity: 0 }}
+             exit={{ opacity: 0 }}
+             transition={{ duration: 1.5 }}
+             className="absolute inset-0"
+          >
+            {!mobileView && (
+              <>
                 <Image 
                     src={movie.backdrop_url || movie.image_url} 
                     alt="" 
@@ -68,10 +70,9 @@ export default function Hero({ featuredMovies }) {
                     sizes="100vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90" />
-            </motion.div>
-          ) : (
-            <div className="absolute inset-0 bg-zinc-950" />
-          )}
+              </>
+            )}
+          </motion.div>
         </AnimatePresence>
       </div>
 
@@ -86,7 +87,7 @@ export default function Hero({ featuredMovies }) {
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={movie.id}
-                                    initial={isMobile ? { opacity: 0.8 } : { opacity: 0, filter: "grayscale(100%)" }}
+                                    initial={mobileView ? { opacity: 0.8 } : { opacity: 0, filter: "grayscale(100%)" }}
                                     animate={{ opacity: 1, filter: "grayscale(0%)" }}
                                     exit={{ opacity: 0 }}
                                     transition={{ duration: 0.6 }}
@@ -114,7 +115,7 @@ export default function Hero({ featuredMovies }) {
                             <div className="text-right space-y-0.5 lg:space-y-1">
                                 <p className="text-[8px] lg:text-[10px] font-black uppercase tracking-[0.3em] text-white/50">Rating</p>
                                 <div className="flex items-center gap-1.5 font-black text-sm lg:text-xl">
-                                    <Star size={isMobile ? 14 : 18} fill="#e50914" className="text-primary" />
+                                    <Star size={mobileView ? 14 : 18} fill="#e50914" className="text-primary" />
                                     {movie.imdb_rating}
                                 </div>
                             </div>
@@ -128,7 +129,7 @@ export default function Hero({ featuredMovies }) {
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={movie.id}
-                        initial={isMobile ? { opacity: 0 } : { opacity: 0, x: -30 }}
+                        initial={mobileView ? { opacity: 0 } : { opacity: 0, x: -30 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5 }}

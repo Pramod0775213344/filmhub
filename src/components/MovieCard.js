@@ -10,7 +10,8 @@ import WatchlistStatus from "./WatchlistStatus";
 import { useAdaptive } from "@/context/AdaptiveContext";
 
 function MovieCard({ movie }) {
-  const { isMobile } = useAdaptive();
+  const { isMobile, isHydrated } = useAdaptive();
+  const mobileReady = isMobile && isHydrated;
 
   // Safe image URL with multi-source fallback
   const imageUrl = (movie.image_url || movie.image || movie.thumbnail || "/placeholder-movie.jpg");
@@ -34,7 +35,7 @@ function MovieCard({ movie }) {
           }}
         />
 
-        {!isMobile && (
+        {!mobileReady && (
           <div className="movie-card-gradient absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 hidden md:block" />
         )}
 
@@ -57,7 +58,7 @@ function MovieCard({ movie }) {
            </span>
         </div>
 
-        {!isMobile && (
+        {!mobileReady && (
           <div className="absolute inset-0 hidden flex-col justify-end p-5 opacity-0 transition-all duration-500 md:flex md:group-hover:opacity-100 md:group-hover:translate-y-0 md:translate-y-6">
             <h3 className="font-display text-lg font-black leading-tight text-white mb-2 line-clamp-2">
               {movie.title}
@@ -80,8 +81,8 @@ function MovieCard({ movie }) {
         )}
       </div>
 
-      <div className="mt-2 px-0.5">
-          <h3 className="font-display text-[11px] md:text-sm font-bold text-white line-clamp-1 group-hover:text-primary transition-colors">
+      <div className="mt-2 px-1">
+          <h3 className="font-display text-[11px] md:text-sm font-bold text-white line-clamp-2 min-h-[2.2em] group-hover:text-primary transition-colors leading-[1.2]">
             {movie.title}
           </h3>
           <div className="flex items-center gap-2 text-[9px] md:text-[11px] font-medium text-zinc-500 mt-0.5">
@@ -106,19 +107,16 @@ function MovieCard({ movie }) {
       }
       className="block"
     >
-      {isMobile ? (
-        cardContent
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          whileHover={{ scale: 1.05, zIndex: 10 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          {cardContent}
-        </motion.div>
-      )}
+      <motion.div
+        className="w-full"
+        initial={mobileReady ? false : { opacity: 0, y: 15 }}
+        whileInView={mobileReady ? false : { opacity: 1, y: 0 }}
+        viewport={mobileReady ? {} : { once: true, margin: "-50px" }}
+        whileHover={mobileReady ? {} : { scale: 1.05, zIndex: 10 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        {cardContent}
+      </motion.div>
     </Link>
   );
 }

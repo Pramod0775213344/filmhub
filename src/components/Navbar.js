@@ -692,22 +692,29 @@ export default function Navbar() {
                   <div className="space-y-2">
                     <p className="px-4 text-xs font-black uppercase tracking-widest text-zinc-500">Menu</p>
                     <nav className="flex flex-col space-y-1">
-                      <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Home</Link>
+                      <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-4 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" /> Home
+                      </Link>
                       
                       {/* Mobile Categories Expandable */}
                       <div>
                         <button 
                           onClick={() => setMobileExpanded(mobileExpanded === 'categories' ? null : 'categories')}
-                          className="w-full flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+                          className="w-full flex items-center justify-between rounded-xl px-4 py-4 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
                         >
-                          Categories <ChevronDown size={14} className={`transition-transform ${mobileExpanded === 'categories' ? 'rotate-180' : ''}`} />
+                          <span className="flex items-center gap-3">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary/40" /> Categories
+                          </span>
+                          <ChevronDown size={14} className={`transition-transform ${mobileExpanded === 'categories' ? 'rotate-180' : ''}`} />
                         </button>
                         <AnimatePresence>
                           {mobileExpanded === 'categories' && (
-                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white/5 px-4 rounded-b-xl">
-                              {["Action", "Adventure", "Comedy", "Drama", "Horror", "Sci-Fi", "Thriller", "Romance", "Animation", "Documentary"].map(cat => (
-                                <Link key={cat} href={`/category/${slugify(cat)}`} onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-xs font-semibold text-zinc-400 hover:text-white border-b border-white/5 last:border-0">{cat}</Link>
-                              ))}
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white/5 mx-2 mb-2 rounded-2xl">
+                              <div className="grid grid-cols-2 gap-px bg-white/5">
+                                {["Action", "Adventure", "Comedy", "Drama", "Horror", "Sci-Fi", "Thriller", "Romance", "Animation", "Documentary"].map(cat => (
+                                  <Link key={cat} href={`/category/${slugify(cat)}`} onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-[11px] font-bold text-zinc-400 hover:text-white bg-black/40 text-center uppercase tracking-wider">{cat}</Link>
+                                ))}
+                              </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -717,27 +724,44 @@ export default function Navbar() {
                       <div>
                         <button 
                           onClick={() => setMobileExpanded(mobileExpanded === 'languages' ? null : 'languages')}
-                          className="w-full flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+                          className="w-full flex items-center justify-between rounded-xl px-4 py-4 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
                         >
-                          Languages <ChevronDown size={14} className={`transition-transform ${mobileExpanded === 'languages' ? 'rotate-180' : ''}`} />
+                          <span className="flex items-center gap-3">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary/40" /> Languages
+                          </span>
+                          <ChevronDown size={14} className={`transition-transform ${mobileExpanded === 'languages' ? 'rotate-180' : ''}`} />
                         </button>
                         <AnimatePresence>
                           {mobileExpanded === 'languages' && (
-                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white/5 px-4 rounded-b-xl">
-                              {["Sinhala", "Tamil", "English", "Hindi", "Korean", "Malayalam", "Telugu"].map(lang => (
-                                <Link key={lang} href={`/language/${slugify(lang)}`} onClick={() => setIsMobileMenuOpen(false)} className="block py-2 text-xs font-semibold text-zinc-400 hover:text-white border-b border-white/5 last:border-0">{lang}</Link>
-                              ))}
+                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white/5 mx-2 mb-2 rounded-2xl">
+                              <div className="grid grid-cols-2 gap-px bg-white/5">
+                                {["Sinhala", "Tamil", "English", "Hindi", "Korean", "Malayalam", "Telugu"].map(lang => (
+                                  <Link key={lang} href={`/language/${slugify(lang)}`} onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-[11px] font-bold text-zinc-400 hover:text-white bg-black/40 text-center uppercase tracking-wider">{lang}</Link>
+                                ))}
+                              </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
                       </div>
 
-                      <Link href="/movies" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Movies</Link>
-                      <Link href="/tv-shows" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">TV Shows</Link>
-                      <Link href="/korean-dramas" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Korean Dramas</Link>
-                      <Link href="/upcoming" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Upcoming</Link>
-                      <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">Contact</Link>
-                      <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-3 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white">About</Link>
+                      <Link href="/movies" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-4 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/40" /> Movies
+                      </Link>
+                      <Link href="/tv-shows" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-4 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/40" /> TV Shows
+                      </Link>
+                      <Link href="/korean-dramas" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-4 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/40" /> Korean Dramas
+                      </Link>
+                      <Link href="/upcoming" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-4 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/40" /> Upcoming
+                      </Link>
+                      <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-4 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/40" /> Contact
+                      </Link>
+                      <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="rounded-xl px-4 py-4 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/5 hover:text-white flex items-center gap-3">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/40" /> About
+                      </Link>
                       {user && (
                         <>
                           <Link

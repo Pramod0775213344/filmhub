@@ -5,14 +5,16 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AdaptiveContext = createContext({
   isMobile: false,
   isTablet: false,
-  isLowPower: false
+  isLowPower: false,
+  isHydrated: false
 });
 
 export function AdaptiveProvider({ children }) {
   const [state, setState] = useState({
     isMobile: false,
     isTablet: false,
-    isLowPower: false
+    isLowPower: false,
+    isHydrated: false
   });
 
   useEffect(() => {
@@ -21,14 +23,14 @@ export function AdaptiveProvider({ children }) {
       const isMobile = width < 768;
       const isTablet = width >= 768 && width < 1024;
       
-      // Basic low power detection (optional)
       const isLowPower = 'connection' in navigator && 
         (navigator.connection.saveData || navigator.connection.effectiveType === '2g');
 
-      setState({ isMobile, isTablet, isLowPower });
+      setState({ isMobile, isTablet, isLowPower, isHydrated: true });
     };
 
-    update();
+    // Use setTimeout to ensure hydration completes before state updates
+    const timer = setTimeout(update, 0);
     
     let timeoutId;
     const handleResize = () => {
@@ -37,7 +39,11 @@ export function AdaptiveProvider({ children }) {
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timer);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (

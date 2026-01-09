@@ -183,17 +183,9 @@ body {
 }
 /* Performance Optimizations for Mobile */
 @media (max-width: 768px) {
-  * {
-    /* Reduce filter complexity on mobile */
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-
   .glass {
-    /* Use solid background with transparency instead of heavy blur */
-    background: rgba(10, 10, 10, 0.95) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    /* Slightly more opaque background on mobile when blur is reduced */
+    background: rgba(10, 10, 10, 0.9) !important;
   }
 
   /* Disable expensive shadows on mobile */
