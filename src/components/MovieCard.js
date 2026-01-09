@@ -11,10 +11,11 @@ import { useAdaptive } from "@/context/AdaptiveContext";
 
 function MovieCard({ movie }) {
   const { isMobile, isHydrated } = useAdaptive();
-  const mobileReady = isMobile && isHydrated;
 
   // Safe image URL with multi-source fallback
-  const imageUrl = (movie.image_url || movie.image || movie.thumbnail || "/placeholder-movie.jpg");
+  const rawImageUrl = (movie.image_url || movie.image || movie.thumbnail || "/placeholder-movie.jpg");
+  // Ensure we have a valid string and handle protocol-relative URLs
+  const imageUrl = rawImageUrl.startsWith('//') ? `https:${rawImageUrl}` : rawImageUrl;
   const optimizedUrl = imageUrl.includes('tmdb.org') ? imageUrl.replace('/w500/', '/w342/') : imageUrl;
 
   const cardContent = (
@@ -27,17 +28,13 @@ function MovieCard({ movie }) {
           src={optimizedUrl}
           alt={movie.title || "Movie Card"}
           fill
-          loading="lazy"
           className="object-cover transition-transform duration-500 md:group-hover:scale-110"
           sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 12vw"
-          onError={(e) => {
-            e.target.src = "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=342&auto=format&fit=crop";
-          }}
+          unoptimized={!optimizedUrl.includes('tmdb.org') && !optimizedUrl.includes('unsplash.com')}
         />
 
-        {!mobileReady && (
-          <div className="movie-card-gradient absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 hidden md:block" />
-        )}
+        {/* Hover overlay - Desktop Only */}
+        <div className="movie-card-gradient absolute inset-0 opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 hidden md:block" />
 
         <div className="absolute left-2 top-2 md:left-3 md:top-3 flex flex-col gap-1 z-10">
            {movie.latest_episode && (
@@ -58,27 +55,25 @@ function MovieCard({ movie }) {
            </span>
         </div>
 
-        {!mobileReady && (
-          <div className="absolute inset-0 hidden flex-col justify-end p-5 opacity-0 transition-all duration-500 md:flex md:group-hover:opacity-100 md:group-hover:translate-y-0 md:translate-y-6">
-            <h3 className="font-display text-lg font-black leading-tight text-white mb-2 line-clamp-2">
-              {movie.title}
-            </h3>
-            <div className="flex items-center gap-2 text-xs font-bold text-zinc-400">
-              <div className="flex items-center gap-1 text-primary">
-                <Star size={12} fill="currentColor" />
-                <span>{movie.rating}</span>
-              </div>
-              <span>•</span>
-              <span>{movie.year}</span>
+        {/* Desktop Content Overlay */}
+        <div className="absolute inset-0 hidden flex-col justify-end p-5 opacity-0 transition-all duration-500 md:flex md:group-hover:opacity-100 md:group-hover:translate-y-0 md:translate-y-6">
+          <h3 className="font-display text-lg font-black leading-tight text-white mb-2 line-clamp-2">
+            {movie.title}
+          </h3>
+          <div className="flex items-center gap-2 text-xs font-bold text-zinc-400">
+            <div className="flex items-center gap-1 text-primary">
+              <Star size={12} fill="currentColor" />
+              <span>{movie.rating}</span>
             </div>
-            <div className="mt-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-xl">
-                <Play size={20} fill="currentColor" />
-              </div>
-              <WatchlistStatus movieId={movie.id} initialStatus={movie.isInWatchlist} />
+            <span>•</span>
+            <span>{movie.year}</span>
+          </div>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-xl">
+              <Play size={20} fill="currentColor" />
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       <div className="mt-2 px-1">
@@ -109,11 +104,9 @@ function MovieCard({ movie }) {
     >
       <motion.div
         className="w-full"
-        initial={mobileReady ? false : { opacity: 0, y: 15 }}
-        whileInView={mobileReady ? false : { opacity: 1, y: 0 }}
-        viewport={mobileReady ? {} : { once: true, margin: "-50px" }}
-        whileHover={mobileReady ? {} : { scale: 1.05, zIndex: 10 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        initial={isHydrated ? { opacity: 1 } : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
       >
         {cardContent}
       </motion.div>
