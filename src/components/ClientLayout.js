@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
+import { AdaptiveProvider } from "@/context/AdaptiveContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
@@ -20,8 +21,7 @@ export default function ClientLayout({ children }) {
                      pathname.startsWith("/admin");
 
   return (
-    <>
-
+    <AdaptiveProvider>
       {!pathname.startsWith("/admin") && <SmoothScroll />}
       {!hideLayout && <Navbar />}
       <Suspense fallback={null}>
@@ -31,6 +31,6 @@ export default function ClientLayout({ children }) {
       {!hideLayout && <ScrollToTop />}
       {!hideLayout && <Chatbot />}
       {!hideLayout && <Footer />}
-    </>
+    </AdaptiveProvider>
   );
 }

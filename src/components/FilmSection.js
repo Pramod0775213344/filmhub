@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function FilmSection({ title, movies, href, isGrid = false }) {
   const containerClasses = isGrid 
     ? "grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8"
-    : "flex gap-4 overflow-x-auto pb-5 pt-2 px-1 md:grid md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 md:gap-4 md:overflow-visible md:pb-0 md:px-0 snap-x snap-mandatory no-scrollbar";
+    : "flex gap-4 overflow-x-auto pb-6 pt-2 px-4 -mx-4 md:grid md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 md:gap-4 md:overflow-visible md:pb-0 md:px-0 md:mx-0 snap-x snap-mandatory no-scrollbar";
 
   return (
     <section className="mt-12 md:mt-20">
