@@ -217,7 +217,7 @@ async function SearchResults({ search, category }) {
   
   return (
     <div className="container-custom pb-20 pt-32">
-       <FilmSection title={search ? `Results for "${search}"` : "Filtered Movies"} movies={enrich(results)} />
+       <FilmSection title={search ? `Results for "${search}"` : "Filtered Movies"} movies={enrich(results)} isGrid={true} />
     </div>
   );
 }

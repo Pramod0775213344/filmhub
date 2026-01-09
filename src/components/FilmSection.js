@@ -4,7 +4,11 @@ import MovieCard from "./MovieCard";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-export default function FilmSection({ title, movies, href }) {
+export default function FilmSection({ title, movies, href, isGrid = false }) {
+  const containerClasses = isGrid 
+    ? "grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8"
+    : "flex gap-4 overflow-x-auto pb-5 pt-2 px-1 md:grid md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 md:gap-4 md:overflow-visible md:pb-0 md:px-0 snap-x snap-mandatory no-scrollbar";
+
   return (
     <section className="mt-12 md:mt-20">
       <div className="space-y-8">
@@ -25,9 +29,9 @@ export default function FilmSection({ title, movies, href }) {
           )}
         </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-5 pt-2 px-1 md:grid md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 md:gap-4 md:overflow-visible md:pb-0 md:px-0 snap-x snap-mandatory no-scrollbar">
+        <div className={containerClasses}>
           {movies.map((movie) => (
-            <div key={movie.id} className="min-w-[150px] sm:min-w-[180px] md:min-w-full snap-start">
+            <div key={movie.id} className={isGrid ? "" : "min-w-[150px] sm:min-w-[180px] md:min-w-0 snap-start"}>
               <MovieCard movie={movie} />
             </div>
           ))}
