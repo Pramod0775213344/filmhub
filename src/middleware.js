@@ -1,4 +1,4 @@
-import { updateSession } from './utils/supabase/middleware'
+import { updateSession } from './utils/supabase/session'
 import { NextResponse } from 'next/server'
 
 // Simple in-memory rate limiter (for production, use Redis or similar)
