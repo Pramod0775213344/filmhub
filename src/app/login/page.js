@@ -24,17 +24,32 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!supabase) return;
+    
+    // Client-side validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setInternalError("Please enter a valid email address.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setInternalError("Password must be at least 6 characters.");
+      return;
+    }
+
     setLoading(true);
     setInternalError(null);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: email.trim(),
+      password: password,
     });
 
     if (error) {
       if (error.message.includes("Email not confirmed")) {
         setInternalError("Please check your email and confirm your account before signing in.");
+      } else if (error.message.includes("Invalid login credentials")) {
+        setInternalError("Invalid email or password. Please try again.");
       } else {
         setInternalError(error.message);
       }
