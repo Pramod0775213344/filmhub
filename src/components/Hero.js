@@ -12,6 +12,16 @@ import CinematicButton from "@/components/CinematicButton";
 export default function Hero({ featuredMovies }) {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const nextSlide = useCallback(() => {
     if (featuredMovies && featuredMovies.length > 0) {
@@ -86,19 +96,21 @@ export default function Hero({ featuredMovies }) {
                     {/* HUD Active Frame */}
                     <div className="relative aspect-[16/10] sm:aspect-video w-full overflow-hidden rounded-[2rem] border border-white/20 shadow-[0_0_100px_rgba(229,9,20,0.4)] bg-zinc-900/20 backdrop-blur-3xl transition-shadow duration-500 group-hover:shadow-[0_0_150px_rgba(229,9,20,0.6)]">
                         
-                        {/* Dynamic Scanning Elements */}
-                        <div className="absolute inset-0 z-20 pointer-events-none">
-                            <div className="absolute top-6 left-6 w-10 h-10 border-t-2 border-l-2 border-primary/60" />
-                            <div className="absolute top-6 right-6 w-10 h-10 border-t-2 border-r-2 border-primary/60" />
-                            <div className="absolute bottom-6 left-6 w-10 h-10 border-b-2 border-l-2 border-primary/60" />
-                            <div className="absolute bottom-6 right-6 w-10 h-10 border-b-2 border-r-2 border-primary/60" />
-                            
-                            <motion.div 
-                                animate={{ top: ["0%", "100%", "0%"] }}
-                                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                                className="absolute left-0 right-0 h-[1px] bg-primary/40 shadow-[0_0_15px_rgba(229,9,20,0.8)]"
-                            />
-                        </div>
+                        {/* Dynamic Scanning Elements (Desktop Only) */}
+                        {!isMobile && (
+                          <div className="absolute inset-0 z-20 pointer-events-none">
+                              <div className="absolute top-6 left-6 w-10 h-10 border-t-2 border-l-2 border-primary/60" />
+                              <div className="absolute top-6 right-6 w-10 h-10 border-t-2 border-r-2 border-primary/60" />
+                              <div className="absolute bottom-6 left-6 w-10 h-10 border-b-2 border-l-2 border-primary/60" />
+                              <div className="absolute bottom-6 right-6 w-10 h-10 border-b-2 border-r-2 border-primary/60" />
+                              
+                              <motion.div 
+                                  animate={{ top: ["0%", "100%", "0%"] }}
+                                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                  className="absolute left-0 right-0 h-[1px] bg-primary/40 shadow-[0_0_15px_rgba(229,9,20,0.8)]"
+                              />
+                          </div>
+                        )}
 
                         <div className="absolute inset-0 bg-zinc-900">
                             <AnimatePresence mode="wait">
@@ -163,15 +175,15 @@ export default function Hero({ featuredMovies }) {
                             <h1 className="text-3xl sm:text-6xl lg:text-8xl font-black leading-[0.9] tracking-tighter uppercase italic drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
                                 {movie.title}
                             </h1>
-                            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-3 text-[10px] sm:text-sm font-bold text-zinc-400">
-                                 <span className="bg-white/10 px-3 py-1 rounded-full text-white"># {movie.year}</span>
-                                 <span className="text-primary italic">සිංහල උපසිරැසි සමඟ</span>
+                            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-2 sm:gap-3 text-[9px] sm:text-sm font-bold text-zinc-400">
+                                 <span className="bg-white/10 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-white"># {movie.year}</span>
+                                 <span className="text-primary italic whitespace-nowrap">සිංහල උපසිරැසි සමඟ</span>
                                  <span className="hidden sm:inline opacity-30">|</span>
                                  <span className="opacity-60">{movie.category?.split(',')[0]}</span>
                             </div>
                         </div>
 
-                        <p className="text-sm sm:text-xl text-zinc-400 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0 line-clamp-2 sm:line-clamp-3">
+                        <p className="text-xs sm:text-xl text-zinc-400 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0 line-clamp-2 sm:line-clamp-3 px-4 sm:px-0">
                             {movie.description}
                         </p>
 

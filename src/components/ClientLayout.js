@@ -5,8 +5,9 @@ import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SmoothScroll from "@/components/SmoothScroll";
-import Chatbot from "@/components/Chatbot";
-import ScrollToTop from "@/components/ScrollToTop";
+import dynamic from 'next/dynamic';
+const Chatbot = dynamic(() => import("./Chatbot"), { ssr: false });
+const ScrollToTop = dynamic(() => import("./ScrollToTop"), { ssr: false });
 
 import MiniHero from "@/components/MiniHero";
 

@@ -25,9 +25,11 @@ export default function FilmSection({ title, movies, href }) {
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+        <div className="flex gap-4 overflow-x-auto pb-5 pt-2 px-1 md:grid md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 md:gap-4 md:overflow-visible md:pb-0 md:px-0 snap-x snap-mandatory no-scrollbar">
           {movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
+            <div key={movie.id} className="min-w-[150px] sm:min-w-[180px] md:min-w-full snap-start">
+              <MovieCard movie={movie} />
+            </div>
           ))}
         </div>
       </div>
