@@ -58,14 +58,13 @@ export default function Hero({ featuredMovies }) {
               alt="" 
               fill 
               priority
-              className="object-cover opacity-60 brightness-50 md:opacity-50"
+              className="object-cover opacity-50 brightness-50"
               quality={1} // Very low quality for ambient light
               sizes="10vw"
             />
           </motion.div>
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent lg:bg-gradient-to-b lg:from-black/80 lg:via-transparent lg:to-[#020202]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#020202]/90 via-transparent to-transparent lg:hidden" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-[#020202]" />
       </div>
 
       {/* 2. LAYER: Giant Background Typography - Parallel animations (Desktop Only for speed) */}
@@ -110,7 +109,7 @@ export default function Hero({ featuredMovies }) {
                   </span>
                 </div>
 
-                <h1 className="text-5xl sm:text-5xl lg:text-9xl font-black leading-[0.9] lg:leading-[0.9] tracking-tighter uppercase italic drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] line-clamp-2 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60">
+                <h1 className="text-xl sm:text-5xl lg:text-9xl font-black leading-[1] lg:leading-[0.9] tracking-tighter uppercase italic drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)] line-clamp-2">
                   {movie.title}
                 </h1>
 
@@ -125,7 +124,7 @@ export default function Hero({ featuredMovies }) {
                   <span className="bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg uppercase tracking-widest text-[8px] lg:text-sm">{movie.category?.split(',')[0]}</span>
                 </div>
 
-                <p className="text-sm sm:text-lg lg:text-xl text-zinc-300 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0 line-clamp-2 px-2 lg:px-0 opacity-90 drop-shadow-md">
+                <p className="text-[10px] sm:text-lg lg:text-xl text-zinc-400 font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0 line-clamp-2 px-6 lg:px-0 opacity-80">
                   {movie.description}
                 </p>
 
@@ -163,7 +162,7 @@ export default function Hero({ featuredMovies }) {
                 className="relative group lg:perspective-[2000px]"
               >
                 {/* 3D Poster Stack Design */}
-                <div className="relative w-[55vw] sm:w-[50vw] max-w-[260px] lg:w-[380px] lg:max-w-none aspect-[2/3] transform-gpu">
+                <div className="relative w-[35vw] sm:w-[50vw] max-w-[200px] lg:w-[380px] lg:max-w-none aspect-[2/3] transform-gpu">
                   {/* Outer Glow */}
                   <div className="absolute inset-0 bg-primary/20 blur-[60px] lg:blur-[100px] rounded-full scale-110 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                   
