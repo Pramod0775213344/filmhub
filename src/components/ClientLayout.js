@@ -13,7 +13,7 @@ const ScrollToTop = dynamic(() => import("./ScrollToTop"), { ssr: false });
 
 import MiniHero from "@/components/MiniHero";
 
-import InitialLoader from "@/components/InitialLoader";
+import InitialLoader from "./InitialLoader";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();

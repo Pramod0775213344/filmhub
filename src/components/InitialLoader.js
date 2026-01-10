@@ -7,91 +7,152 @@ export default function InitialLoader() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Slightly shorter duration for a snappy feel
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3200);
+    }, 3500);
 
     return () => clearTimeout(timer);
   }, []);
+
+  const containerVariants = {
+    exit: {
+      opacity: 0,
+      scale: 1.1,
+      filter: "blur(10px)",
+      transition: { 
+        duration: 0.8, 
+        ease: "easeInOut",
+        when: "afterChildren"
+      }
+    }
+  };
+
+  const letterContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3
+      }
+    },
+    exit: {
+      opacity: 0,
+      scale: 5, // Fly through effect
+      transition: { duration: 0.5, ease: "easeIn" }
+    }
+  };
+
+  const letterVariants = {
+    hidden: { 
+      opacity: 0, 
+      scale: 0, 
+      y: 50,
+      rotateX: -90
+    },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      y: 0, 
+      rotateX: 0,
+      transition: { 
+        type: "spring", 
+        damping: 12, 
+        stiffness: 100 
+      }
+    }
+  };
 
   return (
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#050505] overflow-hidden"
-          initial={{ opacity: 1 }}
-          exit={{ 
-            opacity: 0,
-            transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } // Custom easing
-          }}
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#020202] overflow-hidden"
+          variants={containerVariants}
+          initial="initial"
+          animate="visible"
+          exit="exit"
         >
-          {/* Ambient Background Glow */}
-          <motion.div 
-             initial={{ opacity: 0 }}
-             animate={{ opacity: 0.4 }}
-             transition={{ duration: 2 }}
-             className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-800/20 via-[#050505] to-[#050505]"
-          />
+          <div className="relative z-10 flex flex-col items-center justify-center p-4">
+            {/* Cinematic Glow Background */}
+            <motion.div 
+               initial={{ opacity: 0, scale: 0.5 }}
+               animate={{ opacity: 0.4, scale: 1 }}
+               transition={{ duration: 2, ease: "easeOut" }}
+               className="absolute inset-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 blur-[120px] rounded-full pointer-events-none"
+            />
 
-          <div className="relative z-10">
-            {/* Mask Container for Light Sweep Effect */}
-            <div className="relative overflow-hidden p-4">
-              
-              {/* The Text */}
-              <motion.h1 
-                initial={{ opacity: 0, y: 20, letterSpacing: "0.5em", filter: "blur(10px)" }}
-                animate={{ opacity: 1, y: 0, letterSpacing: "0.15em", filter: "blur(0px)" }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
-                className="font-display text-4xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 whitespace-nowrap"
-              >
-                SUBHUB SL
-              </motion.h1>
+            {/* Main Text Container */}
+            <motion.div
+              variants={letterContainerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="relative flex items-center justify-center"
+            >
+              <div className="flex space-x-2 md:space-x-4">
+                {"SUBHUB SL".split("").map((char, index) => (
+                  <motion.span
+                    key={index}
+                    variants={letterVariants}
+                    className={`font-display text-5xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 ${char === " " ? "w-4 md:w-8" : ""}`}
+                  >
+                    {char}
+                  </motion.span>
+                ))}
+              </div>
 
-              {/* Light Sweep Overlay (The "Premium" Shine) */}
+              {/* Shimmer Overlay */}
               <motion.div
-                initial={{ x: "-100%" }}
-                animate={{ x: "200%" }}
+                initial={{ x: "-100%", opacity: 0 }}
+                animate={{ x: "150%", opacity: 1 }}
                 transition={{ 
                   duration: 1.5, 
                   ease: "easeInOut", 
-                  delay: 0.8, 
-                  repeat: Infinity, 
-                  repeatDelay: 2 
+                  delay: 1.8 
                 }}
-                className="absolute inset-0 z-20 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-[-20deg]"
+                className="absolute inset-0 z-20 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg] pointer-events-none"
                 style={{ mixBlendMode: "overlay" }}
               />
-            </div>
-
-            {/* Reflection Effect */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.3 }}
-              transition={{ delay: 1, duration: 1 }}
-              className="absolute top-full left-0 right-0 transform -scale-y-100 origin-top"
-            >
-               <h1 className="font-display text-4xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-transparent opacity-20 blur-[2px] tracking-[0.15em] whitespace-nowrap">
-                SUBHUB SL
-              </h1>
             </motion.div>
 
-            {/* Cinematic Line expand */}
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "100%", opacity: 1 }}
-              transition={{ delay: 0.5, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-              className="h-[1px] bg-gradient-to-r from-transparent via-[#e50914] to-transparent w-full mt-8 opacity-50"
-            />
+            {/* Decorative Lines and Subtitle */}
+            <div className="absolute top-24 md:top-32 w-full flex flex-col items-center">
+              <motion.div
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "200px", opacity: 1 }}
+                exit={{ width: "0px", opacity: 0 }}
+                transition={{ delay: 1.5, duration: 1, ease: "circOut" }}
+                className="h-[1px] bg-gradient-to-r from-transparent via-primary to-transparent"
+              />
+              
+              <motion.p
+                initial={{ opacity: 0, y: 10, letterSpacing: "0.2em" }}
+                animate={{ opacity: 0.7, y: 0, letterSpacing: "0.5em" }}
+                exit={{ opacity: 0, letterSpacing: "1em" }}
+                transition={{ delay: 2, duration: 1 }}
+                className="mt-4 text-[10px] md:text-sm font-light text-white uppercase tracking-widest"
+              >
+                Cinematic Experience
+              </motion.p>
+            </div>
             
-            <motion.p
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 0.6 }}
-               transition={{ delay: 1.5, duration: 1 }}
-               className="text-center mt-4 text-[10px] uppercase tracking-[0.6em] text-white font-light"
-            >
-              Premium Experience
-            </motion.p>
+            {/* Loading Progress Line at Bottom */}
+            <div className="absolute bottom-10 left-0 right-0 flex justify-center">
+                <motion.div 
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: "100%", opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 3 }}
+                    className="w-64 h-[1px] bg-white/10 overflow-hidden relative"
+                >
+                     <motion.div 
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "100%" }}
+                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-primary to-transparent w-1/2"
+                     />
+                </motion.div>
+            </div>
           </div>
         </motion.div>
       )}
