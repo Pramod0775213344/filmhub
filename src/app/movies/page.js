@@ -52,12 +52,7 @@ export default async function MoviesPage({ searchParams }) {
     <main className="min-h-screen bg-background text-white">
       <div className="container-custom pb-20 px-4">
         <div className="mb-8 pt-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div className="space-y-1">
-            <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic">
-              Cinematic <span className="text-primary not-italic">Movies</span>
-            </h1>
-            <p className="text-[10px] md:text-xs font-bold text-zinc-500 uppercase tracking-[0.3em]">Explore Premium Content</p>
-          </div>
+          <div className="hidden" />
           
           <FilterSection 
             categories={uniqueCategories} 

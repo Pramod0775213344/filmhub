@@ -46,6 +46,7 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
             alt={title} 
             fill 
             className="object-cover opacity-60 transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
           />
         ) : (
           <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">

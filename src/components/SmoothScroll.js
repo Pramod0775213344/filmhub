@@ -8,16 +8,25 @@ export default function SmoothScroll() {
   const { isMobile, isHydrated } = useAdaptive();
 
   useEffect(() => {
-    // Check for hydration and mobile status
-    if (!isHydrated || isMobile) {
-      return;
+    // Mobile/Touch/Native Scroll Handling
+    if (!isHydrated || isMobile || window.matchMedia("(pointer: coarse)").matches) {
+      let scrollTimer;
+      const handleNativeScroll = () => {
+        document.body.classList.add('is-scrolling');
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+          document.body.classList.remove('is-scrolling');
+        }, 150); // Debounce remove
+      };
+
+      window.addEventListener('scroll', handleNativeScroll, { passive: true });
+      return () => {
+        window.removeEventListener('scroll', handleNativeScroll);
+        clearTimeout(scrollTimer);
+      };
     }
 
-    // Double check for touch devices or low performance/save data
-    if (window.matchMedia("(pointer: coarse)").matches) {
-       return;
-    }
-
+    // Lenis Smooth Scroll (Desktop)
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -45,6 +54,7 @@ export default function SmoothScroll() {
 
     return () => {
       lenis.destroy();
+      document.body.classList.remove('is-scrolling');
     };
   }, [isMobile, isHydrated]);
 
