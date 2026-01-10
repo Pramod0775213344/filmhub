@@ -7,8 +7,8 @@ import { slugify } from "@/utils/slugify";
 import VideoPlayer from "@/components/VideoPlayer";
 import { searchTMDB, getTMDBDetails } from "@/utils/tmdb";
 import { 
-  Play, Star, Calendar, Clock, Video, Download, Plus, Check, PlayCircle, User,
-  MessageSquare, Globe, X, Share2, Heart, Image as ImageIcon, Maximize2, Loader2
+  Play, Star, Calendar, Clock, Video, Download, Plus, Check, PlayCircle, User, Users,
+  MessageSquare, Globe, X, Share2, Heart, Image as ImageIcon, Maximize2, Loader2, TrendingUp
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -31,9 +31,6 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
   const [isDownloadLoading, setIsDownloadLoading] = useState(false);
   const supabase = createClient();
 
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const scrollRef = useRef(0);
-
   useEffect(() => {
     // 1. Increment view count
     const incrementView = async () => {
@@ -48,25 +45,6 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
         }
     };
     incrementView();
-
-    // 2. Handle Scroll (Throttled)
-    let animationFrameId;
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > 100) {
-        setIsNavVisible(currentScrollY < scrollRef.current);
-      } else {
-        setIsNavVisible(true);
-      }
-      scrollRef.current = currentScrollY;
-    };
-
-    const onScroll = () => {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(handleScroll);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
 
     // 4. Fetch TMDB Images
     const fetchTMDBImages = async () => {
@@ -87,11 +65,6 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
       }
     };
     fetchTMDBImages();
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    };
   }, [movie?.id, movie?.title, movie?.year, supabase]);
 
   useEffect(() => {
@@ -164,7 +137,7 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
     <main className="min-h-screen bg-background text-white selection:bg-primary selection:text-white">
       
       {/* Immersive Hero Section */}
-      <div className="relative h-[80vh] md:h-[90vh] w-full overflow-hidden bg-black">
+      <div className="relative h-[70dvh] md:h-[90dvh] w-full overflow-hidden bg-black">
         {/* Backdrop Image with Cross-fade Animation */}
         <div className="absolute inset-0">
           <AnimatePresence mode="popLayout">
@@ -189,39 +162,41 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
           </AnimatePresence>
           {/* Cinematic Overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-background to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/20 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-background to-transparent" />
         </div>
 
         {/* Hero Content */}
-        <div className="container-custom relative h-full flex flex-col items-center justify-center pt-20 px-4 text-center">
+        <div className="container-custom relative h-full flex flex-col items-center justify-center pt-20 pb-16 md:pb-0 px-4 text-center">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="space-y-4 md:space-y-6 max-w-5xl"
             >
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 md:px-6 py-1.5 md:py-2 backdrop-blur-xl border border-primary/30 text-primary mb-2">
-                    <Star size={14} className="fill-current md:w-[18px] md:h-[18px]" />
-                    <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em]">IMDb {movie.imdb_rating || movie.rating || "N/A"}</span>
-                </div>
+                <div className="flex flex-col items-center gap-3">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 md:px-6 py-1.5 md:py-2 backdrop-blur-xl border border-primary/30 text-primary mb-1">
+                        <Star size={12} className="fill-current md:w-[18px] md:h-[18px]" />
+                        <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em]">IMDb {movie.imdb_rating || movie.rating || "N/A"}</span>
+                    </div>
                 
-                <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[0.9]">
-                    {movie.title}
-                    <span className="block text-sm sm:text-lg md:text-2xl lg:text-3xl font-bold text-zinc-400 mt-2 md:mt-4 tracking-normal opacity-80">| සිංහල උපසිරැසි සමඟ</span>
-                </h1>
+                    <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[1.1] md:leading-[0.9]">
+                        {movie.title}
+                        <span className="block text-xs sm:text-lg md:text-2xl lg:text-3xl font-bold text-zinc-400 mt-2 md:mt-4 tracking-normal opacity-80 uppercase tracking-[0.1em]">| With Sinhala Subtitles</span>
+                    </h1>
+                </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 text-[10px] md:text-sm font-bold text-zinc-400 uppercase tracking-widest pt-2 md:pt-4">
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[9px] md:text-sm font-bold text-zinc-400 uppercase tracking-widest pt-2 md:pt-4">
                     <span className="flex items-center gap-1.5 md:gap-2">
-                        <Calendar size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.year}
+                        <Calendar size={12} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.year}
                     </span>
-                    <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                    <span className="hidden sm:block h-1 w-1 rounded-full bg-zinc-700" />
                     <span className="flex items-center gap-1.5 md:gap-2">
-                        <Clock size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.duration || "N/A"}
+                        <Clock size={12} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.duration || "N/A"}
                     </span>
-                    <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                    <span className="hidden sm:block h-1 w-1 rounded-full bg-zinc-700" />
                     <span className="flex items-center gap-1.5 md:gap-2">
-                        <Globe size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.language || "Korean"}
+                        <Globe size={12} className="text-primary md:w-[18px] md:h-[18px]" /> {movie.language || "Korean"}
                     </span>
                 </div>
 
@@ -229,8 +204,19 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                 <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 pt-6 md:pt-8">
                     <CinematicButton 
                       onClick={() => {
-                          const player = document.getElementById("video-player-section");
-                          if (player) player.scrollIntoView({ behavior: "smooth" });
+                          setActiveTab("overview");
+                          setTimeout(() => {
+                              const element = document.getElementById('k-drama-content');
+                              if (element) {
+                                  const offset = 100;
+                                  const elementPosition = element.getBoundingClientRect().top;
+                                  const offsetPosition = elementPosition + window.pageYOffset - offset;
+                                  window.scrollTo({
+                                      top: offsetPosition,
+                                      behavior: "smooth"
+                                  });
+                              }
+                          }, 100);
                       }}
                       icon={Play}
                       variant="primary"
@@ -250,30 +236,51 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
             </motion.div>
         </div>
       </div>
-      <div className="container-custom relative z-10 -mt-24 pb-20">
+      <div id="k-drama-content" className="container-custom relative z-10 -mt-20 md:-mt-32 pb-24 px-4">
         
-        {/* Main Tabs UI */}
-        <div className="flex gap-4 p-2 bg-zinc-900/50 backdrop-blur-2xl border border-white/5 rounded-full w-fit mx-auto mb-16 overflow-x-auto no-scrollbar max-w-full">
-            {["overview", "trailer", "photos", "cast", "related", "reviews"].map((tab) => (
-                <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
-                        activeTab === tab 
-                        ? "bg-primary text-white shadow-[0_0_20px_rgba(229,9,20,0.4)]" 
-                        : "text-zinc-500 hover:text-white"
-                    }`}
-                >
-                    {tab}
-                </button>
-            ))}
+        {/* Floating Glass Navigation */}
+        <div className="sticky top-20 z-40 mb-16 flex justify-center">
+            <div className="flex gap-2 p-1.5 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl overflow-x-auto no-scrollbar max-w-full touch-pan-x">
+                {["overview", "trailer", "photos", "cast", "related", "reviews"].map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => {
+                            setActiveTab(tab);
+                            const element = document.getElementById('k-drama-content');
+                            if (element) {
+                                const offset = 100;
+                                const elementPosition = element.getBoundingClientRect().top;
+                                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                                window.scrollTo({
+                                    top: offsetPosition,
+                                    behavior: "smooth"
+                                });
+                            }
+                        }}
+                        className={`relative px-4 sm:px-6 py-2.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.15em] md:tracking-[0.2em] transition-all duration-300 overflow-hidden group whitespace-nowrap flex-shrink-0 ${
+                            activeTab === tab 
+                            ? "text-white shadow-[0_0_20px_rgba(229,9,20,0.5)]" 
+                            : "text-zinc-500 hover:text-white"
+                        }`}
+                    >
+                        {activeTab === tab && (
+                            <motion.div 
+                                layoutId="activeTab"
+                                className="absolute inset-0 bg-primary"
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            />
+                        )}
+                        <span className="relative z-10">{tab}</span>
+                    </button>
+                ))}
+            </div>
         </div>
 
         {/* Content Section */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           
-          {/* Left Column: Media Player & Content */}
-          <div className="lg:col-span-2 space-y-12">
+          {/* Left Column: Media Player & Content (8 cols) */}
+          <div className="lg:col-span-8 space-y-12">
             
             <AnimatePresence mode="wait">
                 {activeTab === "overview" && (
@@ -281,51 +288,73 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                       key="overview"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="space-y-12"
+                      className="space-y-16"
                     >
-                        {/* Video Player Section */}
-                        {movie.video_url && (
-                            <section id="video-player-section" className="space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
-                                        <div className="h-8 w-1.5 bg-primary rounded-full" />
-                                        Watch Korean Drama
+                        {/* Storyline Section */}
+                        <section className="relative">
+                            <div className="absolute -inset-4 bg-gradient-to-b from-zinc-900/50 to-transparent rounded-[2.5rem] -z-10 blur-xl" />
+                            <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+                                <div className="hidden md:flex flex-col items-center gap-4 pt-2">
+                                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-primary">
+                                        <Globe size={20} />
+                                    </div>
+                                    <div className="w-px h-full bg-gradient-to-b from-white/10 to-transparent" />
+                                </div>
+                                <div className="flex-1 space-y-6">
+                                    <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                                        Storyline
                                     </h3>
-                                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-500 bg-white/5 px-4 py-2 rounded-full border border-white/5">
-                                        <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                        Ultra HD 4K
+                                    <div className="prose prose-invert max-w-none">
+                                        {movie.description?.split(/\\r?\\n|\\\\n/).filter(p => p.trim() !== "").map((para, i) => (
+                                            <p key={i} className={`text-justify text-lg md:text-xl leading-[1.8] font-medium ${i === 0 ? "text-zinc-100 first-letter:text-5xl first-letter:font-black first-letter:text-primary first-letter:mr-3 first-letter:float-left" : "text-zinc-400"}`}>
+                                                {para}
+                                            </p>
+                                        ))}
+                                        {(!movie.description || movie.description.length === 0) && (
+                                            <p className="text-zinc-500 italic">Description not available.</p>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-zinc-900 shadow-2xl ring-1 ring-white/10">
-                                    <VideoPlayer url={movie.video_url} title={movie.title} poster={movie.image_url || movie.image} />
+                            </div>
+                        </section>
+
+                        {/* Video Player Section */}
+                        {movie.video_url && (
+                             <section className="relative group perspective-1000">
+                                <div className="flex items-center justify-between mb-6 px-2">
+                                    <div className="flex flex-col">
+                                        <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3">
+                                            <span className="w-1 h-6 bg-primary rounded-full" />
+                                            Main Feature
+                                        </h3>
+                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest pl-4 mt-1">
+                                            Cinematic Experience
+                                        </p>
+                                    </div>
+                                    <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/5 backdrop-blur-sm">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                                            Stream Ready
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                {/* Screen Container with Glow */}
+                                <div className="relative rounded-[2rem] bg-black p-1 ring-1 ring-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] cinematic-glow transition-all duration-500 md:group-hover:ring-primary/30">
+                                    <div className="overflow-hidden rounded-[1.8rem] bg-zinc-900 aspect-video relative z-10">
+                                        <VideoPlayer url={movie.video_url} title={movie.title} poster={movie.image_url || movie.image} />
+                                    </div>
+                                    
+                                    {/* Ambient Light Reflection */}
+                                    <div className="absolute -inset-1 bg-gradient-to-b from-primary/20 via-transparent to-transparent opacity-0 md:group-hover:opacity-100 blur-2xl transition-opacity duration-700 pointer-events-none" />
                                 </div>
                             </section>
                         )}
 
-                        <div className="grid grid-cols-1 gap-8">
+                        <div className="grid grid-cols-1 gap-8 mt-8">
                             <NativeAd />
                             <AdsterraBanner />
                         </div>
-
-                        {/* Storyline Section */}
-                        <section className="space-y-8">
-                            <div className="rounded-3xl border border-white/5 bg-white/5 p-8 md:p-12 backdrop-blur-sm">
-                                <h3 className="mb-8 text-2xl font-black text-white uppercase tracking-wider flex items-center gap-4">
-                                    <Globe className="text-primary w-8 h-8" /> 
-                                    Storyline
-                                </h3>
-                                <div className="space-y-8 text-left">
-                                    {movie.description?.split(/\r?\n|\\n/).filter(p => p.trim() !== "").map((para, i) => (
-                                        <p key={i} className={`text-xl leading-relaxed ${i === 0 ? "text-[#22c55e] font-bold drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]" : "text-zinc-300"}`}>
-                                            {para}
-                                        </p>
-                                    ))}
-                                    {(!movie.description || movie.description.length === 0) && (
-                                        <p className="text-zinc-500 italic">Description not available.</p>
-                                    )}
-                                </div>
-                            </div>
-                        </section>
                     </motion.div>
                 )}
 
@@ -337,11 +366,8 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                       className="space-y-8"
                     >
                         {movie.trailer ? (
-                            <div className="space-y-8">
-                                <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-4">
-                                    <Video className="text-primary w-8 h-8" /> Official Trailer
-                                </h3>
-                                <div className="overflow-hidden rounded-[2.5rem] ring-1 ring-white/10 shadow-2xl bg-zinc-900 aspect-video">
+                            <div className="rounded-[2rem] overflow-hidden bg-black ring-1 ring-white/10">
+                                <div className="aspect-video relative">
                                     <VideoPlayer 
                                         url={movie.trailer} 
                                         title={`${movie.title} Trailer`} 
@@ -349,12 +375,18 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                                         poster={movie.backdrop_url || movie.image_url || movie.image}
                                     />
                                 </div>
+                                <div className="p-6 bg-zinc-900/50">
+                                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <Video size={18} className="text-primary" /> Official Trailer
+                                    </h3>
+                                </div>
                             </div>
                         ) : (
-                            <div className="flex min-h-[40vh] items-center justify-center rounded-3xl bg-white/5 border border-white/5 italic text-zinc-500">
-                                Trailer not available for this title.
+                             <div className="flex h-64 items-center justify-center rounded-3xl border border-dashed border-zinc-700 bg-zinc-900/30">
+                                <span className="text-zinc-500 font-bold uppercase tracking-widest">Trailer Unavailable</span>
                             </div>
                         )}
+                         <AdsterraBanner />
                     </motion.div>
                 )}
 
@@ -363,9 +395,9 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                       key="photos"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="space-y-12"
+                      className="space-y-8"
                     >
-                        <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-4">
+                         <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-4">
                             <ImageIcon className="text-primary w-8 h-8" /> Gallery
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -439,81 +471,103 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
             </AnimatePresence>
           </div>
 
-          {/* Right Column: Sidebar Info */}
-          <div className="space-y-8">
+          {/* Right Column: Sidebar Info (4 Cols) */}
+          <div className="lg:col-span-4 space-y-8">
             
-            {/* Download Card */}
-            <div className="rounded-3xl border border-white/5 bg-white/5 p-8 space-y-6 backdrop-blur-md">
-                <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest border-b border-white/5 pb-4">Actions</h3>
-                <div className="flex flex-col gap-4">
-                    <CinematicButton 
-                        onClick={() => {
-                            if (movie.download_link) {
-                                setIsDownloadLoading(true);
-                                window.open(movie.download_link, "_blank");
-                                setTimeout(() => setIsDownloadLoading(false), 2000);
-                            } else {
-                                alert("Download link not available.");
-                            }
-                        }}
-                        icon={Download}
-                        variant="primary"
-                        triggerAd={true}
-                        className="w-full"
-                        isLoading={isDownloadLoading}
-                    >
-                        Download Series
-                    </CinematicButton>
-                    <CinematicButton 
-                         onClick={() => {
-                            if (navigator.share) {
-                                navigator.share({ title: movie.title, url: window.location.href });
-                            } else {
-                                navigator.clipboard.writeText(window.location.href);
-                                alert("Link copied to clipboard!");
-                            }
-                        }}
-                        icon={Share2}
-                        variant="secondary"
-                        className="w-full"
-                    >
-                        Share
-                    </CinematicButton>
+            {/* Glassmorphic Actions Panel */}
+            <div className="rounded-[2.5rem] bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-1 relative overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+                <div className="bg-black/40 rounded-[2.3rem] p-6 md:p-8 space-y-6 relative z-10">
+                    <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] text-center mb-2">Controls</h3>
+                    <div className="space-y-3">
+                         <CinematicButton 
+                              onClick={() => {
+                                  if (movie.download_link) {
+                                      setIsDownloadLoading(true);
+                                      window.open(movie.download_link, "_blank");
+                                      setTimeout(() => setIsDownloadLoading(false), 2000);
+                                  } else {
+                                      alert("Download link not available.");
+                                  }
+                              }}
+                              icon={Download}
+                              variant="primary"
+                              triggerAd={true}
+                              className="w-full h-14 text-sm"
+                              isLoading={isDownloadLoading}
+                          >
+                              Download Series
+                          </CinematicButton>
+                        <CinematicButton 
+                            onClick={() => {
+                                if (navigator.share) {
+                                    navigator.share({ title: movie.title, url: window.location.href });
+                                } else {
+                                    navigator.clipboard.writeText(window.location.href);
+                                    alert("Link copied!");
+                                }
+                            }}
+                            icon={Share2}
+                            variant="secondary"
+                            className="w-full h-14 text-sm"
+                        >
+                            Share Series
+                        </CinematicButton>
+                    </div>
                 </div>
             </div>
 
-            {/* Quick Details Card */}
-            <div className="rounded-3xl border border-white/5 bg-white/5 p-8 space-y-6 backdrop-blur-md">
-                <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest border-b border-white/5 pb-4">Information</h3>
-                <div className="space-y-6 text-left">
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Director</span>
-                        <span className="text-white font-bold text-lg">{movie.director || "Unknown"}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Country</span>
-                        <span className="text-white font-bold text-lg">{movie.country || "South Korea"}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Genre</span>
-                        <div className="flex flex-wrap gap-2 pt-1">
+            {/* Movie Info Visualizer */}
+            <div className="space-y-6 pl-2">
+                <h3 className="text-xl font-black text-white uppercase tracking-tighter">Details</h3>
+                
+                <div className="grid grid-cols-1 gap-4">
+                     {/* Detail Item */}
+                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                            <User size={18} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Director</p>
+                            <p className="text-sm font-bold text-white">{movie.director || "Unknown"}</p>
+                        </div>
+                     </div>
+
+                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                            <Globe size={18} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Country</p>
+                            <p className="text-sm font-bold text-white">{movie.country || "South Korea"}</p>
+                        </div>
+                     </div>
+
+                     <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                             <TrendingUp size={12} /> Genres
+                        </p>
+                        <div className="flex flex-wrap gap-2">
                             {movie.category?.split(',').map((cat, i) => (
-                                <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-zinc-300">
+                                <span key={i} className="px-3 py-1.5 bg-black/40 border border-white/10 rounded-lg text-[11px] font-bold text-zinc-300 hover:text-white hover:border-primary/50 transition-all cursor-default">
                                     {cat.trim()}
                                 </span>
                             ))}
                         </div>
-                    </div>
+                     </div>
                 </div>
             </div>
 
             {/* Posters Slider */}
             {tmdbImages.posters.length > 0 && (
-                <div className="space-y-4">
-                    <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest px-2">Official Posters</h3>
-                    <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 text-left">
-                        {tmdbImages.posters.slice(0, 5).map((poster, i) => (
-                            <div key={i} className="relative aspect-[2/3] w-40 flex-shrink-0 overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-xl group cursor-pointer" onClick={() => setSelectedImage(poster)}>
+                <div className="space-y-4 pt-4">
+                    <div className="flex items-center justify-between px-2">
+                        <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Gallery</h3>
+                        <span className="text-[10px] font-bold text-primary">{tmdbImages.posters.length} Images</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                        {tmdbImages.posters.slice(0, 6).map((poster, i) => (
+                            <div key={i} className="relative aspect-[2/3] w-full flex-shrink-0 overflow-hidden rounded-xl cursor-zoom-in ring-1 ring-white/10 hover:ring-primary/50 transition-all shadow-xl" onClick={() => setSelectedImage(poster)}>
                                 <Image src={poster} alt="Poster" fill className="object-cover transition-transform group-hover:scale-110" />
                             </div>
                         ))}

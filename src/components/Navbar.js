@@ -8,7 +8,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { InlineSpinner } from "@/components/LoadingSpinner";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { slugify } from "@/utils/slugify";
 import CinematicButton from "@/components/CinematicButton";
 import { isAdmin } from "@/utils/security";
@@ -26,6 +26,7 @@ export default function Navbar() {
   const lastScrollY = useRef(0);
   const supabase = createClient();
   const router = useRouter();
+  const pathname = usePathname();
   const searchContainerRef = useRef(null);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -191,129 +192,127 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 z-50 w-full transition-all duration-500 py-2.5 md:py-4 ${
-          isVisible ? "translate-y-0" : "-translate-y-full"
-        } ${
+        className={`fixed z-50 transition-all duration-500 ease-in-out ${
           isScrolled 
-            ? "glass !border-b-0" 
-            : "bg-gradient-to-b from-black/80 via-black/20 to-transparent"
-        }`}
+            ? "top-2 md:top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-auto md:min-w-[600px] rounded-full border border-white/10 bg-black/60 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-2xl py-2 px-4 md:px-6"
+            : "top-0 w-full bg-gradient-to-b from-black/90 via-black/40 to-transparent py-4 md:py-6 px-4 md:px-12 border-b border-white/0"
+        } ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-[150%] opacity-0"}`}
       >
-        <div className="flex items-center px-6 md:px-12 justify-between">
-          {/* Mobile Menu Button - Always visible */}
+        <div className={`flex items-center justify-between ${!isScrolled && "container-custom mx-auto"}`}>
+          
+          {/* Mobile Menu Button */}
           <button 
             onClick={() => setIsMobileMenuOpen(true)}
-            className="mr-2 md:mr-4 text-white md:hidden"
+            className="md:hidden p-2 -ml-2 text-white hover:text-primary transition-colors"
             aria-label="Open menu"
           >
-            <Menu size={22} className="md:w-6 md:h-6" />
+            <Menu size={24} />
           </button>
 
-          {/* Left: Logo - Always visible */}
-          <div className="flex-shrink-0">
-            <Link href="/" className="group flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-transform group-hover:scale-110">
-                <Play size={20} fill="white" className="text-white ml-1" />
+          {/* Left: Logo */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link href="/" className="group flex items-center gap-2 md:gap-3">
+              <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-xl bg-primary shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
+                <Play size={16} fill="white" className="text-white ml-0.5 md:w-5 md:h-5" />
               </div>
-              <span className="font-display text-2xl font-black tracking-tighter text-white md:text-3xl">
+              <span className="font-display text-xl md:text-2xl font-black tracking-tighter text-white">
                 FILM<span className="text-primary">HUB</span>
               </span>
             </Link>
           </div>
 
-          {/* Center: Navigation Links */}
-          <div className="hidden flex-grow justify-center md:flex">
-            <div className="flex items-center gap-8 text-[13px] font-bold uppercase tracking-[0.2em] text-zinc-300">
-              <Link href="/" className="text-white transition-all hover:text-primary hover:tracking-[0.25em]">
-                Home
-              </Link>
+          {/* Center: Navigation Links (Desktop) */}
+          <div className="hidden md:flex flex-grow justify-center">
+             <div className="flex items-center gap-1 p-1 bg-white/5 rounded-full border border-white/5 backdrop-blur-md">
+                {[
+                  { name: "Home", path: "/" },
+                  { name: "Movies", path: "/movies" },
+                  { name: "Series", path: "/tv-shows" },
+                  { name: "K-Drama", path: "/korean-dramas" },
+                  { name: "Upcoming", path: "/upcoming" },
+                ].map((link) => (
+                  <Link 
+                    key={link.path}
+                    href={link.path}
+                    className="relative px-5 py-2 text-xs font-bold uppercase tracking-wider text-zinc-400 transition-colors hover:text-white"
+                  >
+                    {pathname === link.path && (
+                      <motion.div
+                        layoutId="nav-pill"
+                        className="absolute inset-0 rounded-full bg-white/10"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    <span className="relative z-10">{link.name}</span>
+                  </Link>
+                ))}
 
-              
-              {/* Categories Dropdown */}
-              <div 
-                className="relative group"
-                onMouseEnter={() => setHoveredTab("categories")}
-                onMouseLeave={() => setHoveredTab(null)}
-              >
-                <button className="flex items-center gap-1 transition-all hover:text-primary hover:tracking-[0.25em] focus:outline-none uppercase">
-                  Categories <ChevronDown size={14} className="text-primary" />
-                </button>
-                <AnimatePresence>
-                  {hoveredTab === "categories" && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 15 }}
-                      className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-64 rounded-2xl bg-black/90 backdrop-blur-xl border border-white/10 p-2 shadow-2xl overflow-hidden grid grid-cols-1 gap-1 z-50"
-                    >
-                      {["Action", "Adventure", "Comedy", "Drama", "Horror", "Sci-Fi", "Thriller", "Romance", "Animation", "Documentary"].map((cat) => (
-                        <Link 
-                          key={cat} 
-                          href={`/category/${slugify(cat)}`}
-                          className="block px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/10 transition-all uppercase tracking-widest text-center"
+                {/* Categories Dropdown Trigger */}
+                <div 
+                  className="relative group px-5 py-2 cursor-pointer"
+                  onMouseEnter={() => setHoveredTab("categories")}
+                  onMouseLeave={() => setHoveredTab(null)}
+                >
+                   <span className="relative z-10 flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-zinc-400 group-hover:text-white transition-colors">
+                      Categories <ChevronDown size={12} />
+                   </span>
+                   {/* Dropdown Content */}
+                    <AnimatePresence>
+                      {hoveredTab === "categories" && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                          className="absolute top-full left-1/2 -translate-x-1/2 mt-6 w-72 rounded-3xl bg-[#0a0a0a] border border-white/10 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] grid grid-cols-2 gap-2 z-50 overflow-hidden"
                         >
-                          {cat}
-                        </Link>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                          <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+                          {["Action", "Adventure", "Comedy", "Drama", "Horror", "Sci-Fi", "Thriller", "Romance", "Animation", "Documentary"].map((cat) => (
+                            <Link 
+                              key={cat} 
+                              href={`/category/${slugify(cat)}`}
+                              className="relative flex items-center justify-center py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/5"
+                            >
+                              {cat}
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                </div>
 
-              {/* Languages Dropdown */}
-              <div 
-                className="relative group"
-                onMouseEnter={() => setHoveredTab("languages")}
-                onMouseLeave={() => setHoveredTab(null)}
-              >
-                <button className="flex items-center gap-1 transition-all hover:text-primary hover:tracking-[0.25em] focus:outline-none uppercase">
-                  Languages <ChevronDown size={14} className="text-primary" />
-                </button>
-                <AnimatePresence>
-                  {hoveredTab === "languages" && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 15 }}
-                      className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-48 rounded-2xl bg-black/90 backdrop-blur-xl border border-white/10 p-2 shadow-2xl overflow-hidden grid grid-cols-1 gap-1 z-50"
-                    >
-                      {["Sinhala", "Tamil", "English", "Hindi", "Korean", "Malayalam", "Telugu"].map((lang) => (
-                        <Link 
-                          key={lang} 
-                          href={`/language/${slugify(lang)}`}
-                          className="block px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/10 transition-all uppercase tracking-widest text-center"
+                {/* Languages Dropdown Trigger */}
+                <div 
+                  className="relative group px-5 py-2 cursor-pointer"
+                  onMouseEnter={() => setHoveredTab("languages")}
+                  onMouseLeave={() => setHoveredTab(null)}
+                >
+                   <span className="relative z-10 flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-zinc-400 group-hover:text-white transition-colors">
+                      Languages <ChevronDown size={12} />
+                   </span>
+                   {/* Dropdown Content */}
+                    <AnimatePresence>
+                      {hoveredTab === "languages" && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                          className="absolute top-full left-1/2 -translate-x-1/2 mt-6 w-56 rounded-3xl bg-[#0a0a0a] border border-white/10 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] grid grid-cols-1 gap-2 z-50 overflow-hidden"
                         >
-                          {lang}
-                        </Link>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-              <Link href="/movies" className="transition-all hover:text-primary hover:tracking-[0.25em]">
-                Movies
-              </Link>
-              <Link href="/tv-shows" className="transition-all hover:text-primary hover:tracking-[0.25em]">
-                TV Shows
-              </Link>
-              <Link href="/korean-dramas" className="transition-all hover:text-primary hover:tracking-[0.25em]">
-                Korean
-              </Link>
-              <Link href="/upcoming" className="transition-all hover:text-primary hover:tracking-[0.25em]">
-                Upcoming
-              </Link>
-              <Link href="/contact" className="transition-all hover:text-primary hover:tracking-[0.25em]">
-                Contact
-              </Link>
-              <Link href="/about" className="transition-all hover:text-primary hover:tracking-[0.25em]">
-                About
-              </Link>
-              {user && (
-                <Link href="/my-list" className="transition-all hover:text-primary hover:tracking-[0.25em]">
-                  My List
-                </Link>
-              )}
-            </div>
+                          <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+                          {["Sinhala", "Tamil", "English", "Hindi", "Korean", "Malayalam", "Telugu"].map((lang) => (
+                            <Link 
+                              key={lang} 
+                              href={`/language/${slugify(lang)}`}
+                              className="relative flex items-center justify-center py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/5"
+                            >
+                              {lang}
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                </div>
+             </div>
           </div>
 
           {/* Right: Icons */}
@@ -499,7 +498,7 @@ export default function Navbar() {
                 variant="primary"
                 className="hidden md:flex h-10 px-6 py-0 text-[10px]"
               >
-                Sign In
+                Sign
               </CinematicButton>
             )}
           </div>

@@ -8,23 +8,13 @@ export default function SmoothScroll() {
   const { isMobile, isHydrated } = useAdaptive();
 
   useEffect(() => {
-    // Mobile/Touch/Native Scroll Handling
-    if (!isHydrated || isMobile || window.matchMedia("(pointer: coarse)").matches) {
-      let scrollTimer;
-      const handleNativeScroll = () => {
-        document.body.classList.add('is-scrolling');
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(() => {
-          document.body.classList.remove('is-scrolling');
-        }, 150); // Debounce remove
-      };
+      // Mobile/Touch/Native Scroll Handling
+      // We no longer toggle 'is-scrolling' class on mobile as it caused repaints/jitter.
+      // Native scrolling is sufficient.
+      if (!isHydrated || isMobile || window.matchMedia("(pointer: coarse)").matches) {
+        return;
+      }
 
-      window.addEventListener('scroll', handleNativeScroll, { passive: true });
-      return () => {
-        window.removeEventListener('scroll', handleNativeScroll);
-        clearTimeout(scrollTimer);
-      };
-    }
 
     // Lenis Smooth Scroll (Desktop)
     const lenis = new Lenis({

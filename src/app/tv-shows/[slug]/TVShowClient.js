@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Play, Star, Calendar, ArrowLeft, Plus, Check, Download, 
   User, Users, ChevronDown, ChevronUp, PlayCircle, Clock, 
-  MessageSquare, Globe, X, Share2, Heart, Video, Image as ImageIcon, Maximize2
+  MessageSquare, Globe, X, Share2, Heart, Video, Image as ImageIcon, Maximize2, TrendingUp
 } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import Footer from "@/components/Footer";
@@ -49,9 +49,6 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
   const seasonNumbers = Object.keys(seasons).map(Number).sort((a, b) => a - b);
   const currentEpisodes = seasons[activeSeason] || [];
 
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const scrollRef = useRef(0);
-
   useEffect(() => {
     // 1. Increment view count
     const incrementView = async () => {
@@ -66,33 +63,6 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
         }
     };
     incrementView();
-
-    // 2. Handle Scroll (Throttled)
-    let animationFrameId;
-    let lastNavVisible = true;
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      let isVisible = true;
-      
-      if (currentScrollY > 100) {
-        isVisible = currentScrollY < scrollRef.current;
-      }
-
-      if (isVisible !== lastNavVisible) {
-        setIsNavVisible(isVisible);
-        lastNavVisible = isVisible;
-      }
-      
-      scrollRef.current = currentScrollY;
-    };
-
-    const onScroll = () => {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(handleScroll);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
 
     // 4. Fetch TMDB Images
     const fetchTMDBImages = async () => {
@@ -132,11 +102,6 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
       }
     };
     fetchRelated();
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    };
   }, [show, supabase]);
 
   useEffect(() => {
@@ -184,7 +149,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
     <main className="min-h-screen bg-background text-white selection:bg-primary selection:text-white">
       
       {/* Immersive Hero Section */}
-      <div className="relative h-[80vh] md:h-[90vh] w-full overflow-hidden bg-black">
+      <div className="relative h-[70dvh] md:h-[90dvh] w-full overflow-hidden bg-black">
         {/* Backdrop Image with Cross-fade Animation */}
         <div className="absolute inset-0">
           <AnimatePresence mode="popLayout">
@@ -209,39 +174,41 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
           </AnimatePresence>
           {/* Cinematic Overlays */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-background to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/20 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-background to-transparent" />
         </div>
 
         {/* Hero Content */}
-        <div className="container-custom relative h-full flex flex-col items-center justify-center pt-20 px-4 text-center">
+        <div className="container-custom relative h-full flex flex-col items-center justify-center pt-20 pb-16 md:pb-0 px-4 text-center">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="space-y-4 md:space-y-6 max-w-5xl"
             >
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 md:px-6 py-1.5 md:py-2 backdrop-blur-xl border border-primary/30 text-primary mb-2">
-                    <Star size={14} className="fill-current md:w-[18px] md:h-[18px]" />
-                    <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em]">IMDb {show.imdb_rating || show.rating || "N/A"}</span>
-                </div>
+                <div className="flex flex-col items-center gap-3">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 md:px-6 py-1.5 md:py-2 backdrop-blur-xl border border-primary/30 text-primary mb-1">
+                        <Star size={12} className="fill-current md:w-[18px] md:h-[18px]" />
+                        <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em]">IMDb {show.imdb_rating || show.rating || "N/A"}</span>
+                    </div>
                 
-                <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[0.9]">
-                    {show.title}
-                    <span className="block text-sm sm:text-lg md:text-2xl lg:text-3xl font-bold text-zinc-400 mt-2 md:mt-4 tracking-normal opacity-80">| සිංහල උපසිරැසි සමඟ</span>
-                </h1>
+                    <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] leading-[1.1] md:leading-[0.9]">
+                        {show.title}
+                        <span className="block text-xs sm:text-lg md:text-2xl lg:text-3xl font-bold text-zinc-400 mt-2 md:mt-4 tracking-normal opacity-80 uppercase tracking-[0.1em]">| With Sinhala Subtitles</span>
+                    </h1>
+                </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 text-[10px] md:text-sm font-bold text-zinc-400 uppercase tracking-widest pt-2 md:pt-4">
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[9px] md:text-sm font-bold text-zinc-400 uppercase tracking-widest pt-2 md:pt-4">
                     <span className="flex items-center gap-1.5 md:gap-2">
-                        <Calendar size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {show.year}
+                        <Calendar size={12} className="text-primary md:w-[18px] md:h-[18px]" /> {show.year}
                     </span>
-                    <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                    <span className="hidden sm:block h-1 w-1 rounded-full bg-zinc-700" />
                     <span className="flex items-center gap-1.5 md:gap-2">
-                        <Users size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {seasonNumbers.length} Seasons
+                        <Users size={12} className="text-primary md:w-[18px] md:h-[18px]" /> {seasonNumbers.length} Seasons
                     </span>
-                    <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                    <span className="hidden sm:block h-1 w-1 rounded-full bg-zinc-700" />
                     <span className="flex items-center gap-1.5 md:gap-2">
-                        <Globe size={14} className="text-primary md:w-[18px] md:h-[18px]" /> {show.language || "English"}
+                        <Globe size={12} className="text-primary md:w-[18px] md:h-[18px]" /> {show.language || "English"}
                     </span>
                 </div>
 
@@ -250,7 +217,18 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                     <CinematicButton 
                       onClick={() => {
                           setActiveTab("episodes");
-                          document.getElementById("tv-content")?.scrollIntoView({ behavior: "smooth" });
+                          setTimeout(() => {
+                              const element = document.getElementById('tv-content');
+                              if (element) {
+                                  const offset = 100;
+                                  const elementPosition = element.getBoundingClientRect().top;
+                                  const offsetPosition = elementPosition + window.pageYOffset - offset;
+                                  window.scrollTo({
+                                      top: offsetPosition,
+                                      behavior: "smooth"
+                                  });
+                              }
+                          }, 100);
                       }}
                       icon={Play}
                       variant="primary"
@@ -270,30 +248,51 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
             </motion.div>
         </div>
       </div>
-      <div id="tv-content" className="container-custom relative z-10 -mt-24 pb-20">
+      <div id="tv-content" className="container-custom relative z-10 -mt-20 md:-mt-32 pb-24 px-4">
         
-        {/* Main Tabs UI */}
-        <div className="flex gap-4 p-2 bg-zinc-900/50 backdrop-blur-2xl border border-white/5 rounded-full w-fit mx-auto mb-16 overflow-x-auto no-scrollbar max-w-full">
-            {["overview", "episodes", "trailer", "cast", "related", "reviews"].map((tab) => (
-                <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
-                        activeTab === tab 
-                        ? "bg-primary text-white shadow-[0_0_20px_rgba(229,9,20,0.4)]" 
-                        : "text-zinc-500 hover:text-white"
-                    }`}
-                >
-                    {tab}
-                </button>
-            ))}
+        {/* Floating Glass Navigation */}
+        <div className="sticky top-20 z-40 mb-16 flex justify-center">
+            <div className="flex gap-2 p-1.5 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl overflow-x-auto no-scrollbar max-w-full touch-pan-x">
+                {["overview", "episodes", "trailer", "cast", "related", "reviews"].map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => {
+                            setActiveTab(tab);
+                            const element = document.getElementById('tv-content');
+                            if (element) {
+                                const offset = 100;
+                                const elementPosition = element.getBoundingClientRect().top;
+                                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                                window.scrollTo({
+                                    top: offsetPosition,
+                                    behavior: "smooth"
+                                });
+                            }
+                        }}
+                        className={`relative px-4 sm:px-6 py-2.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.15em] md:tracking-[0.2em] transition-all duration-300 overflow-hidden group whitespace-nowrap flex-shrink-0 ${
+                            activeTab === tab 
+                            ? "text-white shadow-[0_0_20px_rgba(229,9,20,0.5)]" 
+                            : "text-zinc-500 hover:text-white"
+                        }`}
+                    >
+                        {activeTab === tab && (
+                            <motion.div 
+                                layoutId="activeTab"
+                                className="absolute inset-0 bg-primary"
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            />
+                        )}
+                        <span className="relative z-10">{tab}</span>
+                    </button>
+                ))}
+            </div>
         </div>
 
         {/* Content Section */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           
-          {/* Left Column: Episodes & Media Player & Overview */}
-          <div className="lg:col-span-2 space-y-12">
+          {/* Left Column: Episodes & Media Player & Overview (8 Cols) */}
+          <div className="lg:col-span-8 space-y-12">
             
             <AnimatePresence mode="wait">
                 {activeTab === "overview" && (
@@ -301,30 +300,43 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                       key="overview"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="space-y-12"
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5 }}
+                      className="space-y-16"
                     >
-                        <AdsterraBanner />
-                        <NativeAd />
-
                         {/* Storyline Section */}
-                        <section className="space-y-8">
-                            <div className="rounded-3xl border border-white/5 bg-white/5 p-8 md:p-12 backdrop-blur-sm">
-                                <h3 className="mb-8 text-2xl font-black text-white uppercase tracking-wider flex items-center gap-4">
-                                    <Globe className="text-primary w-8 h-8" /> 
-                                    Storyline
-                                </h3>
-                                <div className="space-y-8">
-                                    {show.description?.split(/\r?\n|\\n/).filter(p => p.trim() !== "").map((para, i) => (
-                                        <p key={i} className={`text-xl leading-relaxed ${i === 0 ? "text-[#22c55e] font-bold drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]" : "text-zinc-300"}`}>
-                                            {para}
-                                        </p>
-                                    ))}
-                                    {(!show.description || show.description.length === 0) && (
-                                        <p className="text-zinc-500 italic">No description available.</p>
-                                    )}
+                        <section className="relative">
+                            <div className="absolute -inset-4 bg-gradient-to-b from-zinc-900/50 to-transparent rounded-[2.5rem] -z-10 blur-xl" />
+                            <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+                                <div className="hidden md:flex flex-col items-center gap-4 pt-2">
+                                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-primary">
+                                        <Globe size={20} />
+                                    </div>
+                                    <div className="w-px h-full bg-gradient-to-b from-white/10 to-transparent" />
+                                </div>
+                                <div className="flex-1 space-y-6">
+                                    <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                                        Storyline
+                                    </h3>
+                                    <div className="prose prose-invert max-w-none">
+                                        {show.description?.split(/\\r?\\n|\\\\n/).filter(p => p.trim() !== "").map((para, i) => (
+                                            <p key={i} className={`text-justify text-lg md:text-xl leading-[1.8] font-medium ${i === 0 ? "text-zinc-100 first-letter:text-5xl first-letter:font-black first-letter:text-primary first-letter:mr-3 first-letter:float-left" : "text-zinc-400"}`}>
+                                                {para}
+                                            </p>
+                                        ))}
+                                        {(!show.description || show.description.length === 0) && (
+                                            <p className="text-zinc-500 italic">No description available.</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </section>
+
+                         {/* ADS SECTION */}
+                         <div className="mt-8 space-y-6">
+                            <AdsterraBanner />
+                            <NativeAd />
+                        </div>
                     </motion.div>
                 )}
 
@@ -338,12 +350,12 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                         {/* Season Selector */}
                         <div className="flex items-center justify-between pb-4 border-b border-white/5">
                             <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Episodes</h3>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 overflow-x-auto no-scrollbar">
                                 {seasonNumbers.map((season) => (
                                     <button 
                                         key={season}
                                         onClick={() => setActiveSeason(season)}
-                                        className={`px-4 py-1.5 rounded-full text-xs font-black transition-all ${activeSeason === season ? "bg-primary text-white" : "bg-white/5 text-zinc-500 hover:text-white"}`}
+                                        className={`px-4 py-1.5 rounded-full text-xs font-black transition-all flex-shrink-0 ${activeSeason === season ? "bg-primary text-white" : "bg-white/5 text-zinc-500 hover:text-white"}`}
                                     >
                                         S{season}
                                     </button>
@@ -372,22 +384,21 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                                 </div>
                             ))}
                         </div>
+                        <AdsterraBanner />
                     </motion.div>
                 )}
 
                 {activeTab === "trailer" && (
                     <motion.div 
                       key="trailer"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ type: "spring", bounce: 0.3 }}
                       className="space-y-8"
                     >
                         {show.trailer ? (
-                            <div className="space-y-8">
-                                <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-4">
-                                    <Video className="text-primary w-8 h-8" /> Official Trailer
-                                </h3>
-                                <div className="overflow-hidden rounded-[2.5rem] ring-1 ring-white/10 shadow-2xl bg-zinc-900 aspect-video">
+                            <div className="rounded-[2rem] overflow-hidden bg-black ring-1 ring-white/10">
+                                <div className="aspect-video relative">
                                     <VideoPlayer 
                                         url={show.trailer} 
                                         title={`${show.title} Trailer`} 
@@ -395,13 +406,18 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                                         poster={show.backdrop_url || show.image_url || show.image}
                                     />
                                 </div>
-                                <AdsterraBanner />
+                                <div className="p-6 bg-zinc-900/50">
+                                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <Video size={18} className="text-primary" /> Official Trailer
+                                    </h3>
+                                </div>
                             </div>
                         ) : (
-                            <div className="flex min-h-[40vh] items-center justify-center rounded-3xl bg-white/5 border border-white/5 italic text-zinc-500">
-                                Trailer not available for this title.
+                            <div className="flex h-64 items-center justify-center rounded-3xl border border-dashed border-zinc-700 bg-zinc-900/30">
+                                <span className="text-zinc-500 font-bold uppercase tracking-widest">Trailer Unavailable</span>
                             </div>
                         )}
+                        <AdsterraBanner />
                     </motion.div>
                 )}
 
@@ -410,20 +426,20 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                       key="cast"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+                      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
                     >
                         {show.cast_details?.map((actor, idx) => (
-                            <div key={idx} className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/5 p-3 transition-all hover:bg-white/10">
-                                <div className="relative aspect-square w-full overflow-hidden rounded-xl mb-3">
-                                    <Image
-                                        src={actor.image || "/placeholder-actor.jpg"}
-                                        alt={actor.name}
-                                        fill
-                                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
+                            <div key={idx} className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-white/10">
+                                <Image
+                                    src={actor.image || "/placeholder-actor.jpg"}
+                                    alt={actor.name}
+                                    fill
+                                    className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:grayscale-0 grayscale"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4">
+                                    <p className="text-white font-bold leading-tight">{actor.name}</p>
+                                    <p className="text-[10px] text-primary font-bold uppercase tracking-wider mt-1">{actor.character}</p>
                                 </div>
-                                <p className="text-sm font-bold text-white line-clamp-1">{actor.name}</p>
-                                <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider line-clamp-1">{actor.character}</p>
                             </div>
                         ))}
                     </motion.div>
@@ -434,7 +450,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                       key="related"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4"
+                      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                     >
                         {relatedShows.map((m) => (
                             <div 
@@ -449,8 +465,10 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                                         fill
                                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                                        <Play size={20} fill="white" className="text-white" />
+                                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                        <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-100">
+                                            <Play size={20} fill="currentColor" className="ml-1" />
+                                        </div>
                                     </div>
                                 </div>
                                 <p className="text-sm font-bold text-white line-clamp-1 text-center group-hover:text-primary transition-colors">{m.title}</p>
@@ -467,64 +485,90 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
             </AnimatePresence>
           </div>
 
-          {/* Right Column: Sidebar Info */}
-          <div className="space-y-8">
+          {/* Right Column: Sidebar Info (4 Cols) */}
+          <div className="lg:col-span-4 space-y-8">
             
-            {/* Quick Details Card */}
-            <div className="rounded-3xl border border-white/5 bg-white/5 p-8 space-y-6 backdrop-blur-md">
-                <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest border-b border-white/5 pb-4">Series Details</h3>
-                <div className="space-y-6">
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Initial Release</span>
-                        <span className="text-white font-bold text-lg">{show.year}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Country</span>
-                        <span className="text-white font-bold text-lg">{show.country || "TBA"}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Network</span>
-                        <span className="text-white font-bold text-lg">{show.director || "Various"}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Genre</span>
-                        <div className="flex flex-wrap gap-2 pt-1">
-                            {show.category?.split(',').map((cat, i) => (
-                                <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-zinc-300">
-                                    {cat.trim()}
-                                </span>
-                            ))}
-                        </div>
+            {/* Glassmorphic Actions Panel */}
+            <div className="rounded-[2.5rem] bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-1 relative overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+                <div className="bg-black/40 rounded-[2.3rem] p-6 md:p-8 space-y-6 relative z-10">
+                    <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] text-center mb-2">Controls</h3>
+                    <div className="space-y-3">
+                        <CinematicButton 
+                            onClick={() => {
+                                if (navigator.share) {
+                                    navigator.share({ title: show.title, url: window.location.href });
+                                } else {
+                                    navigator.clipboard.writeText(window.location.href);
+                                    alert("Link copied!");
+                                }
+                            }}
+                            icon={Share2}
+                            variant="secondary"
+                            className="w-full h-14 text-sm"
+                        >
+                            Share Series
+                        </CinematicButton>
                     </div>
                 </div>
             </div>
 
-            <div className="flex flex-col gap-3">
-                <CinematicButton 
-                    onClick={() => {
-                        if (navigator.share) {
-                            navigator.share({ title: show.title, url: window.location.href });
-                        } else {
-                            navigator.clipboard.writeText(window.location.href);
-                            alert("Link copied to clipboard!");
-                        }
-                    }}
-                    icon={Share2}
-                    variant="secondary"
-                    className="w-full"
-                >
-                    Share Series
-                </CinematicButton>
+            {/* Movie Info Visualizer */}
+            <div className="space-y-6 pl-2">
+                <h3 className="text-xl font-black text-white uppercase tracking-tighter">Details</h3>
+                
+                <div className="grid grid-cols-1 gap-4">
+                     {/* Detail Item */}
+                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                            <User size={18} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Network</p>
+                            <p className="text-sm font-bold text-white">{show.director || "Unknown"}</p>
+                        </div>
+                     </div>
+
+                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                            <Globe size={18} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Country</p>
+                            <p className="text-sm font-bold text-white">{show.country || "International"}</p>
+                        </div>
+                     </div>
+
+                     <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                             <TrendingUp size={12} /> Genres
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {show.category?.split(',').map((cat, i) => (
+                                <span key={i} className="px-3 py-1.5 bg-black/40 border border-white/10 rounded-lg text-[11px] font-bold text-zinc-300 hover:text-white hover:border-primary/50 transition-all cursor-default">
+                                    {cat.trim()}
+                                </span>
+                            ))}
+                        </div>
+                     </div>
+                </div>
             </div>
 
-            {/* Posters Slider */}
+            {/* Mini Posters Gallery */}
             {tmdbImages.posters.length > 0 && (
-                <div className="space-y-4">
-                    <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest px-2">Official Posters</h3>
-                    <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
-                        {tmdbImages.posters.slice(0, 5).map((poster, i) => (
-                            <div key={i} className="relative aspect-[2/3] w-40 flex-shrink-0 overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-xl group cursor-pointer" onClick={() => setSelectedImage(poster)}>
-                                <Image src={poster} alt="Poster" fill className="object-cover transition-transform group-hover:scale-110" />
+                <div className="space-y-4 pt-4">
+                    <div className="flex items-center justify-between px-2">
+                        <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Gallery</h3>
+                        <span className="text-[10px] font-bold text-primary">{tmdbImages.posters.length} Images</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                        {tmdbImages.posters.slice(0, 6).map((poster, i) => (
+                            <div 
+                                key={i} 
+                                className="relative aspect-[2/3] overflow-hidden rounded-xl cursor-zoom-in ring-1 ring-white/10 hover:ring-primary/50 transition-all" 
+                                onClick={() => setSelectedImage(poster)}
+                            >
+                                <Image src={poster} alt="Gallery" fill className="object-cover hover:scale-110 transition-transform duration-500" />
                             </div>
                         ))}
                     </div>
@@ -565,7 +609,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
         )}
       </AnimatePresence>
 
-      {/* Lightbox Modal */}
+      {/* Fullscreen Image Overlay */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div
@@ -573,28 +617,12 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedImage(null)}
-            className="fixed inset-0 z-[120] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl cursor-zoom-out"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl"
           >
-            <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
-                <X size={40} />
-            </button>
-            
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative h-full w-full max-w-7xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Image
-                src={selectedImage}
-                alt="Full Size Image"
-                fill
-                className="object-contain"
-                priority
-                quality={100}
-              />
-            </motion.div>
+            <button className="absolute top-8 right-8 text-white/50 hover:text-white"><X size={40} /></button>
+            <div className="relative aspect-[2/3] h-[90vh]">
+                <Image src={selectedImage} alt="Preview" fill className="object-contain" />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -160,7 +160,7 @@ export default function MovieClient({ initialMovie, userId }) {
     <main className="min-h-screen bg-background text-white selection:bg-primary selection:text-white">
       
       {/* Immersive Hero Section */}
-      <div className="relative h-[70vh] md:h-[90vh] w-full overflow-hidden bg-black">
+      <div className="relative h-[70dvh] md:h-[90dvh] w-full overflow-hidden bg-black">
         {/* Backdrop Image with Cross-fade Animation */}
         <div className="absolute inset-0">
           <AnimatePresence mode="popLayout">

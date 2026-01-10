@@ -215,6 +215,7 @@ iframe {
   -webkit-transform: translateZ(0);
   will-change: transform;
   backface-visibility: hidden;
+  contain: content;
 }
 
 
