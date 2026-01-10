@@ -55,7 +55,6 @@ export async function middleware(request) {
     }
   }
   
-  // Update Supabase session
   const response = await updateSession(request)
   
   // Add comprehensive security headers
@@ -64,12 +63,12 @@ export async function middleware(request) {
   // Content Security Policy - Strict but allows necessary external resources
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live https://*.effectivegatecpm.com https://www.highperformanceformat.com https://al5sm.com",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live https://va.vercel-scripts.com https://preferencenail.com https://*.effectivegatecpm.com https://*.highperformanceformat.com https://al5sm.com https://*.show-sb.com https://*.creative-sb1.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https: blob:",
     "font-src 'self' https://fonts.gstatic.com data:",
-    "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://generativelanguage.googleapis.com https://analyticsdata.googleapis.com https://image.tmdb.org https://api.themoviedb.org wss://*.supabase.co https://*.highperformanceformat.com https://*.effectivegatecpm.com",
-    "frame-src 'self' https://www.youtube.com https://player.vimeo.com https://www.highperformanceformat.com",
+    "connect-src 'self' https: wss: *.supabase.co",
+    "frame-src 'self' https: blob:",
     "media-src 'self' https: blob:",
     "object-src 'none'",
     "base-uri 'self'",

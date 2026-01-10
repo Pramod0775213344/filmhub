@@ -32,7 +32,7 @@ export default function NativeAd() {
   }
 
   return (
-    <div className="w-full flex justify-start my-8 min-h-[250px]">
+    <div className="w-full flex justify-start min-h-[250px]">
       <div className="w-full max-w-[1200px]">
         {/* Adsterra Native Banner Script */}
         <Script 

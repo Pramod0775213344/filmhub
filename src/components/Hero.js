@@ -51,7 +51,7 @@ export default function Hero({ featuredMovies }) {
             animate={{ opacity: 0.35 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1, ease: "linear" }}
-            className="absolute inset-0 will-change-opacity"
+            className="absolute inset-0"
           >
             <Image 
               src={movie.backdrop_url || movie.image_url} 
@@ -68,22 +68,20 @@ export default function Hero({ featuredMovies }) {
       </div>
 
       {/* 2. LAYER: Giant Background Typography - Parallel animations (Desktop Only for speed) */}
-      {!mobileView && (
-        <div className="absolute inset-0 z-1 flex items-center justify-center pointer-events-none overflow-hidden">
-          <AnimatePresence mode="popLayout">
-            <motion.h2
-              key={`title-bg-${movie.id}`}
-              initial={{ opacity: 0, x: 100 }}
-              animate={{ opacity: 0.05, x: 0 }}
-              exit={{ opacity: 0, x: -100 }}
-              transition={{ duration: 0.8, ease: "circOut" }}
-              className="text-[20vw] font-black uppercase italic tracking-tighter whitespace-nowrap text-white select-none leading-none will-change-transform"
-            >
-              {movie.title}
-            </motion.h2>
-          </AnimatePresence>
-        </div>
-      )}
+      <div className="absolute inset-0 z-1 hidden lg:flex items-center justify-center pointer-events-none overflow-hidden">
+        <AnimatePresence mode="popLayout">
+          <motion.h2
+            key={`title-bg-${movie.id}`}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 0.05, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.8, ease: "circOut" }}
+            className="text-[20vw] font-black uppercase italic tracking-tighter whitespace-nowrap text-white select-none leading-none"
+          >
+            {movie.title}
+          </motion.h2>
+        </AnimatePresence>
+      </div>
 
       {/* 3. LAYER: Main Interactive Content */}
       <div className="container-custom relative z-10 h-full flex items-start lg:items-center pt-20 lg:pt-0 overflow-y-auto lg:overflow-visible no-scrollbar">
@@ -98,7 +96,7 @@ export default function Hero({ featuredMovies }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="space-y-2.5 lg:space-y-8 will-change-transform"
+                className="space-y-2.5 lg:space-y-8"
               >
                 <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
                   <motion.span 
@@ -117,7 +115,7 @@ export default function Hero({ featuredMovies }) {
 
                 <div className="flex flex-wrap justify-center lg:justify-start items-center gap-2 lg:gap-3 text-[9px] lg:text-sm font-bold text-zinc-400">
                   <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg backdrop-blur-sm">
-                    <Star size={10} fill="#e50914" className="text-primary lg:w-3.5 lg:h-3.5" />
+                    <Star size={14} fill="#e50914" className="text-primary w-2.5 h-2.5 lg:w-3.5 lg:h-3.5" />
                     <span className="text-white text-[10px] lg:text-sm">{movie.imdb_rating}</span>
                   </div>
                   <span className="bg-primary px-2.5 py-1 rounded-lg text-white text-[10px] lg:text-sm"># {movie.year}</span>
@@ -135,6 +133,7 @@ export default function Hero({ featuredMovies }) {
                     onClick={() => router.push(`${movieUrl}#movie-player`)}
                     icon={Play}
                     variant="primary"
+                    triggerAd={true}
                     className="flex-1 sm:flex-initial px-4 sm:px-12 py-3 lg:py-4 text-[10px] sm:text-base"
                   >
                     Play Now
@@ -143,7 +142,7 @@ export default function Hero({ featuredMovies }) {
                     onClick={() => router.push(movieUrl)}
                     className="flex-1 sm:flex-initial group flex items-center justify-center gap-2 px-4 sm:px-8 py-3 lg:py-4 bg-white/5 border border-white/10 rounded-xl lg:rounded-2xl hover:bg-white/10 transition-all font-black uppercase tracking-widest text-[9px] lg:text-[10px]"
                   >
-                    <Info size={14} className="flex-shrink-0" />
+                    <Info size={16} className="w-3.5 h-3.5 lg:w-4 lg:h-4 flex-shrink-0" />
                     <span className="truncate">View Details</span>
                   </button>
                 </div>
@@ -156,9 +155,9 @@ export default function Hero({ featuredMovies }) {
             <AnimatePresence mode="wait">
               <motion.div
                 key={`poster-${movie.id}`}
-                initial={mobileView ? { opacity: 0, scale: 0.9 } : { opacity: 0, rotateY: 30, scale: 0.8, x: 50 }}
-                animate={mobileView ? { opacity: 1, scale: 1 } : { opacity: 1, rotateY: -15, scale: 1, x: 0 }}
-                exit={mobileView ? { opacity: 0, scale: 0.9 } : { opacity: 0, rotateY: -45, scale: 0.9, x: -50 }}
+                initial={{ opacity: 0, rotateY: 30, scale: 0.8, x: 50 }}
+                animate={{ opacity: 1, rotateY: -15, scale: 1, x: 0 }}
+                exit={{ opacity: 0, rotateY: -45, scale: 0.9, x: -50 }}
                 transition={{ duration: 0.8, ease: "circOut" }}
                 className="relative group lg:perspective-[2000px]"
               >
@@ -201,6 +200,7 @@ export default function Hero({ featuredMovies }) {
       {/* 4. LAYER: Interactive Navigation Timeline */}
       <div className="absolute bottom-6 sm:bottom-10 left-0 right-0 z-30 border-t border-white/5 bg-gradient-to-t from-black to-transparent backdrop-blur-md pt-6 sm:pt-8 pb-2 sm:pb-0">
         <div className="container-custom">
+
           <div className="flex items-center justify-between gap-4 lg:gap-6">
             <div className="flex items-center gap-1.5 lg:gap-3 overflow-x-auto no-scrollbar py-2 sm:py-4 w-full">
               {featuredMovies.map((m, i) => (

@@ -28,7 +28,7 @@ export default function AdsterraBanner() {
 
   const adHtml = `
     <html>
-      <body style="margin:0;padding:0;">
+      <body style="margin:0;padding:0;overflow:hidden;background:transparent;">
         <script type="text/javascript">
           atOptions = {
             'key' : 'd62819ea9606995cac6da328c4d8e460',
@@ -48,20 +48,39 @@ export default function AdsterraBanner() {
   }
 
   return (
-    <div className={`w-full flex justify-start my-6 overflow-hidden min-h-[60px] ${loading ? 'animate-pulse bg-zinc-900/10 rounded' : ''}`}>
-      <div style={{ width: "468px", height: "60px" }}>
-        {!loading && !isAdmin && (
-          <iframe
-            srcDoc={adHtml}
-            width="468"
-            height="60"
-            frameBorder="0"
-            scrolling="no"
-            className="bg-transparent"
-            title="Adsterra Banner"
-          />
-        )}
-      </div>
+    <div className="w-full">
+      {!loading && !isAdmin && (
+        <div className="flex flex-wrap justify-start gap-4 md:gap-8">
+          <div className="relative w-[468px] h-[60px] bg-zinc-900/5 rounded overflow-hidden">
+            <iframe
+              srcDoc={adHtml}
+              width="468"
+              height="60"
+              frameBorder="0"
+              scrolling="no"
+              className="bg-transparent"
+              title="Adsterra Banner 1"
+              loading="lazy"
+            />
+          </div>
+          {/* Maximum 2 ads on desktop only for stability */}
+          <div className="hidden md:block relative w-[468px] h-[60px] bg-zinc-900/5 rounded overflow-hidden">
+            <iframe
+              srcDoc={adHtml}
+              width="468"
+              height="60"
+              frameBorder="0"
+              scrolling="no"
+              className="bg-transparent"
+              title="Adsterra Banner 2"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      )}
+      {loading && (
+        <div className="w-full h-[60px] animate-pulse bg-zinc-900/10 rounded" />
+      )}
     </div>
   );
 }

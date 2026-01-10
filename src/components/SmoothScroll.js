@@ -2,12 +2,20 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
+import { useAdaptive } from "@/context/AdaptiveContext";
 
 export default function SmoothScroll() {
+  const { isMobile, isHydrated } = useAdaptive();
+
   useEffect(() => {
-    // Performance: Disable Lenis on mobile devices for better native scrolling
-    if (typeof window !== "undefined" && (window.innerWidth < 1024 || window.matchMedia("(pointer: coarse)").matches)) {
+    // Check for hydration and mobile status
+    if (!isHydrated || isMobile) {
       return;
+    }
+
+    // Double check for touch devices or low performance/save data
+    if (window.matchMedia("(pointer: coarse)").matches) {
+       return;
     }
 
     const lenis = new Lenis({
@@ -20,6 +28,14 @@ export default function SmoothScroll() {
       touchMultiplier: 2,
     });
 
+    lenis.on('scroll', () => {
+      document.body.classList.add('is-scrolling');
+    });
+
+    lenis.on('scrollEnd', () => {
+      document.body.classList.remove('is-scrolling');
+    });
+
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -30,7 +46,7 @@ export default function SmoothScroll() {
     return () => {
       lenis.destroy();
     };
-  }, []);
+  }, [isMobile, isHydrated]);
 
   return null;
 }

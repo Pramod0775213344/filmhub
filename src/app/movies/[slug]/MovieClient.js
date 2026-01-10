@@ -266,6 +266,7 @@ export default function MovieClient({ initialMovie, userId }) {
                       onClick={() => document.getElementById("movie-content")?.scrollIntoView({ behavior: "smooth" })}
                       icon={Play}
                       variant="primary"
+                      triggerAd={true}
                     >
                         Watch Now
                     </CinematicButton>
@@ -466,6 +467,7 @@ export default function MovieClient({ initialMovie, userId }) {
                             }}
                             icon={Download}
                             variant="primary"
+                            triggerAd={true}
                             className="w-full"
                             isLoading={isDownloadLoading}
                         >

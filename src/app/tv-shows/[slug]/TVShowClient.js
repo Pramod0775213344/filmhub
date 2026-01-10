@@ -254,6 +254,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                       }}
                       icon={Play}
                       variant="primary"
+                      triggerAd={true}
                     >
                         Watch Episodes
                     </CinematicButton>

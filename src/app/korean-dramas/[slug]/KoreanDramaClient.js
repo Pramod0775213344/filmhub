@@ -234,6 +234,7 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                       }}
                       icon={Play}
                       variant="primary"
+                      triggerAd={true}
                     >
                         Watch Now
                     </CinematicButton>
@@ -457,6 +458,7 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                         }}
                         icon={Download}
                         variant="primary"
+                        triggerAd={true}
                         className="w-full"
                         isLoading={isDownloadLoading}
                     >

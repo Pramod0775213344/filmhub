@@ -209,9 +209,11 @@ body {
   }
 }
 
-/* Force hardware acceleration for common animated elements on desktop */
+/* Fix for Iframe Jitter/Flickering during scroll */
+body.is-scrolling iframe {
+  pointer-events: none !important;
+}
+
+/* Performance Optimizations - Removed global will-change to prevent flickering */
 @media (min-width: 769px) {
-  .motion-safe {
-    will-change: transform, opacity;
-  }
 }

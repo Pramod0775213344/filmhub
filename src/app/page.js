@@ -31,7 +31,7 @@ export default async function Home({ searchParams }) {
         <HeroSection />
       </Suspense>
 
-      <div className="container-custom relative z-10 -mt-10 space-y-20 pb-28 md:-mt-10 md:space-y-32">
+      <div className="container-custom relative z-10 space-y-8 pb-28 md:space-y-20 pt-8 md:pt-12">
         {/* 2. Content Sections (Streamed) */}
         <Suspense fallback={<SectionSkeleton title="Recently Added" />}>
           <RecentSection />
@@ -110,7 +110,7 @@ async function RecentSection() {
     .order("created_at", { ascending: false })
     .limit(8);
 
-  return <FilmSection title="Recently Added" movies={enrich(data)} href="/movies?sort=latest" />;
+  return <FilmSection title="Recently Added" movies={enrich(data)} href="/movies?sort=latest" isPriority={true} />;
 }
 
 async function TrendingSection() {
@@ -230,7 +230,7 @@ function HeroSkeleton() {
 
 function SectionSkeleton({ title }) {
   return (
-    <div className="space-y-8 mt-12 md:mt-20">
+    <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div className="h-10 w-48 animate-pulse rounded-lg bg-zinc-900" />
       </div>

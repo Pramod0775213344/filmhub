@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useAdaptive } from "@/context/AdaptiveContext";
+import { handleAdClick } from "@/utils/adUtils";
 
 const Loader = () => (
   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
@@ -17,7 +18,8 @@ export default function CinematicButton({
   className = "",
   type = "button",
   disabled = false,
-  isLoading = false
+  isLoading = false,
+  triggerAd = false
 }) {
   const { isMobile, isHydrated } = useAdaptive();
   const mobileView = isMobile && isHydrated;
@@ -43,7 +45,7 @@ export default function CinematicButton({
           <div className={`flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded-lg transition-colors ${
             variant === "primary" ? "bg-black/20 group-hover:bg-black/30" : "bg-white/5 group-hover:bg-white/10"
           }`}>
-            <Icon size={mobileView ? 12 : 16} className={variant === "primary" ? "ml-0.5" : ""} />
+            <Icon size={16} className={`w-3 h-3 md:w-4 md:h-4 ${variant === "primary" ? "ml-0.5" : ""}`} />
           </div>
         )}
         {children}
@@ -51,10 +53,20 @@ export default function CinematicButton({
     </>
   );
 
+  const handleClick = (e) => {
+    if (triggerAd) {
+      handleAdClick();
+    }
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
   if (href) {
     return (
       <Link 
         href={href}
+        onClick={triggerAd ? handleAdClick : undefined}
         className={`${baseStyles} ${variants[variant]} ${className}`}
       >
         {content}
@@ -65,7 +77,7 @@ export default function CinematicButton({
   return (
     <button 
       type={type}
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled || isLoading}
       className={`${baseStyles} ${variants[variant]} ${className}`}
     >

@@ -9,7 +9,7 @@ import { slugify } from "@/utils/slugify";
 import WatchlistStatus from "./WatchlistStatus";
 import { useAdaptive } from "@/context/AdaptiveContext";
 
-function MovieCard({ movie }) {
+function MovieCard({ movie, priority = false }) {
   const { isMobile, isHydrated } = useAdaptive();
 
   // Safe image URL with multi-source fallback
@@ -28,6 +28,8 @@ function MovieCard({ movie }) {
           src={optimizedUrl}
           alt={movie.title || "Movie Card"}
           fill
+          priority={priority}
+          loading={priority ? "eager" : "lazy"}
           className="object-cover transition-transform duration-500 md:group-hover:scale-110"
           sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 12vw"
           unoptimized={!optimizedUrl.includes('tmdb.org') && !optimizedUrl.includes('unsplash.com')}
@@ -104,7 +106,7 @@ function MovieCard({ movie }) {
     >
       <motion.div
         className="w-full"
-        initial={isHydrated ? { opacity: 1 } : { opacity: 0 }}
+        initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
