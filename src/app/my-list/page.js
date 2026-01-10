@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import MovieCard from "@/components/MovieCard";
-import { Loader2, Heart, Film } from "lucide-react";
+import { Heart, Film } from "lucide-react";
+import PageSkeleton from "@/components/PageSkeleton";
 
 export default function MyListPage() {
   const [movies, setMovies] = useState([]);
@@ -49,6 +50,14 @@ export default function MyListPage() {
     checkAndFetch();
   }, [fetchMyList, supabase]);
 
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background">
+        <PageSkeleton showFilters={false} />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <div className="container-custom pb-32">
@@ -56,11 +65,7 @@ export default function MyListPage() {
           {/* Header removed for MiniHero */}
         </div>
 
-        {loading ? (
-          <div className="flex h-60 items-center justify-center">
-            <Loader2 className="animate-spin text-primary" size={40} />
-          </div>
-        ) : movies.length === 0 ? (
+        {movies.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-zinc-900 text-zinc-500">
               <Film size={32} />

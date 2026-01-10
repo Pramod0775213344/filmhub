@@ -7,6 +7,7 @@ import AdManager from "@/components/AdManager";
 import SpotlightEffect from "@/components/SpotlightEffect";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import PremiumBackground from "@/components/PremiumBackground";
 
 
 const geistSans = Geist({
@@ -115,6 +116,7 @@ export default function RootLayout({ children }) {
         style={{ backgroundColor: '#020202' }}
       >
         <AdManager />
+        <PremiumBackground />
         <SpotlightEffect />
         <NextTopLoader 
           color="#E50914"
