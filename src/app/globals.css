@@ -216,14 +216,14 @@ body {
   }
 }
 
-/* Performance: Hardware accelerate iframes to prevent jitter */
-iframe {
+/* Performance: Hardware accelerate iframes to prevent jitter - REMOVED for fullscreen fix */
+/* iframe {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   will-change: transform;
   backface-visibility: hidden;
   contain: content;
-}
+} */
 
 
 
