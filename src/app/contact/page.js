@@ -56,7 +56,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-1">Email Us</h3>
-                  <p className="font-bold text-white">filmhub@gmail.com</p>
+                  <p className="font-bold text-white">subhubsl@gmail.com</p>
                 </div>
               </div>
 

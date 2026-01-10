@@ -165,7 +165,7 @@ function MoviesContent() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `filmhub-bulk-${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `subhub-sl-bulk-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
     } catch (e) { console.error(e); alert("Export failed"); }
     setIsExporting(false);

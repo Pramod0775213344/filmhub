@@ -3,8 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
-  title: "About Us | FilmHub",
-  description: "Learn more about FilmHub, your ultimate destination for discovering movies, TV shows, and Korean dramas.",
+  title: "About Us | SubHub SL",
+  description: "Learn more about SubHub SL, your ultimate destination for discovering movies, TV shows, and Korean dramas.",
 };
 
 export default function AboutPage() {

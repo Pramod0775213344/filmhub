@@ -155,7 +155,7 @@ export default async function UpcomingDetailsPage({ params }) {
         <div className="mt-20 rounded-3xl bg-gradient-to-r from-primary/20 via-zinc-900 to-primary/20 p-1 lg:p-1">
             <div className="rounded-[22px] bg-zinc-950 p-8 md:p-16 text-center space-y-8">
                 <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter">
-                    තිරගත වූ සැනින් අපගේ <span className="text-primary">FilmHub</span> හරහා නරඹන්න!
+                    තිරගත වූ සැනින් අපගේ <span className="text-primary">SubHub SL</span> හරහා නරඹන්න!
                 </h2>
                 <p className="text-xl text-zinc-500 max-w-2xl mx-auto font-medium">
                     අලුත්ම සිනමා තොරතුරු සහ උපසිරැසි පිළිබඳ දැනුවත් වීමට අපේ වෙබ් අඩවිය සමඟ නිරන්තරයෙන් රැඳී සිටින්න.

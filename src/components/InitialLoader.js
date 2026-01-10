@@ -43,9 +43,9 @@ export default function InitialLoader() {
                 initial={{ opacity: 0, y: 20, letterSpacing: "0.5em", filter: "blur(10px)" }}
                 animate={{ opacity: 1, y: 0, letterSpacing: "0.15em", filter: "blur(0px)" }}
                 transition={{ duration: 1.5, ease: "easeOut" }}
-                className="font-display text-6xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40"
+                className="font-display text-4xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/40 whitespace-nowrap"
               >
-                FILMHUB
+                SUBHUB SL
               </motion.h1>
 
               {/* Light Sweep Overlay (The "Premium" Shine) */}
@@ -71,8 +71,8 @@ export default function InitialLoader() {
               transition={{ delay: 1, duration: 1 }}
               className="absolute top-full left-0 right-0 transform -scale-y-100 origin-top"
             >
-               <h1 className="font-display text-4xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-transparent opacity-20 blur-[2px] tracking-[0.15em]">
-                FILMHUB
+               <h1 className="font-display text-4xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-transparent opacity-20 blur-[2px] tracking-[0.15em] whitespace-nowrap">
+                SUBHUB SL
               </h1>
             </motion.div>
 

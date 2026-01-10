@@ -199,14 +199,14 @@ export default function Navbar() {
             <Menu size={24} />
           </button>
 
-          {/* Left: Logo */}
+            {/* Left: Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="group flex items-center gap-2 md:gap-3">
               <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-xl bg-primary shadow-[0_0_20px_rgba(229,9,20,0.4)] transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
                 <Play size={16} fill="white" className="text-white ml-0.5 md:w-5 md:h-5" />
               </div>
               <span className="font-display text-xl md:text-2xl font-black tracking-tighter text-white">
-                FILM<span className="text-primary">HUB</span>
+                SUBHUB<span className="text-primary"> SL</span>
               </span>
             </Link>
           </div>
@@ -665,7 +665,7 @@ export default function Navbar() {
                       <Play size={16} fill="white" className="text-white ml-0.5" />
                     </div>
                     <span className="font-display text-xl font-black tracking-tighter text-white">
-                      FILM<span className="text-primary">HUB</span>
+                      SUBHUB<span className="text-primary"> SL</span>
                     </span>
                   </Link>
                   <button 

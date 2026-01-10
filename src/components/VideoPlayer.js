@@ -50,7 +50,7 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
           />
         ) : (
           <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
-             <Image src="/logo.png" alt="FilmHub" width={150} height={50} className="opacity-20 grayscale" />
+             <Image src="/logo.png" alt="SubHub SL" width={150} height={50} className="opacity-20 grayscale" />
           </div>
         )}
         

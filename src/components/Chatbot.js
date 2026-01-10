@@ -20,7 +20,7 @@ export default function Chatbot() {
   const [messages, setMessages] = useState([
     { 
       role: "assistant", 
-      content: "Hello! 🎬 I'm FilmHub AI, your personal movie guide. Ask me about movies, TV shows, or Korean dramas. What are you in the mood to watch?" 
+      content: "Hello! 🎬 I'm SubHub SL AI, your personal movie guide. Ask me about movies, TV shows, or Korean dramas. What are you in the mood to watch?" 
     }
   ]);
   const [input, setInput] = useState("");
@@ -153,7 +153,7 @@ export default function Chatbot() {
     setMessages([
       { 
         role: "assistant", 
-        content: "Hello! 🎬 I'm FilmHub AI, your personal movie guide. Ask me about movies, TV shows, or Korean dramas. What are you in the mood to watch?" 
+        content: "Hello! 🎬 I'm SubHub SL AI, your personal movie guide. Ask me about movies, TV shows, or Korean dramas. What are you in the mood to watch?" 
       }
     ]);
   };
@@ -254,7 +254,7 @@ export default function Chatbot() {
                     </motion.div>
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white">FilmHub AI</h3>
+                    <h3 className="text-sm font-bold text-white">SubHub SL AI</h3>
                     <div className="flex items-center gap-1.5">
                       <motion.div 
                         animate={{ opacity: [1, 0.5, 1] }} 

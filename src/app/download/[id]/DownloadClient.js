@@ -306,7 +306,7 @@ export default function DownloadClient({ movie, links }) {
         <div className="mt-20 flex flex-col items-center gap-6">
             <div className="h-px w-32 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             <p className="text-zinc-600 text-[10px] md:text-sm font-medium tracking-wide text-center max-w-3xl px-6 leading-relaxed">
-                By downloading, you agree to our terms of service. FilmHub does not host any files on its servers. All content is provided by non-affiliated third parties.
+                By downloading, you agree to our terms of service. SubHub SL does not host any files on its servers. All content is provided by non-affiliated third parties.
             </p>
         </div>
       </div>

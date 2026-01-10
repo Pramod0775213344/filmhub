@@ -45,32 +45,32 @@ const notoSinhala = Noto_Sans_Sinhala({
 export const metadata = {
   metadataBase: new URL('https://filmhub-three.vercel.app'),
   title: {
-    default: "FilmHub | Watch Movies with Sinhala Subtitles",
-    template: "%s | FilmHub",
+    default: "SubHub SL - Sinhala Subtitles for Movies & TV Series",
+    template: "%s | SubHub SL",
   },
-  description: "Discover the latest movies, trending releases, Korean dramas, and curate your personal watchlist with FilmHub. The premium platform for film enthusiasts.",
-  applicationName: 'FilmHub', // මෙය එකතු කරන්න
+  description: "Download the latest Sinhala subtitles for movies and TV series from SubHub SL. The best place for Sinhala sub fans.",
+  applicationName: 'SubHub SL', // මෙය එකතු කරන්න
   appleWebApp: {
-    title: 'FilmHub', // iPhone වලට පෙනෙන නම
+    title: 'SubHub SL', // iPhone වලට පෙනෙන නම
   },
-  keywords: ["movies", "streaming", "Trending Movies","Movie Database","films", "watchlist", "cinema", "trailers", "korean dramas", "tv shows", "entertainment", "sri lanka movie site", "sinhala subtitles", "english subtitles", "4k movies","FilmHub"],
-  authors: [{ name: "FilmHub Team" }],
-  creator: "FilmHub Team",
-  publisher: "FilmHub",
+  keywords: ["movies", "streaming", "Trending Movies","Movie Database","films", "watchlist", "cinema", "trailers", "korean dramas", "tv shows", "entertainment", "sri lanka movie site", "sinhala subtitles", "english subtitles", "4k movies","SubHub SL"],
+  authors: [{ name: "SubHub SL Team" }],
+  creator: "SubHub SL Team",
+  publisher: "SubHub SL",
   verification: {
     google: 'yDcvVieLMruCu2Lkyzb_ljFQFFzbMs86oh0h8GhwRzw',
   },
   openGraph: {
-    title: "FilmHub | Watch Movies & TV Shows",
+    title: "SubHub SL | Watch Movies & TV Shows",
     description: "Your ultimate destination for movies, TV shows, and entertainment. Create your watchlist today.",
     url: 'https://filmhub-three.vercel.app',
-    siteName: 'FilmHub',
+    siteName: 'SubHub SL',
     images: [
       {
         url: '/og-image.jpg', // Ensure you have this image in public folder or remove
         width: 1200,
         height: 630,
-        alt: 'FilmHub Preview',
+        alt: 'SubHub SL Preview',
       },
     ],
     locale: 'en_US',
@@ -78,9 +78,9 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FilmHub | Your Ultimate Cinematic Experience',
-    description: 'Discover the latest movies and TV shows on FilmHub.',
-    creator: '@filmhub', // Replace with actual handle if available
+    title: 'SubHub SL | Your Ultimate Cinematic Experience',
+    description: 'Discover the latest movies and TV shows on SubHub SL.',
+    creator: '@subhubsl', // Replace with actual handle if available
     images: ['/twitter-image.jpg'], // Ensure you have this image in public folder or remove
   },
   robots: {
@@ -135,6 +135,38 @@ export default function RootLayout({ children }) {
         </ClientLayout>
         <GoogleAnalytics />
         <SpeedInsights />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "SubHub SL",
+              "url": "https://filmhub-three.vercel.app",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://filmhub-three.vercel.app/movies?s={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+             __html: JSON.stringify({
+               "@context": "https://schema.org",
+               "@type": "Organization",
+               "name": "SubHub SL",
+               "url": "https://filmhub-three.vercel.app",
+               "logo": "https://filmhub-three.vercel.app/logo.png",
+               "sameAs": [
+                 "https://facebook.com/subhubsl",
+                 "https://twitter.com/subhubsl"
+               ]
+             })
+          }}
+        />
       </body>
     </html>
   );

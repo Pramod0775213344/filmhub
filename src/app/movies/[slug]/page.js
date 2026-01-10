@@ -15,10 +15,10 @@ export async function generateMetadata({ params }) {
   
   const movie = movies?.find(m => slugify(m.title) === slug);
 
-  if (!movie) return { title: "Movie Not Found | FilmHub" };
+  if (!movie) return { title: "Movie Not Found | SubHub SL" };
 
   return {
-    title: `${movie.title} | FilmHub`,
+    title: `${movie.title} | SubHub SL`,
     description: movie.description,
     openGraph: {
       title: movie.title,
@@ -53,6 +53,39 @@ export default async function MovieDetailsPage({ params }) {
   }
 
   return (
-    <MovieClient initialMovie={movie} userId={user?.id} />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Movie",
+            "name": movie.title,
+            "description": movie.description,
+            "image": movie.image_url,
+            "datePublished": movie.year ? `${movie.year}-01-01` : undefined, // Assuming year is 2024
+            "aggregateRating": movie.rating ? {
+              "@type": "AggregateRating",
+              "ratingValue": movie.rating,
+              "bestRating": "10",
+              "ratingCount": "100" // Placeholder or actual data if available
+            } : undefined,
+            "director": movie.director ? {
+              "@type": "Person",
+              "name": movie.director
+            } : undefined,
+            "actor": movie.actors 
+              ? (typeof movie.actors === 'string' 
+                  ? movie.actors.split(',').map(actor => ({ "@type": "Person", "name": actor.trim() }))
+                  : Array.isArray(movie.actors) 
+                    ? movie.actors.map(actor => ({ "@type": "Person", "name": typeof actor === 'string' ? actor : actor.name || "Unknown" }))
+                    : undefined
+                )
+              : undefined
+          })
+        }}
+      />
+      <MovieClient initialMovie={movie} userId={user?.id} />
+    </>
   );
 }

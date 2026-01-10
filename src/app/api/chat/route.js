@@ -222,14 +222,14 @@ function formatResultsForAI(results, contentType = "all") {
 }
 
 // FilmHub AI System Prompt
-const SYSTEM_PROMPT = `You are FilmHub AI, a helpful movie search assistant for the FilmHub streaming platform.
+const SYSTEM_PROMPT = `You are SubHub SL AI, a helpful movie search assistant for the SubHub SL streaming platform.
 
 IMPORTANT CAPABILITIES:
-- You can search the FilmHub database for movies, TV shows, and Korean dramas
+- You can search the SubHub SL database for movies, TV shows, and Korean dramas
 - When users ask about finding content, you will provide REAL results from the database
 - Always include the direct links to content when showing results
 
-CONTENT AVAILABLE ON FILMHUB:
+CONTENT AVAILABLE ON SUBHUB SL:
 1. Movies - Hollywood and international films
 2. TV Shows - Popular series
 3. Korean Dramas (K-Dramas) - Korean TV series
@@ -298,7 +298,7 @@ export async function POST(req) {
       case "trending":
         dbResults = await getTrending();
         formattedData = formatResultsForAI(dbResults);
-        dbContext = `\n\n[TRENDING CONTENT ON FILMHUB]${formattedData.text}`;
+        dbContext = `\n\n[TRENDING CONTENT ON SUBHUB SL]${formattedData.text}`;
         break;
       case "recent":
         dbResults = await getRecent();
@@ -340,7 +340,7 @@ export async function POST(req) {
     });
     contents.push({
       role: "model",
-      parts: [{ text: "I'm FilmHub AI, ready to help you find amazing movies and shows! 🎬 I can search our database for movies, TV shows, and Korean dramas. What would you like to watch?" }]
+      parts: [{ text: "I'm SubHub SL AI, ready to help you find amazing movies and shows! 🎬 I can search our database for movies, TV shows, and Korean dramas. What would you like to watch?" }]
     });
 
     // Add conversation history
@@ -416,7 +416,7 @@ export async function GET() {
     model: "gemini-2.5-flash",
     features: ["movie_search", "trending", "genre_filter", "korean_dramas"],
     message: apiKey && supabaseUrl
-      ? "✅ FilmHub AI is fully configured with database search!"
+      ? "✅ SubHub SL AI is fully configured with database search!"
       : "⚠️ Missing configuration - check .env.local"
   });
 }

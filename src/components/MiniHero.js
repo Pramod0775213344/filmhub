@@ -59,7 +59,7 @@ export default function MiniHero() {
 
   // Handle Dynamic Title/Subtitle
   let title = "Explore Content";
-  let subtitle = "Discover the latest movies and series on FilmHub";
+  let subtitle = "Discover the latest movies and series on SubHub SL";
   let badge = "Premium Experience";
   let icon = <Sparkles className="text-primary" size={16} />;
 
@@ -69,7 +69,7 @@ export default function MiniHero() {
   if (s) {
     title = `Results for "${s}"`;
     subtitle = `Found matching titles in our cinematic database.`;
-    badge = "Searching FilmHub";
+    badge = "Searching SubHub SL";
     icon = <Search className="text-primary" size={16} />;
   } else if (pathname.startsWith("/movies")) {
     if (cat) title = `${cat} Movies`;
@@ -101,7 +101,7 @@ export default function MiniHero() {
     badge = "Personal Library";
     icon = <ShieldCheck className="text-primary" size={16} />;
   } else if (pathname.startsWith("/about")) {
-    title = "About FilmHub";
+    title = "About SubHub SL";
     subtitle = "Our mission is to bring global cinema to your screen.";
     badge = "Our Story";
     icon = <Info className="text-primary" size={16} />;

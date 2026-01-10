@@ -1,5 +1,5 @@
 /**
- * Security utilities for FilmHub
+ * Security utilities for SubHub SL
  */
 
 import { NextResponse } from 'next/server';

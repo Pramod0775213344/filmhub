@@ -113,7 +113,7 @@ export default function LoginPage() {
       >
         <div className="mb-10 text-center">
           <Link href="/" className="font-display text-3xl font-black tracking-tighter text-white">
-            FILM<span className="text-primary">HUB</span>
+            SUBHUB<span className="text-primary"> SL</span>
           </Link>
           <p className="mt-4 text-zinc-400 font-medium">Welcome back, cinema lover.</p>
         </div>

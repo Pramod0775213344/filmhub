@@ -103,7 +103,7 @@ export async function middleware(request) {
   
   // Remove server information
   headers.delete('X-Powered-By')
-  headers.set('Server', 'FilmHub')
+  headers.set('Server', 'SubHub SL')
   
   return NextResponse.next({
     request: {

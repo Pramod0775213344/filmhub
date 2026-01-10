@@ -15,10 +15,10 @@ export async function generateMetadata({ params }) {
   
   const show = shows?.find(s => slugify(s.title) === slug);
 
-  if (!show) return { title: "Show Not Found | FilmHub" };
+  if (!show) return { title: "Show Not Found | SubHub SL" };
 
   return {
-    title: `${show.title} | FilmHub`,
+    title: `${show.title} | SubHub SL`,
     description: show.description,
     openGraph: {
       title: show.title,
@@ -61,6 +61,27 @@ export default async function TVShowDetailsPage({ params }) {
   ]);
 
   return (
-    <TVShowClient initialShow={show} initialEpisodes={episodes || []} userId={user?.id} />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "TVSeries",
+            "name": show.title,
+            "description": show.description,
+            "image": show.image_url,
+            "startDate": show.year ? `${show.year}-01-01` : undefined,
+            "aggregateRating": show.rating ? {
+              "@type": "AggregateRating",
+              "ratingValue": show.rating,
+              "bestRating": "10",
+              "ratingCount": "50" // Placeholder
+            } : undefined,
+          })
+        }}
+      />
+      <TVShowClient initialShow={show} initialEpisodes={episodes || []} userId={user?.id} />
+    </>
   );
 }

@@ -19,6 +19,8 @@ import NativeAd from "@/components/NativeAd";
 import AdsterraBanner from "@/components/AdsterraBanner";
 import CinematicButton from "@/components/CinematicButton";
 
+import SocialShareModal from "@/components/SocialShareModal";
+
 export default function MovieClient({ initialMovie, userId }) {
   const router = useRouter();
   const [movie] = useState(initialMovie);
@@ -32,6 +34,7 @@ export default function MovieClient({ initialMovie, userId }) {
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isDownloadLoading, setIsDownloadLoading] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -500,14 +503,7 @@ export default function MovieClient({ initialMovie, userId }) {
                             Download Movie
                         </CinematicButton>
                         <CinematicButton 
-                            onClick={() => {
-                                if (navigator.share) {
-                                    navigator.share({ title: movie.title, url: window.location.href });
-                                } else {
-                                    navigator.clipboard.writeText(window.location.href);
-                                    alert("Link copied!");
-                                }
-                            }}
+                            onClick={() => setIsShareModalOpen(true)}
                             icon={Share2}
                             variant="secondary"
                             className="w-full h-14 text-sm"
@@ -600,6 +596,13 @@ export default function MovieClient({ initialMovie, userId }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <SocialShareModal 
+        isOpen={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        title={movie.title} 
+        url={typeof window !== "undefined" ? window.location.href : ""} 
+      />
 
     </main>
   );

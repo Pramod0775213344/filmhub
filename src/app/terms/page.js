@@ -17,7 +17,7 @@ export default function TermsPage() {
               Terms of <span className="text-primary italic">Service</span>
             </h1>
             <p className="mt-6 text-xl text-zinc-400 font-medium leading-relaxed">
-              Please read these terms carefully before using the FilmHub platform.
+              Please read these terms carefully before using the SubHub SL platform.
             </p>
           </motion.div>
 
@@ -29,7 +29,7 @@ export default function TermsPage() {
               </div>
               <div className="glass rounded-3xl p-8 md:p-10 ring-1 ring-white/10 space-y-4 text-zinc-400 leading-relaxed font-medium">
                 <p>
-                  By accessing or using FilmHub, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
+                  By accessing or using SubHub SL, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
                 </p>
               </div>
             </section>
@@ -56,7 +56,7 @@ export default function TermsPage() {
               </div>
               <div className="glass rounded-3xl p-8 md:p-10 ring-1 ring-white/10 text-zinc-400 leading-relaxed font-medium">
                 <p>
-                  The service and its original content (excluding content provided by users), features, and functionality are and will remain the exclusive property of FilmHub and its licensors. Our trademarks and trade dress may not be used in connection with any product or service without prior written consent.
+                  The service and its original content (excluding content provided by users), features, and functionality are and will remain the exclusive property of SubHub SL and its licensors. Our trademarks and trade dress may not be used in connection with any product or service without prior written consent.
                 </p>
               </div>
             </section>

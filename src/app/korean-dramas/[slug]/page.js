@@ -15,10 +15,10 @@ export async function generateMetadata({ params }) {
   
   const movie = movies?.find(m => slugify(m.title) === slug);
 
-  if (!movie) return { title: "Drama Not Found | FilmHub" };
+  if (!movie) return { title: "Drama Not Found | SubHub SL" };
 
   return {
-    title: `${movie.title} | FilmHub`,
+    title: `${movie.title} | SubHub SL`,
     description: movie.description,
     openGraph: {
       title: movie.title,
@@ -53,6 +53,31 @@ export default async function KoreanDramaDetailsPage({ params }) {
   }
 
   return (
-    <KoreanDramaClient initialMovie={movie} userId={user?.id} />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "TVSeries",
+            "name": movie.title,
+            "description": movie.description,
+            "image": movie.image_url,
+            "startDate": movie.year ? `${movie.year}-01-01` : undefined,
+            "aggregateRating": movie.rating ? {
+              "@type": "AggregateRating",
+              "ratingValue": movie.rating,
+              "bestRating": "10",
+              "ratingCount": "50" // Placeholder
+            } : undefined,
+            "director": movie.director ? {
+              "@type": "Person",
+              "name": movie.director
+            } : undefined,
+          })
+        }}
+      />
+      <KoreanDramaClient initialMovie={movie} userId={user?.id} />
+    </>
   );
 }

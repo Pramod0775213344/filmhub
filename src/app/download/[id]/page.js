@@ -8,7 +8,7 @@ export async function generateMetadata({ params }) {
   const { data: movie } = await supabase.from("movies").select("title").eq("id", id).single();
   
   return {
-    title: `Download ${movie?.title || 'Movie'} | FilmHub`,
+    title: `Download ${movie?.title || 'Movie'} | SubHub SL`,
     description: `Secure download links for ${movie?.title || 'Movie'}.`,
   };
 }

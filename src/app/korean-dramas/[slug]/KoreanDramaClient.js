@@ -16,6 +16,7 @@ import CommentSection from "@/components/CommentSection";
 import AdsterraBanner from "@/components/AdsterraBanner";
 import NativeAd from "@/components/NativeAd";
 import CinematicButton from "@/components/CinematicButton";
+import SocialShareModal from "@/components/SocialShareModal";
 
 export default function KoreanDramaClient({ initialMovie, userId }) {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isDownloadLoading, setIsDownloadLoading] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -499,14 +501,7 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
                               Download Series
                           </CinematicButton>
                         <CinematicButton 
-                            onClick={() => {
-                                if (navigator.share) {
-                                    navigator.share({ title: movie.title, url: window.location.href });
-                                } else {
-                                    navigator.clipboard.writeText(window.location.href);
-                                    alert("Link copied!");
-                                }
-                            }}
+                            onClick={() => setIsShareModalOpen(true)}
                             icon={Share2}
                             variant="secondary"
                             className="w-full h-14 text-sm"
@@ -595,6 +590,13 @@ export default function KoreanDramaClient({ initialMovie, userId }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <SocialShareModal 
+        isOpen={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        title={movie.title} 
+        url={typeof window !== "undefined" ? window.location.href : ""} 
+      />
 
     </main>
   );

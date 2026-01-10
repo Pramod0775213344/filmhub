@@ -18,6 +18,7 @@ import CommentSection from "@/components/CommentSection";
 import NativeAd from "@/components/NativeAd";
 import AdsterraBanner from "@/components/AdsterraBanner";
 import CinematicButton from "@/components/CinematicButton";
+import SocialShareModal from "@/components/SocialShareModal";
 
 export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
   const router = useRouter();
@@ -32,6 +33,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
   const [tmdbImages, setTmdbImages] = useState({ backdrops: [], posters: [] });
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const supabase = createClient();
 
   // Group episodes by season
@@ -495,14 +497,7 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
                     <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] text-center mb-2">Controls</h3>
                     <div className="space-y-3">
                         <CinematicButton 
-                            onClick={() => {
-                                if (navigator.share) {
-                                    navigator.share({ title: show.title, url: window.location.href });
-                                } else {
-                                    navigator.clipboard.writeText(window.location.href);
-                                    alert("Link copied!");
-                                }
-                            }}
+                            onClick={() => setIsShareModalOpen(true)}
                             icon={Share2}
                             variant="secondary"
                             className="w-full h-14 text-sm"
@@ -626,7 +621,13 @@ export default function TVShowClient({ initialShow, initialEpisodes, userId }) {
           </motion.div>
         )}
       </AnimatePresence>
-
+      
+      <SocialShareModal 
+        isOpen={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        title={show.title} 
+        url={typeof window !== "undefined" ? window.location.href : ""} 
+      />
     </main>
   );
 }

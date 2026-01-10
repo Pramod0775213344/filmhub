@@ -12,7 +12,7 @@ export default function Footer() {
           <div className="space-y-6 md:col-span-1">
             <Link href="/" className="flex items-center gap-1">
               <span className="text-2xl font-black tracking-tighter text-primary">
-                FILMHUB
+                SUBHUB SL
               </span>
             </Link>
             <p className="text-sm leading-relaxed">
@@ -70,7 +70,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 border-t border-zinc-800 pt-8 text-center text-xs">
-          <p suppressHydrationWarning>&copy; {new Date().getFullYear()} FilmHub Inc. Design by Pramod Ravisanka.</p>
+          <p suppressHydrationWarning>&copy; {new Date().getFullYear()} SubHub SL Inc. Design by Pramod Ravisanka.</p>
         </div>
       </div>
     </footer>
