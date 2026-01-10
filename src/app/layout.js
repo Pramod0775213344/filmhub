@@ -113,7 +113,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${outfit.variable} ${notoSinhala.variable} antialiased`}
         suppressHydrationWarning
-        style={{ backgroundColor: '#020202' }}
+        style={{ backgroundColor: '#050505' }}
       >
         <AdManager />
         <PremiumBackground />
