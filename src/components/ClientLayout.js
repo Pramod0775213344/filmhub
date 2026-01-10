@@ -1,5 +1,7 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { usePathname } from "next/navigation";
 import { AdaptiveProvider } from "@/context/AdaptiveContext";
 import Navbar from "@/components/Navbar";
@@ -22,8 +24,14 @@ export default function ClientLayout({ children }) {
   return (
     <AdaptiveProvider>
       {!pathname.startsWith("/admin") && <SmoothScroll />}
-      {!hideLayout && <Navbar />}
-      <MiniHero />
+      {!hideLayout && (
+        <Suspense fallback={null}>
+          <Navbar />
+        </Suspense>
+      )}
+      <Suspense fallback={null}>
+        <MiniHero />
+      </Suspense>
       {children}
       {!hideLayout && <ScrollToTop />}
       {!hideLayout && <Chatbot />}
