@@ -488,7 +488,7 @@ export default function Navbar() {
                 variant="primary"
                 className="hidden md:flex h-10 px-6 py-0 text-[10px]"
               >
-                Sign
+                Sign in
               </CinematicButton>
             )}
           </div>

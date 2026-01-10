@@ -13,6 +13,8 @@ const ScrollToTop = dynamic(() => import("./ScrollToTop"), { ssr: false });
 
 import MiniHero from "@/components/MiniHero";
 
+import InitialLoader from "@/components/InitialLoader";
+
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
   
@@ -23,6 +25,7 @@ export default function ClientLayout({ children }) {
 
   return (
     <AdaptiveProvider>
+      <InitialLoader />
       {!pathname.startsWith("/admin") && <SmoothScroll />}
       {!hideLayout && (
         <Suspense fallback={null}>
