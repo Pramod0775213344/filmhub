@@ -17,7 +17,6 @@ import { createPortal } from "react-dom";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -63,24 +62,15 @@ export default function Navbar() {
     });
 
     const handleScroll = () => {
-      // Simple throttle using requestAnimationFrame
+      // Use requestAnimationFrame for performance
       requestAnimationFrame(() => {
         const currentScrollY = window.scrollY;
-        
-        // Hide if scrolling down and scrolled past a threshold
-        if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-          setIsVisible(false);
-        } else {
-          // Show if scrolling up
-          setIsVisible(true);
-        }
-  
-        setIsScrolled(currentScrollY > 0);
-        lastScrollY.current = currentScrollY;
+        // Simple toggle for background style
+        setIsScrolled(currentScrollY > 50);
       });
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
       subscription.unsubscribe();
@@ -192,11 +182,11 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed z-50 transition-all duration-500 ease-in-out ${
+        className={`fixed top-0 w-full z-50 transition-all duration-300 ease-out will-change-transform ${
           isScrolled 
-            ? "top-2 md:top-4 left-1/2 -translate-x-1/2 w-[95%] md:w-auto md:min-w-[600px] rounded-full border border-white/10 bg-black/60 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-2xl py-2 px-4 md:px-6"
-            : "top-0 w-full bg-gradient-to-b from-black/90 via-black/40 to-transparent py-4 md:py-6 px-4 md:px-12 border-b border-white/0"
-        } ${isVisible ? "translate-y-0 opacity-100" : "-translate-y-[150%] opacity-0"}`}
+            ? "border-b border-white/5 bg-black/80 shadow-lg backdrop-blur-xl py-3 px-4 md:px-8"
+            : "bg-gradient-to-b from-black/90 via-black/40 to-transparent py-4 md:py-6 px-4 md:px-12 border-b border-white/0"
+        }`}
       >
         <div className={`flex items-center justify-between ${!isScrolled && "container-custom mx-auto"}`}>
           

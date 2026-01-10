@@ -1,5 +1,11 @@
 @import "tailwindcss";
 /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap'); */
+
+
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --background: #020202; /* Deeper black for premium feel */
   --foreground: #ffffff;
@@ -86,6 +92,7 @@ body {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  transform: translateZ(0); /* Hardware acceleration */
 }
 
 @media (max-width: 768px) {

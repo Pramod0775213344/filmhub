@@ -39,7 +39,7 @@ export async function middleware(request) {
   // Apply rate limiting to API routes (100 requests per minute)
   if (pathname.startsWith('/api/')) {
     // More strict rate limiting for sensitive endpoints
-    const limit = pathname.includes('/chat') || pathname.includes('/analytics') ? 30 : 100
+    const limit = pathname.includes('/chat') ? 30 : 100
     
     if (!rateLimit(ip, limit)) {
       return new NextResponse(
@@ -63,7 +63,7 @@ export async function middleware(request) {
   // Content Security Policy - Strict but allows necessary external resources
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live https://va.vercel-scripts.com https://preferencenail.com https://*.effectivegatecpm.com https://*.highperformanceformat.com https://al5sm.com https://*.show-sb.com https://*.creative-sb1.com",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live https://va.vercel-scripts.com https://preferencenail.com https://*.effectivegatecpm.com https://effectivegatecpm.com https://*.highperformanceformat.com https://highperformanceformat.com https://al5sm.com https://*.show-sb.com https://show-sb.com https://*.creative-sb1.com https://creative-sb1.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: https: blob:",
     "font-src 'self' https://fonts.gstatic.com data:",

@@ -225,7 +225,7 @@ async function SearchResults({ search, category }) {
 // --- Skeleton Placeholders (Optimized for CLS) ---
 
 function HeroSkeleton() {
-  return <div className="h-[100dvh] w-full bg-zinc-950" />;
+  return <div className="h-[100dvh] w-full bg-[#020202]" />;
 }
 
 function SectionSkeleton({ title }) {

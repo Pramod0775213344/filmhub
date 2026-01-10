@@ -47,7 +47,7 @@ export default function Hero({ featuredMovies }) {
         <AnimatePresence mode="popLayout">
           <motion.div
             key={`bg-${movie.id}`}
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 0.35 }}
             animate={{ opacity: 0.35 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1, ease: "linear" }}
@@ -58,7 +58,7 @@ export default function Hero({ featuredMovies }) {
               alt="" 
               fill 
               priority
-              className="object-cover blur-[60px] transform-gpu brightness-50"
+              className="object-cover opacity-50 brightness-50"
               quality={1} // Very low quality for ambient light
               sizes="10vw"
             />
@@ -92,7 +92,7 @@ export default function Hero({ featuredMovies }) {
             <AnimatePresence mode="wait">
               <motion.div
                 key={`content-${movie.id}`}
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 0 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
