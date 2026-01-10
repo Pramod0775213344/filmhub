@@ -209,10 +209,15 @@ body {
   }
 }
 
-/* Fix for Iframe Jitter/Flickering during scroll */
-body.is-scrolling iframe {
-  pointer-events: none !important;
+/* Performance: Hardware accelerate iframes to prevent jitter */
+iframe {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
 }
+
+
 
 /* Performance Optimizations - Removed global will-change to prevent flickering */
 @media (min-width: 769px) {

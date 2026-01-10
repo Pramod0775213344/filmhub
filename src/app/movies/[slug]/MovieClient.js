@@ -34,52 +34,7 @@ export default function MovieClient({ initialMovie, userId }) {
   const [isDownloadLoading, setIsDownloadLoading] = useState(false);
   const supabase = createClient();
 
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const scrollRef = useRef(0);
-
   useEffect(() => {
-    // 1. Increment view count
-    const incrementView = async () => {
-        if (!movie?.id || !supabase) return;
-        try {
-            const { data } = await supabase.from('movies').select('views').eq('id', movie.id).single();
-            if (data) {
-                await supabase.from('movies').update({ views: (data.views || 0) + 1 }).eq('id', movie.id);
-            }
-        } catch (err) {
-            console.error("Error incrementing views:", err);
-        }
-    };
-    incrementView();
-
-    // 2. Handle Scroll (Throttled via RequestAnimationFrame)
-    // 2. Handle Scroll (Optimized to prevent unnecessary re-renders)
-    let animationFrameId;
-    let lastNavVisible = true;
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      let isVisible = true;
-      
-      if (currentScrollY > 100) {
-        isVisible = currentScrollY < scrollRef.current;
-      }
-
-      // Only update state if the visibility actually changed
-      if (isVisible !== lastNavVisible) {
-        setIsNavVisible(isVisible);
-        lastNavVisible = isVisible;
-      }
-      
-      scrollRef.current = currentScrollY;
-    };
-
-    const onScroll = () => {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(handleScroll);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
     // 4. Fetch TMDB Images
     const fetchTMDBImages = async () => {
       try {
@@ -100,10 +55,19 @@ export default function MovieClient({ initialMovie, userId }) {
     };
     fetchTMDBImages();
 
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    // 1. Increment view count
+    const incrementView = async () => {
+        if (!movie?.id || !supabase) return;
+        try {
+            const { data } = await supabase.from('movies').select('views').eq('id', movie.id).single();
+            if (data) {
+                await supabase.from('movies').update({ views: (data.views || 0) + 1 }).eq('id', movie.id);
+            }
+        } catch (err) {
+            console.error("Error incrementing views:", err);
+        }
     };
+    incrementView();
   }, [movie?.id, movie?.title, movie?.year, supabase]);
 
   useEffect(() => {
