@@ -20,8 +20,9 @@ function MovieCard({ movie, priority = false }) {
 
   const cardContent = (
     <div className="group relative w-full cursor-pointer touch-manipulation">
+      {/* Main Poster Container */}
       <div 
-        className="aspect-[2/3] w-full overflow-hidden rounded-xl bg-zinc-900 shadow-md md:shadow-2xl relative transition-all duration-300 md:group-hover:ring-2 md:group-hover:ring-primary/50" 
+        className="aspect-[2/3] w-full overflow-hidden rounded-2xl bg-zinc-900 shadow-xl ring-1 ring-white/10 relative transition-all duration-500 md:group-hover:shadow-[0_0_30px_rgba(229,9,20,0.3)] md:group-hover:ring-primary/50" 
         style={{ aspectRatio: '2/3' }}
       >
         <Image
@@ -30,65 +31,71 @@ function MovieCard({ movie, priority = false }) {
           fill
           priority={priority}
           loading={priority ? "eager" : "lazy"}
-          className="object-cover transition-transform duration-500 md:group-hover:scale-110"
+          className="object-cover transition-transform duration-700 md:group-hover:scale-110"
           sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 12vw"
           unoptimized={!optimizedUrl.includes('tmdb.org') && !optimizedUrl.includes('unsplash.com')}
         />
 
-        {/* Hover overlay - Desktop Only */}
-        <div className="movie-card-gradient absolute inset-0 opacity-0 transition-opacity duration-300 md:group-hover:opacity-100 hidden md:block" />
+        {/* Premium Dark Gradient Overlay - Always there but subtle, stronger on hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 transition-opacity duration-500 md:group-hover:opacity-90" />
 
-        <div className="absolute left-2 top-2 md:left-3 md:top-3 flex flex-col gap-1 z-10">
-           {movie.latest_episode && (
-              <span className="flex items-center justify-center rounded bg-green-600 px-1.5 py-0.5 text-[8px] md:text-[11px] font-bold text-white shadow-md">
-                 S{movie.latest_episode.season} | E{movie.latest_episode.episode}
-              </span>
-           )}
+        {/* Top Badges - Glassmorphic Style */}
+        <div className="absolute left-2 top-2 md:left-3 md:top-3 flex flex-col gap-1.5 z-10 items-start">
            {(movie.language || "Sinhala") && (
-             <span className="rounded bg-blue-600 px-1.5 py-0.5 text-[8px] md:text-[11px] font-bold text-white shadow-md">
-               {movie.language || "Sinhala"}
+             <span className="backdrop-blur-md bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-[9px] md:text-[10px] font-black uppercase tracking-wider text-white/90 shadow-lg">
+               {movie.language?.substring(0, 3) || "SIN"}
              </span>
+           )}
+           {movie.latest_episode && (
+              <span className="backdrop-blur-md bg-primary/80 border border-primary/50 rounded-lg px-2 py-1 text-[9px] md:text-[10px] font-black uppercase tracking-wider text-white shadow-lg">
+                 S{movie.latest_episode.season} E{movie.latest_episode.episode}
+              </span>
            )}
         </div>
 
         <div className="absolute right-2 top-2 md:right-3 md:top-3 z-10">
-           <span className={`rounded px-1.5 py-0.5 text-[8px] md:text-[11px] font-bold text-white shadow-md ${movie.type === "Upcoming" ? "bg-orange-600" : "bg-purple-600"}`}>
-             {movie.type === "Upcoming" ? "Soon" : (movie.quality || "FHD")}
+           <span className={`backdrop-blur-md rounded-lg px-2 py-1 text-[9px] md:text-[10px] font-black uppercase tracking-wider text-white shadow-lg border border-white/10 ${
+             movie.type === "Upcoming" ? "bg-amber-600/80" : "bg-black/40"
+           }`}>
+             {movie.type === "Upcoming" 
+               ? "SOON" 
+               : (movie.quality || "4K")}
            </span>
         </div>
 
-        {/* Desktop Content Overlay */}
-        <div className="absolute inset-0 hidden flex-col justify-end p-5 opacity-0 transition-all duration-500 md:flex md:group-hover:opacity-100 md:group-hover:translate-y-0 md:translate-y-6">
-          <h3 className="font-display text-lg font-black leading-tight text-white mb-2 line-clamp-2">
-            {movie.title}
-          </h3>
-          <div className="flex items-center gap-2 text-xs font-bold text-zinc-400">
-            <div className="flex items-center gap-1 text-primary">
-              <Star size={12} fill="currentColor" />
-              <span>{movie.rating}</span>
-            </div>
-            <span>•</span>
-            <span>{movie.year}</span>
+        {/* Action Button - Centered & Animated */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 scale-90 transition-all duration-300 md:group-hover:opacity-100 md:group-hover:scale-100">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/90 text-white shadow-[0_0_30px_rgba(229,9,20,0.6)] backdrop-blur-sm">
+            <Play size={24} fill="currentColor" className="ml-1" />
           </div>
-          <div className="mt-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black shadow-xl">
-              <Play size={20} fill="currentColor" />
-            </div>
-          </div>
+        </div>
+
+        {/* Hover Content Details - Slide Up */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 opacity-0 transition-all duration-300 md:group-hover:translate-y-0 md:group-hover:opacity-100 hidden md:block">
+           <div className="flex items-center gap-2 mb-1">
+             <div className="flex items-center gap-1 text-primary">
+               <Star size={12} fill="currentColor" />
+               <span className="text-xs font-black text-white">{movie.rating}</span>
+             </div>
+             <span className="text-[10px] font-bold text-zinc-400">{movie.year}</span>
+           </div>
+           <p className="text-[10px] font-medium text-zinc-300 line-clamp-2 leading-relaxed">
+             {movie.category || "Action, Adventure"}
+           </p>
         </div>
       </div>
 
-      <div className="mt-2 px-1">
-          <h3 className="font-display text-[11px] md:text-sm font-bold text-white line-clamp-2 min-h-[2.2em] group-hover:text-primary transition-colors leading-[1.2]">
+      {/* Title Below Card - Clean & Sharp */}
+      <div className="mt-3 px-1 space-y-1">
+          <h3 className="font-display text-[13px] md:text-[15px] font-bold text-white leading-tight line-clamp-1 group-hover:text-primary transition-colors">
             {movie.title}
           </h3>
-          <div className="flex items-center gap-2 text-[9px] md:text-[11px] font-medium text-zinc-500 mt-0.5">
-            <div className="flex items-center gap-1 text-primary/80">
+          <div className="flex items-center justify-between text-[10px] md:text-xs font-medium text-zinc-500">
+            <span className="truncate max-w-[70%]">{movie.year} • {movie.type || "Movie"}</span>
+            <div className="flex items-center gap-1 text-zinc-400 group-hover:text-amber-500 transition-colors">
               <Star size={10} fill="currentColor" />
               <span>{movie.rating}</span>
             </div>
-            <span className="h-0.5 w-0.5 rounded-full bg-zinc-800" />
-            <span>{movie.year}</span>
           </div>
       </div>
     </div>

@@ -10,7 +10,7 @@ import { searchTMDB, getTMDBDetails } from "@/utils/tmdb";
 import { 
   Play, Star, Calendar, Clock, Video, Download, 
   User, Users, MessageSquare, Plus, Check, X, 
-  Share2, Globe, Heart, PlayCircle, Image as ImageIcon, Maximize2, Loader2
+  Share2, Globe, Heart, PlayCircle, Image as ImageIcon, Maximize2, Loader2, TrendingUp
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -196,7 +196,7 @@ export default function MovieClient({ initialMovie, userId }) {
     <main className="min-h-screen bg-background text-white selection:bg-primary selection:text-white">
       
       {/* Immersive Hero Section */}
-      <div className="relative h-[80vh] md:h-[90vh] w-full overflow-hidden bg-black">
+      <div className="relative h-[70vh] md:h-[90vh] w-full overflow-hidden bg-black">
         {/* Backdrop Image with Cross-fade Animation */}
         <div className="absolute inset-0">
           <AnimatePresence mode="popLayout">
@@ -227,7 +227,7 @@ export default function MovieClient({ initialMovie, userId }) {
         </div>
 
         {/* Hero Content */}
-        <div className="container-custom relative h-full flex flex-col items-center justify-center pt-20 px-4 text-center">
+        <div className="container-custom relative h-full flex flex-col items-center justify-center pt-20 pb-16 md:pb-0 px-4 text-center">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -263,7 +263,21 @@ export default function MovieClient({ initialMovie, userId }) {
                 {/* Hero Actions */}
                 <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 pt-6 md:pt-8">
                     <CinematicButton 
-                      onClick={() => document.getElementById("movie-content")?.scrollIntoView({ behavior: "smooth" })}
+                      onClick={() => {
+                          setActiveTab('overview');
+                          setTimeout(() => {
+                              const element = document.getElementById('movie-player');
+                              if (element) {
+                                  const offset = 120; 
+                                  const elementPosition = element.getBoundingClientRect().top;
+                                  const offsetPosition = elementPosition + window.pageYOffset - offset;
+                                  window.scrollTo({
+                                      top: offsetPosition,
+                                      behavior: "smooth"
+                                  });
+                              }
+                          }, 100);
+                      }}
                       icon={Play}
                       variant="primary"
                       triggerAd={true}
@@ -282,30 +296,51 @@ export default function MovieClient({ initialMovie, userId }) {
             </motion.div>
         </div>
       </div>
-      <div id="movie-content" className="container-custom relative z-10 -mt-24 pb-20 px-4">
+      <div id="movie-content" className="container-custom relative z-10 -mt-20 md:-mt-32 pb-24 px-4">
         
-        {/* Main Tabs UI */}
-        <div className="flex gap-4 p-2 bg-zinc-900/50 backdrop-blur-2xl border border-white/5 rounded-full w-fit mx-auto mb-16 overflow-x-auto no-scrollbar max-w-full">
-            {["overview", "trailer", "cast", "related", "reviews"].map((tab) => (
-                <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
-                        activeTab === tab 
-                        ? "bg-primary text-white shadow-[0_0_20px_rgba(229,9,20,0.4)]" 
-                        : "text-zinc-500 hover:text-white"
-                    }`}
-                >
-                    {tab}
-                </button>
-            ))}
+        {/* Floating Glass Navigation */}
+        <div className="sticky top-20 z-40 mb-16 flex justify-center">
+            <div className="flex gap-2 p-1.5 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl overflow-x-auto no-scrollbar max-w-full touch-pan-x">
+                {["overview", "trailer", "cast", "related", "reviews"].map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => {
+                            setActiveTab(tab);
+                            // Smooth scroll to top of content area with offset for header
+                            const element = document.getElementById('movie-content');
+                            if (element) {
+                                const offset = 100; // Adjust for sticky header height
+                                const elementPosition = element.getBoundingClientRect().top;
+                                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                                window.scrollTo({
+                                    top: offsetPosition,
+                                    behavior: "smooth"
+                                });
+                            }
+                        }}
+                        className={`relative px-4 sm:px-6 py-2.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-[0.15em] md:tracking-[0.2em] transition-all duration-300 overflow-hidden group whitespace-nowrap flex-shrink-0 ${
+                            activeTab === tab 
+                            ? "text-white shadow-[0_0_20px_rgba(229,9,20,0.5)]" 
+                            : "text-zinc-500 hover:text-white"
+                        }`}
+                    >
+                        {activeTab === tab && (
+                            <motion.div 
+                                layoutId="activeTab"
+                                className="absolute inset-0 bg-primary"
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            />
+                        )}
+                        <span className="relative z-10">{tab}</span>
+                    </button>
+                ))}
+            </div>
         </div>
 
-        {/* Content Section */}
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           
-          {/* Left Column: Media Player & Overview */}
-          <div className="lg:col-span-2 space-y-12">
+          {/* Left Column: Media Player & Content (8 cols) */}
+          <div className="lg:col-span-8 space-y-12">
             
             <AnimatePresence mode="wait">
                 {activeTab === "overview" && (
@@ -314,79 +349,103 @@ export default function MovieClient({ initialMovie, userId }) {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
-                      className="space-y-12"
+                      transition={{ duration: 0.5 }}
+                      className="space-y-16"
                     >
-                        {/* Video Player Area */}
-                        {movie.video_url && (
-                            <section id="movie-player" className="space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-4">
-                                        <Video className="text-primary w-8 h-8" /> 
-                                        Watch Movie
-                                    </h3>
-                                    <div className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em]">
-                                        Ultra HD 4K
+                        {/* STORYLINE - Elegant Typography */}
+                        <section className="relative">
+                            <div className="absolute -inset-4 bg-gradient-to-b from-zinc-900/50 to-transparent rounded-[2.5rem] -z-10 blur-xl" />
+                            <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+                                <div className="hidden md:flex flex-col items-center gap-4 pt-2">
+                                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-primary">
+                                        <Globe size={20} />
                                     </div>
+                                    <div className="w-px h-full bg-gradient-to-b from-white/10 to-transparent" />
                                 </div>
-                                <div className="overflow-hidden rounded-[2.5rem] ring-1 ring-white/10 shadow-2xl bg-zinc-900">
-                                    <VideoPlayer url={movie.video_url} title={movie.title} poster={movie.image_url || movie.image} />
-                                </div>
-                                <AdsterraBanner />
-                                <NativeAd />
-                            </section>
-                        )}
-
-                        {/* Storyline Section */}
-                        <section className="space-y-8">
-                            <div className="rounded-3xl border border-white/5 bg-white/5 p-8 md:p-12 backdrop-blur-sm">
-                                <h3 className="mb-8 text-2xl font-black text-white uppercase tracking-wider flex items-center gap-4">
-                                    <Globe className="text-primary w-8 h-8" /> 
-                                    Storyline
-                                </h3>
-                                <div className="space-y-8">
-                                    {movie.description?.split(/\r?\n|\\n/).filter(p => p.trim() !== "").map((para, i) => (
-                                        <p key={i} className={`text-xl leading-relaxed ${i === 0 ? "text-[#22c55e] font-bold drop-shadow-[0_0_15px_rgba(34,197,94,0.3)]" : "text-zinc-300"}`}>
-                                            {para}
-                                        </p>
-                                    ))}
-                                    {(!movie.description || movie.description.length === 0) && (
-                                        <p className="text-zinc-500 italic">No description available for this title.</p>
-                                    )}
+                                <div className="flex-1 space-y-6">
+                                    <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                                        Storyline
+                                    </h3>
+                                    <div className="prose prose-invert max-w-none">
+                                        {movie.description?.split(/\r?\n|\\n/).filter(p => p.trim() !== "").map((para, i) => (
+                                            <p key={i} className={`text-justify text-lg md:text-xl leading-[1.8] font-medium ${i === 0 ? "text-zinc-100 first-letter:text-5xl first-letter:font-black first-letter:text-primary first-letter:mr-3 first-letter:float-left" : "text-zinc-400"}`}>
+                                                {para}
+                                            </p>
+                                        ))}
+                                        {(!movie.description || movie.description.length === 0) && (
+                                            <p className="text-zinc-500 italic">No description available for this title.</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </section>
+
+                        {/* THEATER MODE PLAYER */}
+                        {movie.video_url && (
+                            <section id="movie-player" className="relative group perspective-1000">
+                                <div className="flex items-center justify-between mb-6 px-2">
+                                    <div className="flex flex-col">
+                                        <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-wider flex items-center gap-3">
+                                            <span className="w-1 h-6 bg-primary rounded-full" />
+                                            Main Feature
+                                        </h3>
+                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest pl-4 mt-1">
+                                            Cinematic Experience
+                                        </p>
+                                    </div>
+                                    <div className="hidden md:flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 border border-white/5 backdrop-blur-sm">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                                            Stream Ready
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                {/* Screen Container with Glow */}
+                                <div className="relative rounded-[2rem] bg-black p-1 ring-1 ring-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] cinematic-glow transition-all duration-500 md:group-hover:ring-primary/30">
+                                    <div className="overflow-hidden rounded-[1.8rem] bg-zinc-900 aspect-video relative z-10">
+                                        <VideoPlayer url={movie.video_url} title={movie.title} poster={movie.image_url || movie.image} />
+                                    </div>
+                                    
+                                    {/* Ambient Light Reflection */}
+                                    <div className="absolute -inset-1 bg-gradient-to-b from-primary/20 via-transparent to-transparent opacity-0 md:group-hover:opacity-100 blur-2xl transition-opacity duration-700 pointer-events-none" />
+                                </div>
+                            </section>
+                        )}
+
+                        {/* ADS SECTION - Moved to Bottom */}
+                        <div className="mt-8 space-y-6">
+                            <AdsterraBanner />
+                            <NativeAd />
+                        </div>
                     </motion.div>
                 )}
 
                 {activeTab === "trailer" && (
                     <motion.div 
                       key="trailer"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ type: "spring", bounce: 0.3 }}
                       className="space-y-8"
                     >
                         {movie.trailer ? (
-                            <div className="space-y-8">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-wider flex items-center gap-4">
-                                        <Video className="text-primary w-8 h-8" /> Official Trailer
+                            <div className="rounded-[2rem] overflow-hidden bg-black ring-1 ring-white/10">
+                                <div className="aspect-video relative">
+                                    <VideoPlayer url={movie.trailer} title={`${movie.title} Trailer`} autoPlay={true} />
+                                </div>
+                                <div className="p-6 bg-zinc-900/50">
+                                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                        <Video size={18} className="text-primary" /> Official Trailer
                                     </h3>
                                 </div>
-                                <div className="overflow-hidden rounded-[2.5rem] ring-1 ring-white/10 shadow-2xl bg-zinc-900 aspect-video">
-                                    <VideoPlayer 
-                                        url={movie.trailer} 
-                                        title={`${movie.title} Trailer`} 
-                                        autoPlay={true} 
-                                        poster={movie.backdrop_url || movie.image_url || movie.image} 
-                                    />
-                                </div>
-                                <AdsterraBanner />
                             </div>
                         ) : (
-                            <div className="flex min-h-[40vh] items-center justify-center rounded-3xl bg-white/5 border border-white/5 italic text-zinc-500">
-                                Trailer not available for this title.
+                            <div className="flex h-64 items-center justify-center rounded-3xl border border-dashed border-zinc-700 bg-zinc-900/30">
+                                <span className="text-zinc-500 font-bold uppercase tracking-widest">Trailer Unavailable</span>
                             </div>
                         )}
+                        <AdsterraBanner />
                     </motion.div>
                 )}
 
@@ -395,20 +454,20 @@ export default function MovieClient({ initialMovie, userId }) {
                       key="cast"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+                      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
                     >
                         {movie.cast_details?.map((actor, idx) => (
-                            <div key={idx} className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/5 p-3 transition-all hover:bg-white/10">
-                                <div className="relative aspect-square w-full overflow-hidden rounded-xl mb-3">
-                                    <Image
-                                        src={actor.image || "/placeholder-actor.jpg"}
-                                        alt={actor.name}
-                                        fill
-                                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
+                            <div key={idx} className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-white/10">
+                                <Image
+                                    src={actor.image || "/placeholder-actor.jpg"}
+                                    alt={actor.name}
+                                    fill
+                                    className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:grayscale-0 grayscale"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-4">
+                                    <p className="text-white font-bold leading-tight">{actor.name}</p>
+                                    <p className="text-[10px] text-primary font-bold uppercase tracking-wider mt-1">{actor.character}</p>
                                 </div>
-                                <p className="text-sm font-bold text-white line-clamp-1">{actor.name}</p>
-                                <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider line-clamp-1">{actor.character}</p>
                             </div>
                         ))}
                     </motion.div>
@@ -419,7 +478,7 @@ export default function MovieClient({ initialMovie, userId }) {
                       key="related"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4"
+                      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                     >
                         {relatedMovies.map((m) => (
                             <div 
@@ -434,11 +493,13 @@ export default function MovieClient({ initialMovie, userId }) {
                                         fill
                                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                                        <Play size={20} fill="white" className="text-white" />
+                                    {/* Glass Overlay on Hover */}
+                                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                        <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-100">
+                                            <Play size={20} fill="currentColor" className="ml-1" />
+                                        </div>
                                     </div>
                                 </div>
-                                <p className="text-sm font-bold text-white line-clamp-1 text-center group-hover:text-primary transition-colors">{m.title}</p>
                             </div>
                         ))}
                     </motion.div>
@@ -452,13 +513,14 @@ export default function MovieClient({ initialMovie, userId }) {
             </AnimatePresence>
           </div>
 
-          {/* Right Column: Sidebar Info */}
-          <div className="space-y-8">
+          {/* Right Column: Premium Sidebar (4 cols) */}
+          <div className="lg:col-span-4 space-y-8">
             
-            {/* Download/Action Card */}
-            <div className="rounded-3xl bg-gradient-to-b from-primary/20 to-transparent p-px">
-                <div className="rounded-[23px] bg-zinc-950 p-8 space-y-6">
-                    <h3 className="text-xl font-black text-white uppercase tracking-tighter">Actions</h3>
+            {/* Glassmorphic Actions Panel */}
+            <div className="rounded-[2.5rem] bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-1 relative overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+                <div className="bg-black/40 rounded-[2.3rem] p-6 md:p-8 space-y-6 relative z-10">
+                    <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] text-center mb-2">Controls</h3>
                     <div className="space-y-3">
                         <CinematicButton 
                             onClick={() => {
@@ -468,10 +530,10 @@ export default function MovieClient({ initialMovie, userId }) {
                             icon={Download}
                             variant="primary"
                             triggerAd={true}
-                            className="w-full"
+                            className="w-full h-14 text-sm"
                             isLoading={isDownloadLoading}
                         >
-                            Download Now
+                            Download Movie
                         </CinematicButton>
                         <CinematicButton 
                             onClick={() => {
@@ -479,52 +541,75 @@ export default function MovieClient({ initialMovie, userId }) {
                                     navigator.share({ title: movie.title, url: window.location.href });
                                 } else {
                                     navigator.clipboard.writeText(window.location.href);
-                                    alert("Link copied to clipboard!");
+                                    alert("Link copied!");
                                 }
                             }}
                             icon={Share2}
                             variant="secondary"
-                            className="w-full"
+                            className="w-full h-14 text-sm"
                         >
-                            Share Movie
+                            Share Title
                         </CinematicButton>
                     </div>
                 </div>
             </div>
 
-            {/* Quick Details Card */}
-            <div className="rounded-3xl border border-white/5 bg-white/5 p-8 space-y-6 backdrop-blur-md">
-                <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest border-b border-white/5 pb-4">Movie Details</h3>
-                <div className="space-y-6">
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Director</span>
-                        <span className="text-white font-bold text-lg">{movie.director || "TBA"}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Country</span>
-                        <span className="text-white font-bold text-lg">{movie.country || "TBA"}</span>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Genre</span>
-                        <div className="flex flex-wrap gap-2 pt-1">
+            {/* Movie Info Visualizer */}
+            <div className="space-y-6 pl-2">
+                <h3 className="text-xl font-black text-white uppercase tracking-tighter">Details</h3>
+                
+                <div className="grid grid-cols-1 gap-4">
+                     {/* Detail Item */}
+                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                            <User size={18} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Director</p>
+                            <p className="text-sm font-bold text-white">{movie.director || "Unknown"}</p>
+                        </div>
+                     </div>
+
+                     <div className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors group">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                            <Globe size={18} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Country</p>
+                            <p className="text-sm font-bold text-white">{movie.country || "International"}</p>
+                        </div>
+                     </div>
+
+                     <div className="p-5 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                             <TrendingUp size={12} /> Genres
+                        </p>
+                        <div className="flex flex-wrap gap-2">
                             {movie.category?.split(',').map((cat, i) => (
-                                <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-bold text-zinc-300">
+                                <span key={i} className="px-3 py-1.5 bg-black/40 border border-white/10 rounded-lg text-[11px] font-bold text-zinc-300 hover:text-white hover:border-primary/50 transition-all cursor-default">
                                     {cat.trim()}
                                 </span>
                             ))}
                         </div>
-                    </div>
+                     </div>
                 </div>
             </div>
 
-            {/* Posters Slider */}
+            {/* Mini Posters Gallery */}
             {tmdbImages.posters.length > 0 && (
-                <div className="space-y-4">
-                    <h3 className="text-sm font-black text-zinc-500 uppercase tracking-widest px-2">Official Posters</h3>
-                    <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
-                        {tmdbImages.posters.slice(0, 5).map((poster, i) => (
-                            <div key={i} className="relative aspect-[2/3] w-40 flex-shrink-0 overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-xl group cursor-pointer" onClick={() => setSelectedImage(poster)}>
-                                <Image src={poster} alt="Poster" fill className="object-cover transition-transform group-hover:scale-110" />
+                <div className="space-y-4 pt-4">
+                    <div className="flex items-center justify-between px-2">
+                        <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Gallery</h3>
+                        <span className="text-[10px] font-bold text-primary">{tmdbImages.posters.length} Images</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                        {tmdbImages.posters.slice(0, 6).map((poster, i) => (
+                            <div 
+                                key={i} 
+                                className="relative aspect-[2/3] overflow-hidden rounded-xl cursor-zoom-in ring-1 ring-white/10 hover:ring-primary/50 transition-all" 
+                                onClick={() => setSelectedImage(poster)}
+                            >
+                                <Image src={poster} alt="Gallery" fill className="object-cover hover:scale-110 transition-transform duration-500" />
                             </div>
                         ))}
                     </div>
