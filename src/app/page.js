@@ -24,17 +24,21 @@ export default async function Home({ searchParams }) {
     );
   }
 
+  // Start fetching critical data in parallel
+  const heroDataPromise = HeroSection();
+  const recentDataPromise = RecentSection();
+
   return (
     <main className="min-h-screen bg-background">
       {/* 1. Hero Section (Priority) */}
       <Suspense fallback={<HeroSkeleton />}>
-        <HeroSection />
+        {heroDataPromise}
       </Suspense>
 
       <div className="container-custom relative z-10 space-y-8 pb-28 md:space-y-20 pt-8 md:pt-12">
         {/* 2. Content Sections (Streamed) */}
         <Suspense fallback={<SectionSkeleton title="Recently Added" />}>
-          <RecentSection />
+          {recentDataPromise}
         </Suspense>
         
         <AdsterraBanner />
@@ -73,6 +77,19 @@ export default async function Home({ searchParams }) {
 
 // --- Helper Components for Streaming ---
 
+const getMovies = cache(async (options = {}) => {
+  const supabase = await createClient();
+  let query = supabase.from("movies")
+    .select("id, title, year, category, type, rating, image_url, backdrop_url, description, language, actors");
+  
+  if (options.type) query = query.eq("type", options.type);
+  if (options.orderBy) query = query.order(options.orderBy, { ascending: options.ascending ?? false });
+  if (options.limit) query = query.limit(options.limit);
+  
+  const { data } = await query;
+  return data || [];
+});
+
 const getAuthAndWatchlist = cache(async () => {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -94,33 +111,18 @@ function enrich(list, episodeMap = {}, type = null) {
 }
 
 async function HeroSection() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, imdb_rating, image_url, backdrop_url, description, language, actors")
-    .order("created_at", { ascending: false })
-    .limit(5);
-
-  return <Hero featuredMovies={data || []} />;
+  const data = await getMovies({ limit: 5, orderBy: "created_at" });
+  return <Hero featuredMovies={data} />;
 }
 
 async function RecentSection() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
-    .order("created_at", { ascending: false })
-    .limit(8);
-
+  const data = await getMovies({ limit: 8, orderBy: "created_at" });
   return <FilmSection title="Recently Added" movies={enrich(data)} href="/movies?sort=latest" isPriority={true} />;
 }
 
 async function TrendingSection() {
-  const supabase = await createClient();
-  const { data } = await supabase.from("movies")
-    .select("id, title, year, category, type, rating, image_url, backdrop_url, language")
-    .order("rating", { ascending: false })
-    .limit(8);
-
-  return <FilmSection title="Trending Now" movies={enrich(data)} href="/movies?sort=rating" />;
+  const data = await getMovies({ limit: 8, orderBy: "rating" });
+  return <FilmSection title="Trending Now" movies={enrich(data)} href="/movies?sort=rating" isPriority={true} />;
 }
 
 async function UpcomingSection() {
@@ -232,11 +234,15 @@ function SectionSkeleton({ title }) {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <div className="h-10 w-48 animate-pulse rounded-lg bg-zinc-900" />
+        <div className="h-8 w-48 animate-pulse rounded-lg bg-zinc-800/50" />
+        <div className="h-8 w-24 animate-pulse rounded-full bg-zinc-800/50" />
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+      {/* Exact match to FilmSection mobile horizontal layout */}
+      <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-4 -mx-4 md:grid md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 md:gap-4 md:overflow-visible md:pb-0 md:px-0 md:mx-0 snap-x snap-mandatory no-scrollbar">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((j) => (
-          <MovieSkeleton key={j} />
+          <div key={j} className="min-w-[150px] sm:min-w-[180px] md:min-w-0 snap-start">
+            <MovieSkeleton />
+          </div>
         ))}
       </div>
     </div>

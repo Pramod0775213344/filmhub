@@ -20,7 +20,7 @@ export default function InitialLoader() {
     const timer = setTimeout(() => {
       setIsLoading(false);
       document.body.style.overflow = "unset";
-    }, 3200);
+    }, 1800);
 
     return () => {
       clearTimeout(timer);
@@ -104,7 +104,7 @@ export default function InitialLoader() {
                 <motion.div 
                   initial={{ x: "-100%" }}
                   animate={{ x: "0%" }}
-                  transition={{ duration: 2.8, ease: [0.65, 0, 0.35, 1] }}
+                  transition={{ duration: 1.5, ease: [0.65, 0, 0.35, 1] }}
                   className="absolute inset-0 bg-[#e50914] shadow-[0_0_15px_rgba(229,9,20,0.8)]"
                 />
              </div>

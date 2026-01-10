@@ -248,25 +248,9 @@ export default function Hero({ featuredMovies }) {
           </div>
         </div>
       </div>
-
+      
       {/* Cinematic Vignette Overrides */}
       <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-[#050505] to-transparent pointer-events-none z-20" />
-      
-      <style jsx>{`
-        .vertical-text {
-          writing-mode: vertical-rl;
-          text-orientation: mixed;
-        }
-        @keyframes timer-bar {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
-        .animate-timer-bar {
-          animation-name: timer-bar;
-          animation-timing-function: linear;
-          animation-fill-mode: forwards;
-        }
-      `}</style>
     </section>
   );
 }

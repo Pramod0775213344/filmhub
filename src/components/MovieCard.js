@@ -25,6 +25,10 @@ function MovieCard({ movie, priority = false }) {
         className="aspect-[2/3] w-full overflow-hidden rounded-2xl bg-zinc-900 shadow-xl ring-1 ring-white/10 relative transition-all duration-500 md:group-hover:shadow-[0_0_30px_rgba(229,9,20,0.3)] md:group-hover:ring-primary/50" 
         style={{ aspectRatio: '2/3' }}
       >
+        {/* Loader Shimmer Effect inside the card */}
+        <div className="absolute inset-0 bg-zinc-800 animate-pulse">
+           <div className="absolute inset-0 -translate-x-full animate-[shimmer_2.5s_infinite] bg-gradient-to-r from-transparent via-white/[0.03] to-transparent" />
+        </div>
         <Image
           src={optimizedUrl}
           alt={movie.title || "Movie Card"}

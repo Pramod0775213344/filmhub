@@ -1,7 +1,6 @@
 @import "tailwindcss";
 /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap'); */
 
-
 html {
   scroll-behavior: smooth;
 }
@@ -185,8 +184,8 @@ body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 /* Performance Optimizations for Mobile */
 @media (max-width: 768px) {
@@ -225,8 +224,24 @@ body {
   contain: content;
 } */
 
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
 
+@keyframes timer-bar {
+  from { width: 0%; }
+  to { width: 100%; }
+}
 
-/* Performance Optimizations - Removed global will-change to prevent flickering */
-@media (min-width: 769px) {
+.animate-timer-bar {
+  animation-name: timer-bar;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }
