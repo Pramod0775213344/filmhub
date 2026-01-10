@@ -139,7 +139,7 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
           src={`https://www.youtube.com/embed/${videoId}?autoplay=${autoPlay ? 1 : 0}&rel=0&modestbranding=1&playsinline=1`}
           className="absolute inset-0 w-full h-full border-0 pointer-events-auto"
           allowFullScreen
-          allow="autoplay; encrypted-media; picture-in-picture"
+          allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
           title={title}
         />
       </div>
@@ -162,7 +162,7 @@ export default function VideoPlayer({ url, title, autoPlay = false, poster = nul
           className="absolute inset-0 w-full h-full border-0 pointer-events-auto"
           scrolling="no"
           allowFullScreen
-          allow="autoplay; encrypted-media; picture-in-picture; web-share"
+          allow="autoplay; fullscreen; encrypted-media; picture-in-picture; web-share"
           onLoad={() => setLoading(false)}
           referrerPolicy="origin"
           title={title}
