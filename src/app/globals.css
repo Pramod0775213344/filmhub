@@ -66,29 +66,22 @@ body {
   --plyr-menu-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Global Transition for Interactive Elements - Smooth without JS */
+/* Global Transition for Interactive Elements */
 a, button, input, select, textarea {
-  transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, opacity 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* GPU-optimized layer for animated elements */
-.will-change-gpu {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* Prevent paint flickering on animated containers */
-[class*="motion"],
-[class*="animate"] {
-  contain: layout style;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* Smooth image loading transition */
+/* Fix for Image Layout Shift | aspect-ratio containers handle CLS better */
 img {
-  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  content-visibility: auto;
+  transition: opacity 0.3s ease;
+  height: auto; /* Fix for potential shift */
+}
+
+/* Performance: Hardware accelerate scrollable containers on mobile */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  will-change: transform;
 }
 
 /* ===== PREMIUM SMOOTH ANIMATIONS ===== */
