@@ -2,7 +2,8 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap'); */
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto !important;
+  height: auto;
 }
 
 :root {
@@ -33,12 +34,117 @@ body {
   overflow-x: hidden;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
   /* Plyr Theme Overrides */
   --plyr-color-main: #e50914;
   --plyr-video-background: #020202;
   --plyr-menu-background: #111;
   --plyr-menu-color: #fff;
   --plyr-menu-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Global Transition for Interactive Elements - Smooth without JS */
+a, button, input, select, textarea {
+  transition: color 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, opacity 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* GPU-optimized layer for animated elements */
+.will-change-gpu {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Prevent paint flickering on animated containers */
+[class*="motion"],
+[class*="animate"] {
+  contain: layout style;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Smooth image loading transition */
+img {
+  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== PREMIUM SMOOTH ANIMATIONS ===== */
+
+/* Fade In Up Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade In Scale Animation */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Smooth Pulse Glow */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(229, 9, 20, 0.5);
+  }
+}
+
+/* Animation Classes */
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+/* Staggered Animation Delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* Smooth Hover Effects for Cards */
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Smooth Scale on Hover */
+.hover-scale {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
 }
 
 .plyr--video {
@@ -244,4 +350,44 @@ body {
   100% {
     transform: translateX(100%);
   }
+}
+
+/* ===== ANTI-FLICKER PERFORMANCE OPTIMIZATIONS ===== */
+
+/* Prevent flicker on all animated elements */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Force GPU compositing for smooth animations */
+.group,
+section,
+nav,
+header,
+main,
+footer {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Specific fix for framer-motion animated elements */
+[style*="transform"],
+[style*="opacity"] {
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+/* Stable fixed position elements */
+.fixed {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Smooth scroll anchor behavior */
+:target {
+  scroll-margin-top: 100px;
 }

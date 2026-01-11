@@ -2,7 +2,6 @@
 
 import { memo } from "react";
 import { Play, Star } from "lucide-react";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { slugify } from "@/utils/slugify";
@@ -19,10 +18,10 @@ function MovieCard({ movie, priority = false }) {
   const optimizedUrl = imageUrl.includes('tmdb.org') ? imageUrl.replace('/w500/', '/w342/') : imageUrl;
 
   const cardContent = (
-    <div className="group relative w-full cursor-pointer touch-manipulation">
+    <div className="group relative w-full cursor-pointer touch-manipulation hover-lift">
       {/* Main Poster Container */}
       <div 
-        className="aspect-[2/3] w-full overflow-hidden rounded-2xl bg-zinc-900 shadow-xl ring-1 ring-white/10 relative transition-all duration-500 md:group-hover:shadow-[0_0_30px_rgba(229,9,20,0.3)] md:group-hover:ring-primary/50" 
+        className="aspect-[2/3] w-full overflow-hidden rounded-2xl bg-zinc-900 shadow-xl ring-1 ring-white/10 relative transition-all duration-500 md:group-hover:shadow-[0_0_30px_rgba(229,9,20,0.3)] md:group-hover:ring-primary/50 will-change-transform" 
         style={{ aspectRatio: '2/3' }}
       >
         {/* Loader Shimmer Effect inside the card */}
@@ -115,14 +114,7 @@ function MovieCard({ movie, priority = false }) {
       }
       className="block"
     >
-      <motion.div
-        className="w-full"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-      >
-        {cardContent}
-      </motion.div>
+      {cardContent}
     </Link>
   );
 }

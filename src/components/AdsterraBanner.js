@@ -4,10 +4,18 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AdsterraBanner() {
-  const [isAdmin, setIsAdmin] = useState(false);
+  // Shared state to avoid multiple session checks
+  const [isAdmin, setIsAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if we already have the result in the window object (simple client-side cache)
+    if (window._isAdminStatus !== undefined) {
+      setIsAdmin(window._isAdminStatus);
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
     
     const checkUser = async () => {
@@ -15,9 +23,12 @@ export default function AdsterraBanner() {
         const { data: { session } } = await supabase.auth.getSession();
         const userEmail = session?.user?.email;
         const adminEmails = ["admin@gmail.com", "pramodravishanka3344@gmail.com"];
-        setIsAdmin(userEmail && adminEmails.includes(userEmail));
+        const status = !!(userEmail && adminEmails.includes(userEmail));
+        window._isAdminStatus = status;
+        setIsAdmin(status);
       } catch (error) {
         console.error("Error checking ad status:", error);
+        setIsAdmin(false);
       } finally {
         setLoading(false);
       }

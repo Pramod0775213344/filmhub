@@ -31,7 +31,11 @@ export default function FilmSection({ title, movies, href, isGrid = false, isPri
 
         <div className={containerClasses}>
           {movies.map((movie, index) => (
-            <div key={movie.id} className={isGrid ? "" : "min-w-[150px] sm:min-w-[180px] md:min-w-0 snap-start"}>
+            <div 
+              key={movie.id} 
+              className={`${isGrid ? "" : "min-w-[150px] sm:min-w-[180px] md:min-w-0 snap-start"} animate-fade-in-up`}
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
               <MovieCard movie={movie} priority={isPriority && index < 4} />
             </div>
           ))}

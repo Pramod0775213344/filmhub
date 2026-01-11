@@ -14,18 +14,27 @@ export default function AdManager() {
   useEffect(() => {
     const supabase = createClient();
     
-    const checkUser = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setUserEmail(session?.user?.email);
-      } catch (error) {
-        console.error("Error checking ad status:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Shared check similar to AdsterraBanner
+    if (window._isAdminStatus !== undefined) {
+      setUserEmail(window._isAdminStatus ? "admin@gmail.com" : null); 
+      setLoading(false);
+    } else {
+      const checkUser = async () => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const email = session?.user?.email;
+          const adminEmails = ["admin@gmail.com", "pramodravishanka3344@gmail.com"];
+          window._isAdminStatus = !!(email && adminEmails.includes(email));
+          setUserEmail(email);
+        } catch (error) {
+          console.error("Error checking ad status:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    checkUser();
+      checkUser();
+    }
 
     // Delay aggressive ads (Social Bar, etc.) by 5 seconds for better UX
     const adTimer = setTimeout(() => {

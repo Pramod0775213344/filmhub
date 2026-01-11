@@ -35,6 +35,10 @@ const nextConfig = {
     buildActivity: false,
   },
   reactCompiler: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion"],
+    scrollRestoration: true,
+  },
   // Build trigger: v1.0.1
   headers: async () => [
     {

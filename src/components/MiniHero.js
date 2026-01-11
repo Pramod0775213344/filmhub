@@ -10,27 +10,41 @@ import { createClient } from "@/utils/supabase/client";
 export default function MiniHero() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [backgrounds, setBackgrounds] = useState([]);
+  const [backgrounds, setBackgrounds] = useState(() => {
+    if (typeof window !== 'undefined' && window._miniHeroBackgrounds?.length > 0) {
+      return window._miniHeroBackgrounds;
+    }
+    return [];
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
   const supabase = createClient();
 
   useEffect(() => {
-    const fetchBackgrounds = async () => {
-      const { data } = await supabase
-        .from("movies")
-        .select("backdrop_url, image_url")
-        .order("rating", { ascending: false })
-        .limit(8);
+    if (backgrounds.length > 0) return;
 
-      const fetchedBgs = data?.map(m => m.backdrop_url || m.image_url).filter(Boolean) || [];
-      if (fetchedBgs.length > 0) {
-        setBackgrounds(fetchedBgs);
-      } else {
-        setBackgrounds(["https://images.unsplash.com/photo-1440404653325-ab127d49abc1"]);
+    const fetchBackgrounds = async () => {
+      try {
+        const { data } = await supabase
+          .from("movies")
+          .select("backdrop_url, image_url")
+          .order("rating", { ascending: false })
+          .limit(8);
+
+        const fetchedBgs = data?.map(m => m.backdrop_url || m.image_url).filter(Boolean) || [];
+        if (fetchedBgs.length > 0) {
+          window._miniHeroBackgrounds = fetchedBgs;
+          setBackgrounds(fetchedBgs);
+        } else {
+          const fallback = ["https://images.unsplash.com/photo-1440404653325-ab127d49abc1"];
+          window._miniHeroBackgrounds = fallback;
+          setBackgrounds(fallback);
+        }
+      } catch (error) {
+        console.error("MiniHero fetch error:", error);
       }
     };
     fetchBackgrounds();
-  }, [pathname]);
+  }, [supabase]);
 
   useEffect(() => {
     if (backgrounds.length <= 1) return;

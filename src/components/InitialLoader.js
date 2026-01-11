@@ -20,7 +20,7 @@ export default function InitialLoader() {
     const timer = setTimeout(() => {
       setIsLoading(false);
       document.body.style.overflow = "unset";
-    }, 1800);
+    }, 800);
 
     return () => {
       clearTimeout(timer);
@@ -33,15 +33,17 @@ export default function InitialLoader() {
       {isLoading && (
         <motion.div
           key="loader-root"
-          // We use 'fixed inset-0' and a high z-index to cover everything.
-          // IMPORTANT: This div will now exist in the HTML sent from the server.
           className="fixed inset-0 z-[1000000] flex flex-col items-center justify-center bg-[#050505] overflow-hidden"
           initial={{ opacity: 1 }}
           exit={{ 
             opacity: 0,
-            transition: { duration: 0.8, ease: [0.7, 0, 0.3, 1] } 
+            transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] } 
           }}
-          style={{ willChange: "opacity" }}
+          style={{ 
+            backfaceVisibility: 'hidden', 
+            WebkitBackfaceVisibility: 'hidden',
+            willChange: 'opacity' 
+          }}
         >
           {/* 1. ATMOSPHERIC BACKDROP */}
           <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">

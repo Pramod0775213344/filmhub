@@ -60,11 +60,12 @@ export default function Hero({ featuredMovies }) {
       <AnimatePresence mode="wait">
         <motion.div
           key={`backdrop-${movie.id}`}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 1.2, ease: [0.7, 0, 0.3, 1] }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className="absolute inset-0 z-0"
+          style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
         >
           <Image 
             src={movie.backdrop_url || movie.image_url} 
@@ -91,11 +92,12 @@ export default function Hero({ featuredMovies }) {
             <AnimatePresence mode="wait">
               <motion.div
                 key={`info-${movie.id}`}
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 30 }}
-                transition={{ duration: 0.8, ease: "circOut" }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
                 className="space-y-4 lg:space-y-8"
+                style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
               >
                 {/* Badge Group */}
                 <div className="flex items-center gap-3">
@@ -116,9 +118,13 @@ export default function Hero({ featuredMovies }) {
                     <motion.span 
                       key={i} 
                       className="inline-block mr-[1rem]"
-                      initial={{ opacity: 0, y: 30 }}
+                      initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 + 0.3 }}
+                      transition={{ 
+                        delay: i * 0.08 + 0.2,
+                        duration: 0.5,
+                        ease: [0.4, 0, 0.2, 1]
+                      }}
                     >
                       {word}
                     </motion.span>
@@ -213,6 +219,7 @@ export default function Hero({ featuredMovies }) {
                       fill 
                       className="object-cover"
                       sizes="300px"
+                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-black/20" />
                     {current === i && (

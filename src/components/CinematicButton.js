@@ -23,12 +23,12 @@ export default function CinematicButton({
 }) {
   const { isMobile, isHydrated } = useAdaptive();
   const mobileView = isMobile && isHydrated;
-  const baseStyles = "group relative px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl overflow-hidden transition-all flex items-center justify-center gap-3 md:gap-4 text-[10px] md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.3em] disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseStyles = "group relative px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl overflow-hidden transition-all duration-300 ease-out flex items-center justify-center gap-3 md:gap-4 text-[10px] md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.3em] disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-primary text-white shadow-[0_10px_20px_rgba(229,9,20,0.2)] md:shadow-[0_20px_40px_rgba(229,9,20,0.3)] hover:scale-105 active:scale-95",
-    secondary: "bg-white/5 border border-white/10 text-white backdrop-blur-xl hover:bg-white/10 hover:border-white/20 hover:scale-105 active:scale-95",
-    outline: "bg-transparent border-2 border-white/10 text-white hover:bg-white hover:text-black hover:border-white transition-all active:scale-95"
+    primary: "bg-primary text-white shadow-[0_10px_20px_rgba(229,9,20,0.2)] md:shadow-[0_20px_40px_rgba(229,9,20,0.3)] hover:shadow-[0_15px_30px_rgba(229,9,20,0.4)] hover:scale-[1.03] active:scale-[0.98]",
+    secondary: "bg-white/5 border border-white/10 text-white backdrop-blur-xl hover:bg-white/10 hover:border-white/20 hover:scale-[1.03] active:scale-[0.98]",
+    outline: "bg-transparent border-2 border-white/10 text-white hover:bg-white hover:text-black hover:border-white active:scale-[0.98]"
   };
 
   const content = (
