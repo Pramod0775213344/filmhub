@@ -36,10 +36,11 @@ export default function AdManager() {
       checkUser();
     }
 
-    // Delay aggressive ads (Social Bar, etc.) by 5 seconds for better UX
+    // Delay aggressive ads (Social Bar, etc.) by 15 seconds on mobile, 5s on desktop for better UX
+    const isMobileDevice = window.matchMedia("(max-width: 768px)").matches;
     const adTimer = setTimeout(() => {
       setShowAggressiveAds(true);
-    }, 5000);
+    }, isMobileDevice ? 15000 : 5000);
 
     // Listen for auth changes to update ad status immediately
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {

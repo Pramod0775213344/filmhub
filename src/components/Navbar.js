@@ -701,7 +701,7 @@ export default function Navbar() {
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white/5 mx-2 mb-2 rounded-2xl">
                               <div className="grid grid-cols-2 gap-px bg-white/5">
                                 {["Action", "Adventure", "Comedy", "Drama", "Horror", "Sci-Fi", "Thriller", "Romance", "Animation", "Documentary"].map(cat => (
-                                  <Link key={cat} href={`/category/${slugify(cat)}`} onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-[11px] font-bold text-zinc-400 hover:text-white bg-black/40 text-center uppercase tracking-wider">{cat}</Link>
+                                  <Link key={cat} href={`/category/${slugify(cat)}`} onClick={() => setIsMobileMenuOpen(false)} prefetch={false} className="px-4 py-3 text-[11px] font-bold text-zinc-400 hover:text-white bg-black/40 text-center uppercase tracking-wider">{cat}</Link>
                                 ))}
                               </div>
                             </motion.div>
@@ -725,7 +725,7 @@ export default function Navbar() {
                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-white/5 mx-2 mb-2 rounded-2xl">
                               <div className="grid grid-cols-2 gap-px bg-white/5">
                                 {["Sinhala", "Tamil", "English", "Hindi", "Korean", "Malayalam", "Telugu"].map(lang => (
-                                  <Link key={lang} href={`/language/${slugify(lang)}`} onClick={() => setIsMobileMenuOpen(false)} className="px-4 py-3 text-[11px] font-bold text-zinc-400 hover:text-white bg-black/40 text-center uppercase tracking-wider">{lang}</Link>
+                                  <Link key={lang} href={`/language/${slugify(lang)}`} onClick={() => setIsMobileMenuOpen(false)} prefetch={false} className="px-4 py-3 text-[11px] font-bold text-zinc-400 hover:text-white bg-black/40 text-center uppercase tracking-wider">{lang}</Link>
                                 ))}
                               </div>
                             </motion.div>

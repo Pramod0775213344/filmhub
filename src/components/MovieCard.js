@@ -20,7 +20,7 @@ function MovieCard({ movie, priority = false }) {
   
   // High optimization: Use smaller images for cards on mobile
   const optimizedUrl = imageUrl.includes('tmdb.org') 
-    ? imageUrl.replace('/w500/', isMobile ? '/w185/' : '/w342/') 
+    ? imageUrl.replace('/w500/', isMobile ? '/w342/' : '/w342/') 
     : imageUrl;
 
   const cardContent = (

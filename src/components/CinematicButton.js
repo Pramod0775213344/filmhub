@@ -66,7 +66,10 @@ export default function CinematicButton({
     return (
       <Link 
         href={href}
-        onClick={triggerAd ? handleAdClick : undefined}
+        onClick={(e) => {
+          if (triggerAd) handleAdClick();
+          if (onClick) onClick(e);
+        }}
         className={`${baseStyles} ${variants[variant]} ${className}`}
       >
         {content}
