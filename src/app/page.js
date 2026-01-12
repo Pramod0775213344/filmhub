@@ -236,24 +236,26 @@ function HeroSkeleton() {
 
 function SectionSkeleton({ title }) {
   return (
-    <div className="space-y-8">
+    <section className="space-y-8">
       <div className="flex items-center justify-between">
-        <div className="h-8 w-48 animate-pulse rounded-lg bg-zinc-800/50" />
-        <div className="h-8 w-24 animate-pulse rounded-full bg-zinc-800/50" />
+        <div className="h-8 w-48 animate-pulse rounded-lg bg-zinc-800/40" />
+        <div className="h-8 w-24 animate-pulse rounded-full bg-zinc-800/40" />
       </div>
       {/* Precision Skeleton Grid to match FilmSection perfectly */}
       <div className="flex gap-4 overflow-x-auto pb-6 pt-2 px-4 -mx-4 md:grid md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 md:gap-4 md:overflow-visible md:pb-0 md:px-0 md:mx-0 no-scrollbar">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((j) => (
           <div key={j} className="min-w-[150px] sm:min-w-[180px] md:min-w-0">
             <div className="space-y-3">
-              <div className="aspect-[2/3] w-full rounded-xl bg-zinc-800/50 animate-pulse" />
-              <div className="h-4 w-3/4 bg-zinc-800/50 rounded animate-pulse" />
-              <div className="h-3 w-1/2 bg-zinc-800/50 rounded animate-pulse" />
+              <div className="aspect-[2/3] w-full rounded-xl bg-zinc-800/40 animate-pulse" />
+              <div className="mt-3 px-1 space-y-1 min-h-[44px]">
+                <div className="h-4 w-3/4 bg-zinc-800/40 rounded animate-pulse" />
+                <div className="h-3 w-1/2 bg-zinc-800/40 rounded animate-pulse" />
+              </div>
             </div>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 

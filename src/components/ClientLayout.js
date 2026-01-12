@@ -32,7 +32,7 @@ export default function ClientLayout({ children }) {
           <Navbar />
         </Suspense>
       )}
-      <Suspense fallback={null}>
+      <Suspense fallback={<div className="h-[200px] md:h-[400px] w-full bg-[#020202] animate-pulse" />}>
         <MiniHero />
       </Suspense>
       {children}

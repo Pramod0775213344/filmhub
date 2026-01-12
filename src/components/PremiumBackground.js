@@ -2,14 +2,14 @@
 
 export default function PremiumBackground() {
   return (
-    <div className="fixed inset-0 -z-50 h-[100dvh] w-full overflow-hidden bg-[#020202] pointer-events-none">
+    <div className="fixed inset-0 -z-50 h-screen w-full overflow-hidden bg-[#020202] pointer-events-none">
       
-      {/* 1. Ambient Dynamic Glows (Top Left & Bottom Right) */}
-      <div className="absolute -top-[20%] -left-[10%] h-[50vh] w-[50vh] rounded-full bg-primary opacity-[0.04] blur-[100px] sm:blur-[180px]" />
-      <div className="absolute top-[40%] -right-[10%] h-[40vh] w-[40vh] rounded-full bg-blue-900 opacity-[0.06] blur-[100px] sm:blur-[160px]" />
+      {/* 1. Ambient Dynamic Glows (Top Left & Bottom Right) - Use fixed positioning for children to be extra safe */}
+      <div className="fixed -top-[20%] -left-[10%] h-[50vh] w-[50vh] rounded-full bg-primary opacity-[0.04] blur-[100px] sm:blur-[180px]" />
+      <div className="fixed top-[40%] -right-[10%] h-[40vh] w-[40vh] rounded-full bg-blue-900 opacity-[0.06] blur-[100px] sm:blur-[160px]" />
       
       {/* 2. Central Subtle Spotlight */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#020202_100%)] opacity-80" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_#020202_100%)] opacity-80" />
 
       {/* 3. Cinematic Film Grain (Optional - kept extremely subtle) */}
       <div 

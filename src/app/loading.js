@@ -35,7 +35,7 @@ export default function Loading() {
           className="flex flex-col items-center gap-3"
         >
           <h2 className="font-display text-2xl font-black tracking-tighter text-white">
-            FILM<span className="text-primary italic">HUB</span>
+            SUBHUB <span className="text-primary italic">SL</span>
           </h2>
           
           {/* Progress Bar */}

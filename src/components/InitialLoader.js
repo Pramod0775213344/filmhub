@@ -9,15 +9,13 @@ import { useState, useEffect } from "react";
  */
 export default function InitialLoader() {
   const [isLoading, setIsLoading] = useState(true);
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(true);
 
   useEffect(() => {
-    // Small delay to ensure text animates in correctly after mount and avoid sync setState
-    const readyTimer = setTimeout(() => setIsReady(true), 10);
-    
+    // Keep isReady true on mount to avoid hydration mismatch and show text instantly
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 900); // Slightly longer for premium feel
+    }, 900); 
 
     return () => clearTimeout(timer);
   }, []);
@@ -38,10 +36,10 @@ export default function InitialLoader() {
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          key="loader-root"
-          className="fixed inset-0 z-[1000000] flex flex-col items-center justify-center bg-[#050505]"
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.4 } }}
+           key="loader-root"
+           className="fixed inset-0 z-[1000000] flex flex-col items-center justify-center bg-[#050505]"
+           initial={{ opacity: 1 }}
+           exit={{ opacity: 0, transition: { duration: 0.4 } }}
         >
           {/* 1. ATMOSPHERIC BACKDROP */}
           <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -55,18 +53,16 @@ export default function InitialLoader() {
 
           {/* 2. LOGO ENGINE */}
           <div className="relative z-10 flex flex-col items-center gap-8 px-6 text-center">
-            {isReady && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="relative"
-              >
-                <h1 className="font-display text-5xl md:text-8xl font-black tracking-tighter text-white">
-                  SUBHUB <span className="text-primary" style={{ filter: "drop-shadow(0 0 15px rgba(229,9,20,0.5))" }}>SL</span>
-                </h1>
-              </motion.div>
-            )}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="relative"
+            >
+              <h1 className="font-display text-5xl md:text-8xl font-black tracking-tighter text-white">
+                SUBHUB <span className="text-primary" style={{ filter: "drop-shadow(0 0 15px rgba(229,9,20,0.5))" }}>SL</span>
+              </h1>
+            </motion.div>
 
             <motion.p
               initial={{ opacity: 0 }}

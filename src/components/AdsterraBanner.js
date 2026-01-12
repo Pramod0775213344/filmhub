@@ -4,12 +4,21 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AdsterraBanner() {
-  // Shared state to avoid multiple session checks
-  const [isAdmin, setIsAdmin] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Shared state to avoid multiple session checks - check window status instantly
+  const [isAdmin, setIsAdmin] = useState(() => {
+    if (typeof window !== 'undefined' && window._isAdminStatus !== undefined) {
+      return window._isAdminStatus;
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState(() => {
+    if (typeof window !== 'undefined' && window._isAdminStatus !== undefined) {
+      return false;
+    }
+    return true;
+  });
 
   useEffect(() => {
-    // Check if we already have the result in the window object (simple client-side cache)
     if (window._isAdminStatus !== undefined) {
       setIsAdmin(window._isAdminStatus);
       setLoading(false);
@@ -54,14 +63,15 @@ export default function AdsterraBanner() {
     </html>
   `;
 
+  // If we know it's an admin, don't reserve any space
   if (!loading && isAdmin) {
     return null;
   }
 
   return (
-    <div className="w-full">
+    <div className={`w-full transition-all duration-300 ${(!loading && isAdmin) ? "h-0 opacity-0" : "min-h-[60px]"}`}>
       {!loading && !isAdmin && (
-        <div className="flex flex-wrap justify-start gap-4 md:gap-8">
+        <div className="flex flex-wrap justify-start gap-4 md:gap-8 animate-in fade-in duration-500">
           <div className="relative w-[468px] h-[60px] bg-zinc-900/5 rounded overflow-hidden">
             <iframe
               srcDoc={adHtml}
